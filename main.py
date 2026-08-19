@@ -1074,7 +1074,7 @@ def main():
 
         send_telegram(
             "🔍 No signal found.\n\n"
-            "Next scan: 15 minutes"
+            "Next scan: 5 minutes"
         )
 
         return
