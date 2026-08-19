@@ -20,28 +20,8 @@ SMA_PERIOD = 50
 EMA_FAST = 20
 EMA_SLOW = 200
 
-# ============================================================
-# RECENT BOS
-#
-# BOS must have happened within the latest 10
-# COMPLETED candles.
-#
-# Therefore:
-#
-# -1 = valid
-# -2 = valid
-# -3 = valid
-# ...
-# -10 = valid
-#
-# Older BOS = ignored
-# ============================================================
-
+# Recent BOS detection
 RECENT_BOS_CANDLES = 10
-
-# How far back we look to find swing points.
-# This is NOT the BOS age limit.
-SWING_LOOKBACK = 100
 
 TIMEFRAMES = {
     "15m": 900,
@@ -67,15 +47,10 @@ HEADERS = {
 def send_telegram(message):
 
     if not BOT_TOKEN or not CHAT_ID:
-
         print("Telegram secrets are missing.")
-
         return False
 
-    url = (
-        f"https://api.telegram.org/"
-        f"bot{BOT_TOKEN}/sendMessage"
-    )
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
     try:
 
@@ -93,20 +68,13 @@ def send_telegram(message):
         if response.status_code == 200:
 
             print("Telegram message sent.")
-
             return True
 
-        print(
-            "Telegram error:",
-            response.text,
-        )
+        print("Telegram error:", response.text)
 
     except Exception as e:
 
-        print(
-            "Telegram error:",
-            e,
-        )
+        print("Telegram error:", e)
 
     return False
 
@@ -196,7 +164,6 @@ def push_history():
         )
 
         if changed.returncode == 0:
-
             return
 
         subprocess.run(
@@ -217,9 +184,7 @@ def push_history():
             check=True,
         )
 
-        print(
-            "Signal history pushed to GitHub."
-        )
+        print("Signal history pushed to GitHub.")
 
     except Exception as e:
 
@@ -236,8 +201,7 @@ def push_history():
 def get_symbols():
 
     url = (
-        f"{GATE_URL}"
-        f"/futures/usdt/contracts"
+        f"{GATE_URL}/futures/usdt/contracts"
     )
 
     try:
@@ -302,8 +266,7 @@ def get_candles(
 ):
 
     url = (
-        f"{GATE_URL}"
-        f"/futures/usdt/candlesticks"
+        f"{GATE_URL}/futures/usdt/candlesticks"
     )
 
     params = {
@@ -351,9 +314,7 @@ def get_candles(
             if attempt == 2:
 
                 print(
-                    f"{symbol} "
-                    f"{timeframe}: "
-                    f"{e}"
+                    f"{symbol} {timeframe}: {e}"
                 )
 
                 return []
@@ -383,46 +344,24 @@ def parse_candles(data):
             ):
 
                 candle = {
-                    "time": int(
-                        item["t"]
-                    ),
-                    "open": float(
-                        item["o"]
-                    ),
-                    "high": float(
-                        item["h"]
-                    ),
-                    "low": float(
-                        item["l"]
-                    ),
-                    "close": float(
-                        item["c"]
-                    ),
+                    "time": int(item["t"]),
+                    "open": float(item["o"]),
+                    "high": float(item["h"]),
+                    "low": float(item["l"]),
+                    "close": float(item["c"]),
                 }
 
             else:
 
                 candle = {
-                    "time": int(
-                        item[0]
-                    ),
-                    "open": float(
-                        item[5]
-                    ),
-                    "high": float(
-                        item[3]
-                    ),
-                    "low": float(
-                        item[4]
-                    ),
-                    "close": float(
-                        item[2]
-                    ),
+                    "time": int(item[0]),
+                    "open": float(item[5]),
+                    "high": float(item[3]),
+                    "low": float(item[4]),
+                    "close": float(item[2]),
                 }
 
-            candles.append(
-                candle
-            )
+            candles.append(candle)
 
         except Exception:
 
@@ -444,18 +383,14 @@ def remove_open_candle(
     timeframe_seconds,
 ):
 
-    now = int(
-        time.time()
-    )
+    now = int(time.time())
 
     return [
         candle
         for candle in candles
-        if (
-            candle["time"]
-            + timeframe_seconds
-            <= now
-        )
+        if candle["time"]
+        + timeframe_seconds
+        <= now
     ]
 
 
@@ -512,203 +447,118 @@ def calculate_ema(
 
 # ============================================================
 # RECENT BOS
-#
-# IMPORTANT:
-#
-# We do NOT require BOS to be the latest candle.
-#
-# We search for confirmed swing highs/lows and then find
-# the MOST RECENT candle that CLOSED beyond the swing.
-#
-# Only BOS events from the latest 10 completed candles
-# are accepted.
-#
-# No fixed 20-candle structure window.
 # ============================================================
 
-def find_structure_break(candles):
+def find_recent_bos(candles):
 
-    if len(candles) < (
-        EMA_SLOW + 10
-    ):
+    if len(candles) < 10:
 
         return None
 
     # --------------------------------------------------------
-    # We only care about BOS events that occurred recently.
+    # Use only the recent completed candles.
+    #
+    # The latest candle is allowed to be the BOS candle.
+    # We do NOT require BOS to be candles[-1].
     # --------------------------------------------------------
 
-    latest_index = len(candles) - 1
+    window = candles[
+        -RECENT_BOS_CANDLES:
+    ]
 
-    earliest_bos_index = max(
-        0,
-        latest_index
-        - RECENT_BOS_CANDLES
-        + 1,
-    )
-
-    long_bos = None
-    short_bos = None
-
-    # --------------------------------------------------------
-    # Search swing points through the available history.
-    # --------------------------------------------------------
-
-    start_index = max(
-        2,
-        len(candles)
-        - SWING_LOOKBACK,
-    )
-
-    end_index = (
-        len(candles) - 2
-    )
+    candidates = []
 
     # ========================================================
     # LONG BOS
     # ========================================================
 
     for i in range(
-        start_index,
-        end_index,
+        1,
+        len(window) - 1,
     ):
 
         swing_high = (
-            candles[i]["high"]
+            window[i]["high"]
         )
 
         # Confirm swing high
         if not (
             swing_high
-            > candles[i - 1]["high"]
+            > window[i - 1]["high"]
             and
             swing_high
-            > candles[i + 1]["high"]
+            > window[i + 1]["high"]
         ):
 
             continue
 
-        # ----------------------------------------------------
-        # Find the FIRST candle after the swing that closes
-        # above the swing high.
-        # ----------------------------------------------------
-
+        # Check all candles AFTER
+        # the confirmed swing high
         for j in range(
             i + 1,
-            len(candles),
+            len(window),
         ):
 
-            # BOS must be recent
-            if j < earliest_bos_index:
-
-                continue
-
             if (
-                candles[j]["close"]
+                window[j]["close"]
                 > swing_high
             ):
 
-                candidate = {
-                    "direction": "LONG",
-                    "candle": candles[j],
-                    "structure_level": swing_high,
-                }
-
-                # Keep the most recent LONG BOS
-                if (
-                    long_bos is None
-                    or
-                    candidate["candle"]["time"]
-                    >
-                    long_bos["candle"]["time"]
-                ):
-
-                    long_bos = candidate
-
-                # First break of this swing is enough
-                break
+                candidates.append(
+                    {
+                        "direction": "LONG",
+                        "candle": window[j],
+                        "structure_level": swing_high,
+                    }
+                )
 
     # ========================================================
     # SHORT BOS
     # ========================================================
 
     for i in range(
-        start_index,
-        end_index,
+        1,
+        len(window) - 1,
     ):
 
         swing_low = (
-            candles[i]["low"]
+            window[i]["low"]
         )
 
         # Confirm swing low
         if not (
             swing_low
-            < candles[i - 1]["low"]
+            < window[i - 1]["low"]
             and
             swing_low
-            < candles[i + 1]["low"]
+            < window[i + 1]["low"]
         ):
 
             continue
 
-        # ----------------------------------------------------
-        # Find the FIRST candle after the swing that closes
-        # below the swing low.
-        # ----------------------------------------------------
-
+        # Check all candles AFTER
+        # the confirmed swing low
         for j in range(
             i + 1,
-            len(candles),
+            len(window),
         ):
 
-            # BOS must be recent
-            if j < earliest_bos_index:
-
-                continue
-
             if (
-                candles[j]["close"]
+                window[j]["close"]
                 < swing_low
             ):
 
-                candidate = {
-                    "direction": "SHORT",
-                    "candle": candles[j],
-                    "structure_level": swing_low,
-                }
-
-                # Keep the most recent SHORT BOS
-                if (
-                    short_bos is None
-                    or
-                    candidate["candle"]["time"]
-                    >
-                    short_bos["candle"]["time"]
-                ):
-
-                    short_bos = candidate
-
-                # First break of this swing is enough
-                break
+                candidates.append(
+                    {
+                        "direction": "SHORT",
+                        "candle": window[j],
+                        "structure_level": swing_low,
+                    }
+                )
 
     # ========================================================
-    # SELECT MOST RECENT BOS
+    # SELECT THE MOST RECENT BOS
     # ========================================================
-
-    candidates = []
-
-    if long_bos is not None:
-
-        candidates.append(
-            long_bos
-        )
-
-    if short_bos is not None:
-
-        candidates.append(
-            short_bos
-        )
 
     if not candidates:
 
@@ -745,7 +595,9 @@ def analyze_timeframe(
     )
 
     if len(candles) < (
-        EMA_SLOW + 15
+        EMA_SLOW
+        + RECENT_BOS_CANDLES
+        + 5
     ):
 
         return None
@@ -754,10 +606,8 @@ def analyze_timeframe(
     # RECENT BOS
     # ========================================================
 
-    structure = (
-        find_structure_break(
-            candles
-        )
+    structure = find_recent_bos(
+        candles
     )
 
     if not structure:
@@ -815,11 +665,8 @@ def analyze_timeframe(
         return None
 
     gap = (
-        abs(
-            sma50 - ema200
-        )
-        /
-        abs(ema200)
+        abs(sma50 - ema200)
+        / abs(ema200)
     ) * 100
 
     if gap <= 10:
@@ -831,7 +678,7 @@ def analyze_timeframe(
     #
     # 50 SMA < PRICE < 200 EMA
     # 20 EMA < 50 SMA
-    # BOS LOW < 20 EMA
+    # SL < 20 EMA
     # ========================================================
 
     if direction == "LONG":
@@ -845,7 +692,8 @@ def analyze_timeframe(
             return None
 
         if not (
-            ema20 < sma50
+            ema20
+            < sma50
         ):
 
             return None
@@ -871,9 +719,7 @@ def analyze_timeframe(
             "sl": sl,
             "tp": ema200,
             "gap": gap,
-            "trigger_time": trigger[
-                "time"
-            ],
+            "trigger_time": trigger["time"],
         }
 
     # ========================================================
@@ -881,7 +727,7 @@ def analyze_timeframe(
     #
     # 200 EMA < PRICE < 50 SMA
     # 20 EMA > 50 SMA
-    # BOS HIGH > 20 EMA
+    # 200 EMA < 20 EMA < SL
     # ========================================================
 
     if direction == "SHORT":
@@ -895,7 +741,8 @@ def analyze_timeframe(
             return None
 
         if not (
-            ema20 > sma50
+            ema20
+            > sma50
         ):
 
             return None
@@ -921,9 +768,7 @@ def analyze_timeframe(
             "sl": sl,
             "tp": ema200,
             "gap": gap,
-            "trigger_time": trigger[
-                "time"
-            ],
+            "trigger_time": trigger["time"],
         }
 
     return None
@@ -956,49 +801,24 @@ def format_price(price):
 
 # ============================================================
 # FORMAT TELEGRAM MESSAGE
-#
-# TP1 = 5%
-# TP2 = 10%
-# TP3 = 200 EMA VALUE
-#
-# We do NOT write "EMA" in the alert.
-# We do NOT show the percentages.
 # ============================================================
 
 def format_signal(signal):
 
     symbol = signal["symbol"]
+    direction = signal["direction"]
+    timeframe = signal["timeframe"]
 
-    direction = signal[
-        "direction"
-    ]
-
-    timeframe = signal[
-        "timeframe"
-    ]
-
-    entry_price = signal[
-        "entry"
-    ]
-
-    sl_price = signal[
-        "sl"
-    ]
-
-    tp3_price = signal[
-        "tp"
-    ]
-
-    entry = format_price(
-        entry_price
-    )
-
-    sl = format_price(
-        sl_price
-    )
+    entry_price = signal["entry"]
+    sl_price = signal["sl"]
+    tp3_price = signal["tp"]
 
     # ========================================================
-    # TP1 / TP2
+    # TP1 = 5%
+    # TP2 = 10%
+    # TP3 = 200 EMA VALUE
+    #
+    # EMA 200 is intentionally NOT mentioned in alert.
     # ========================================================
 
     if direction == "LONG":
@@ -1020,6 +840,14 @@ def format_signal(signal):
         tp2_price = (
             entry_price * 0.90
         )
+
+    entry = format_price(
+        entry_price
+    )
+
+    sl = format_price(
+        sl_price
+    )
 
     tp1 = format_price(
         tp1_price
@@ -1067,31 +895,30 @@ def format_signal(signal):
 def main():
 
     print("=" * 50)
-
     print(
         "LONG + SHORT SIGNAL BOT"
     )
-
     print(
         "15M / 1H / 4H INDEPENDENT STRUCTURE"
     )
-
     print(
         "20 EMA / 50 SMA / 200 EMA"
     )
-
     print(
         "GAP > 10%"
     )
-
     print(
         "RECENT BOS: LAST 10 COMPLETED CANDLES"
     )
-
+    print(
+        "MOST RECENT BOS SELECTED"
+    )
+    print(
+        "TP1 5% / TP2 10% / TP3 EMA-BASED"
+    )
     print(
         "NO RSI"
     )
-
     print("=" * 50)
 
     history = load_history()
@@ -1146,13 +973,11 @@ def main():
     ) as executor:
 
         futures = {
-
             executor.submit(
                 analyze_timeframe,
                 symbol,
                 timeframe,
-            ):
-            (
+            ): (
                 symbol,
                 timeframe,
             )
@@ -1226,8 +1051,7 @@ def main():
     # ========================================================
 
     new_signals.sort(
-        key=lambda x:
-        x["gap"],
+        key=lambda x: x["gap"],
         reverse=True,
     )
 
