@@ -13,7 +13,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 GATE_URL = "https://api.gateio.ws/api/v4"
 
@@ -23,17 +22,20 @@ EMA_SLOW = 200
 
 STRUCTURE_CANDLES = 20
 
-TIMEFRAMES = ["15m", "1h", "4h"]
+TIMEFRAMES = {
+    "15m": 900,
+    "1h": 3600,
+    "4h": 14400,
+}
 
-CANDLE_LIMIT = 300
-
-MAX_WORKERS = 10
+CANDLE_LIMIT = 250
+MAX_WORKERS = 12
 
 HISTORY_FILE = "signals.json"
 
 HEADERS = {
     "User-Agent": "Long-Short-Signal-Bot/1.0",
-    "Accept": "application/json"
+    "Accept": "application/json",
 }
 
 
@@ -44,33 +46,28 @@ HEADERS = {
 def send_telegram(message):
 
     if not BOT_TOKEN or not CHAT_ID:
-        print("Telegram secrets missing.")
+        print("Telegram secrets are missing.")
         return False
 
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
     try:
-
         response = requests.post(
             url,
             data={
                 "chat_id": CHAT_ID,
                 "text": message,
                 "parse_mode": "Markdown",
-                "disable_web_page_preview": True
+                "disable_web_page_preview": True,
             },
-            timeout=20
+            timeout=20,
         )
 
         if response.status_code == 200:
             print("Telegram message sent.")
             return True
 
-        print(
-            "Telegram error:",
-            response.status_code,
-            response.text
-        )
+        print("Telegram error:", response.text)
 
     except Exception as e:
         print("Telegram error:", e)
@@ -79,58 +76,33 @@ def send_telegram(message):
 
 
 # ============================================================
-# HISTORY
+# SIGNAL HISTORY
 # ============================================================
 
 def load_history():
 
-    if not os.path.exists(HISTORY_FILE):
-        return set()
-
     try:
-
-        with open(
-            HISTORY_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
-            data = json.load(file)
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
 
         return set(data)
 
-    except Exception as e:
-
-        print("History read error:", e)
+    except Exception:
         return set()
 
 
 def save_history(history):
 
-    try:
-
-        with open(
-            HISTORY_FILE,
-            "w",
-            encoding="utf-8"
-        ) as file:
-
-            json.dump(
-                sorted(history),
-                file,
-                indent=2
-            )
-
-        return True
-
-    except Exception as e:
-
-        print("History save error:", e)
-        return False
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(
+            sorted(history),
+            f,
+            indent=2,
+        )
 
 
 # ============================================================
-# GITHUB SAVE
+# SAVE HISTORY TO GITHUB
 # ============================================================
 
 def push_history():
@@ -142,9 +114,9 @@ def push_history():
                 "git",
                 "config",
                 "user.name",
-                "github-actions[bot]"
+                "github-actions[bot]",
             ],
-            check=True
+            check=True,
         )
 
         subprocess.run(
@@ -152,31 +124,21 @@ def push_history():
                 "git",
                 "config",
                 "user.email",
-                "41898282+github-actions[bot]@users.noreply.github.com"
+                "41898282+github-actions[bot]@users.noreply.github.com",
             ],
-            check=True
+            check=True,
         )
 
         subprocess.run(
-            [
-                "git",
-                "add",
-                HISTORY_FILE
-            ],
-            check=True
+            ["git", "add", HISTORY_FILE],
+            check=True,
         )
 
-        result = subprocess.run(
-            [
-                "git",
-                "diff",
-                "--cached",
-                "--quiet"
-            ]
+        changed = subprocess.run(
+            ["git", "diff", "--cached", "--quiet"]
         )
 
-        # Nothing changed
-        if result.returncode == 0:
+        if changed.returncode == 0:
             return
 
         subprocess.run(
@@ -184,31 +146,24 @@ def push_history():
                 "git",
                 "commit",
                 "-m",
-                "Update signal history"
+                "Update signal history",
             ],
-            check=True
+            check=True,
         )
 
         subprocess.run(
-            [
-                "git",
-                "push"
-            ],
-            check=True
+            ["git", "push"],
+            check=True,
         )
 
-        print("Signal history saved to GitHub.")
+        print("Signal history pushed to GitHub.")
 
     except Exception as e:
-
-        print(
-            "GitHub history update error:",
-            e
-        )
+        print("History push error:", e)
 
 
 # ============================================================
-# GATE SYMBOLS
+# GET GATE.IO SYMBOLS
 # ============================================================
 
 def get_symbols():
@@ -220,11 +175,11 @@ def get_symbols():
         response = requests.get(
             url,
             headers=HEADERS,
-            timeout=30
+            timeout=30,
         )
 
         if response.status_code != 200:
-            print(response.text)
+            print("Symbol error:", response.text)
             return []
 
         data = response.json()
@@ -233,48 +188,34 @@ def get_symbols():
 
         for item in data:
 
-            if not isinstance(item, dict):
-                continue
-
             symbol = item.get("name", "")
 
             if (
                 symbol.endswith("_USDT")
-                and not item.get(
-                    "in_delisting",
-                    False
-                )
+                and not item.get("in_delisting", False)
             ):
-
                 symbols.append(symbol)
 
         return sorted(set(symbols))
 
     except Exception as e:
 
-        print("Symbol error:", e)
+        print("Symbol request error:", e)
         return []
 
 
 # ============================================================
-# CANDLES
+# GET CANDLES
 # ============================================================
 
-def get_candles(
-    symbol,
-    interval,
-    limit=CANDLE_LIMIT
-):
+def get_candles(symbol, timeframe):
 
-    url = (
-        f"{GATE_URL}/futures/usdt/"
-        "candlesticks"
-    )
+    url = f"{GATE_URL}/futures/usdt/candlesticks"
 
     params = {
         "contract": symbol,
-        "interval": interval,
-        "limit": limit
+        "interval": timeframe,
+        "limit": CANDLE_LIMIT,
     }
 
     for attempt in range(3):
@@ -285,25 +226,21 @@ def get_candles(
                 url,
                 params=params,
                 headers=HEADERS,
-                timeout=20
+                timeout=20,
             )
 
             if response.status_code == 200:
 
                 data = response.json()
 
-                return (
-                    data
-                    if isinstance(data, list)
-                    else []
-                )
+                if isinstance(data, list):
+                    return data
+
+                return []
 
             if response.status_code == 429:
 
-                time.sleep(
-                    2 ** attempt
-                )
-
+                time.sleep(2 ** attempt)
                 continue
 
             return []
@@ -311,22 +248,18 @@ def get_candles(
         except Exception as e:
 
             if attempt == 2:
-
                 print(
-                    f"{symbol} {interval}: {e}"
+                    f"{symbol} {timeframe}: {e}"
                 )
-
                 return []
 
-            time.sleep(
-                2 ** attempt
-            )
+            time.sleep(2 ** attempt)
 
     return []
 
 
 # ============================================================
-# PARSE
+# PARSE CANDLES
 # ============================================================
 
 def parse_candles(data):
@@ -339,42 +272,27 @@ def parse_candles(data):
 
             if isinstance(item, dict):
 
-                timestamp = int(item["t"])
-                open_price = float(item["o"])
-                high = float(item["h"])
-                low = float(item["l"])
-                close = float(item["c"])
-                volume = float(
-                    item.get("v", 0)
-                )
+                candle = {
+                    "time": int(item["t"]),
+                    "open": float(item["o"]),
+                    "high": float(item["h"]),
+                    "low": float(item["l"]),
+                    "close": float(item["c"]),
+                }
 
             else:
 
-                timestamp = int(item[0])
-                open_price = float(item[5])
-                high = float(item[3])
-                low = float(item[4])
-                close = float(item[2])
-                volume = float(item[6])
-
-            candles.append(
-                {
-                    "time": timestamp,
-                    "open": open_price,
-                    "high": high,
-                    "low": low,
-                    "close": close,
-                    "volume": volume
+                candle = {
+                    "time": int(item[0]),
+                    "open": float(item[5]),
+                    "high": float(item[3]),
+                    "low": float(item[4]),
+                    "close": float(item[2]),
                 }
-            )
 
-        except (
-            KeyError,
-            IndexError,
-            TypeError,
-            ValueError
-        ):
+            candles.append(candle)
 
+        except Exception:
             continue
 
     candles.sort(
@@ -385,12 +303,12 @@ def parse_candles(data):
 
 
 # ============================================================
-# REMOVE OPEN CANDLE
+# REMOVE CURRENT OPEN CANDLE
 # ============================================================
 
 def remove_open_candle(
     candles,
-    interval_seconds
+    timeframe_seconds,
 ):
 
     now = int(time.time())
@@ -398,9 +316,7 @@ def remove_open_candle(
     return [
         candle
         for candle in candles
-        if candle["time"]
-        + interval_seconds
-        <= now
+        if candle["time"] + timeframe_seconds <= now
     ]
 
 
@@ -408,48 +324,41 @@ def remove_open_candle(
 # SMA
 # ============================================================
 
-def sma(values, period):
+def calculate_sma(values, period):
 
     if len(values) < period:
         return None
 
-    return sum(
-        values[-period:]
-    ) / period
+    return sum(values[-period:]) / period
 
 
 # ============================================================
 # EMA
 # ============================================================
 
-def ema(values, period):
+def calculate_ema(values, period):
 
     if len(values) < period:
         return None
 
-    multiplier = (
-        2 / (period + 1)
-    )
+    multiplier = 2 / (period + 1)
 
-    value = sum(
-        values[:period]
-    ) / period
+    value = sum(values[:period]) / period
 
     for price in values[period:]:
 
         value = (
-            (price - value)
-            * multiplier
+            (price - value) * multiplier
         ) + value
 
     return value
 
 
 # ============================================================
-# STRUCTURE BREAKOUT
+# STRUCTURE BREAK
 # ============================================================
 
-def bullish_breakout(candles):
+def find_structure_break(candles):
 
     if len(candles) < STRUCTURE_CANDLES + 1:
         return None
@@ -460,153 +369,114 @@ def bullish_breakout(candles):
         -(STRUCTURE_CANDLES + 1):-1
     ]
 
-    structure_high = max(
+    previous_high = max(
         candle["high"]
         for candle in previous
     )
 
-    if current["close"] > structure_high:
-
-        return current
-
-    return None
-
-
-# ============================================================
-# STRUCTURE BREAKDOWN
-# ============================================================
-
-def bearish_breakdown(candles):
-
-    if len(candles) < STRUCTURE_CANDLES + 1:
-        return None
-
-    current = candles[-1]
-
-    previous = candles[
-        -(STRUCTURE_CANDLES + 1):-1
-    ]
-
-    structure_low = min(
+    previous_low = min(
         candle["low"]
         for candle in previous
     )
 
-    if current["close"] < structure_low:
+    # --------------------------------------------------------
+    # LONG BREAKOUT
+    # --------------------------------------------------------
 
-        return current
+    if current["close"] > previous_high:
+
+        return {
+            "direction": "LONG",
+            "candle": current,
+        }
+
+    # --------------------------------------------------------
+    # SHORT BREAKDOWN
+    # --------------------------------------------------------
+
+    if current["close"] < previous_low:
+
+        return {
+            "direction": "SHORT",
+            "candle": current,
+        }
 
     return None
 
 
 # ============================================================
-# LONG / SHORT ANALYSIS
+# ANALYZE ONE SYMBOL / ONE TIMEFRAME
 # ============================================================
 
-def analyze_symbol(symbol):
+def analyze_timeframe(symbol, timeframe):
 
-    data = {}
-
-    intervals = {
-        "15m": 900,
-        "1h": 3600,
-        "4h": 14400
-    }
-
-    for timeframe in TIMEFRAMES:
-
-        raw = get_candles(
-            symbol,
-            timeframe
-        )
-
-        candles = parse_candles(raw)
-
-        candles = remove_open_candle(
-            candles,
-            intervals[timeframe]
-        )
-
-        if len(candles) < EMA_SLOW + 30:
-
-            return None
-
-        data[timeframe] = candles
-
-    # ========================================================
-    # 15M STRUCTURE
-    # ========================================================
-
-    long_15m = bullish_breakout(
-        data["15m"]
+    raw = get_candles(
+        symbol,
+        timeframe,
     )
 
-    short_15m = bearish_breakdown(
-        data["15m"]
+    candles = parse_candles(raw)
+
+    candles = remove_open_candle(
+        candles,
+        TIMEFRAMES[timeframe],
     )
 
-    # ========================================================
-    # 1H STRUCTURE
-    # ========================================================
+    if len(candles) < EMA_SLOW + STRUCTURE_CANDLES + 5:
+        return None
 
-    long_1h = bullish_breakout(
-        data["1h"]
+    # --------------------------------------------------------
+    # STRUCTURE
+    # --------------------------------------------------------
+
+    structure = find_structure_break(
+        candles
     )
 
-    short_1h = bearish_breakdown(
-        data["1h"]
-    )
+    if not structure:
+        return None
 
-    # ========================================================
-    # 4H STRUCTURE
-    # ========================================================
+    direction = structure["direction"]
+    trigger = structure["candle"]
 
-    long_4h = bullish_breakout(
-        data["4h"]
-    )
-
-    short_4h = bearish_breakdown(
-        data["4h"]
-    )
-
-    # ========================================================
-    # 4H INDICATORS
-    # ========================================================
-
-    candles_4h = data["4h"]
+    # --------------------------------------------------------
+    # INDICATORS
+    # --------------------------------------------------------
 
     closes = [
         candle["close"]
-        for candle in candles_4h
+        for candle in candles
     ]
 
-    current_price = closes[-1]
+    price = closes[-1]
 
-    sma50 = sma(
+    sma50 = calculate_sma(
         closes,
-        SMA_PERIOD
+        SMA_PERIOD,
     )
 
-    ema20 = ema(
+    ema20 = calculate_ema(
         closes,
-        EMA_FAST
+        EMA_FAST,
     )
 
-    ema200 = ema(
+    ema200 = calculate_ema(
         closes,
-        EMA_SLOW
+        EMA_SLOW,
     )
 
     if None in (
         sma50,
         ema20,
-        ema200
+        ema200,
     ):
         return None
 
-    # ========================================================
+    # --------------------------------------------------------
     # GAP
-    # ========================================================
+    #
+    # STRICTLY GREATER THAN 10%
+    # --------------------------------------------------------
 
     if ema200 == 0:
         return None
@@ -616,114 +486,90 @@ def analyze_symbol(symbol):
         / abs(ema200)
     ) * 100
 
-    # STRICTLY GREATER THAN 10%
     if gap <= 10:
         return None
 
     # ========================================================
     # LONG
     #
-    # SL < 20 EMA < PRICE
     # 50 SMA < PRICE < 200 EMA
-    #
-    # 20 EMA must be between SL and 200 EMA.
+    # 20 EMA < 50 SMA
+    # SL < 20 EMA
     # ========================================================
 
-    if (
-        long_15m
-        and long_1h
-        and long_4h
-        and sma50 < current_price < ema200
-        and ema20 < sma50
-    ):
+    if direction == "LONG":
 
-        # SL from the 15m breakout candle
-        sl = long_15m["low"]
-
-        # 20 EMA must be above SL
-        # and below 200 EMA.
         if not (
-            sl < ema20 < ema200
+            sma50 < price < ema200
         ):
             return None
 
-        entry = current_price
+        if not (
+            ema20 < sma50
+        ):
+            return None
 
-        tp = ema200
+        sl = trigger["low"]
 
-        signal_key = (
-            f"{symbol}|LONG|"
-            f"{long_4h['time']}"
-        )
+        if not (
+            sl < ema20 < sma50
+        ):
+            return None
 
         return {
-            "type": "LONG",
-            "symbol": symbol.replace(
-                "_USDT",
-                ""
-            ),
-            "entry": entry,
+            "direction": "LONG",
+            "symbol": symbol.replace("_USDT", ""),
+            "timeframe": timeframe,
+            "entry": price,
             "sl": sl,
-            "tp": tp,
+            "tp": ema200,
             "gap": gap,
-            "key": signal_key,
-            "trigger_time": long_4h["time"]
+            "trigger_time": trigger["time"],
         }
 
     # ========================================================
     # SHORT
     #
-    # 200 EMA < PRICE < 50 SMA < 20 EMA < SL
-    #
-    # 20 EMA must be between 200 EMA and SL.
+    # 200 EMA < PRICE < 50 SMA
+    # 20 EMA > 50 SMA
+    # 20 EMA < SL
     # ========================================================
 
-    if (
-        short_15m
-        and short_1h
-        and short_4h
-        and ema200 < current_price < sma50
-        and ema20 > sma50
-    ):
+    if direction == "SHORT":
 
-        # SL from the 15m breakdown candle
-        sl = short_15m["high"]
+        if not (
+            ema200 < price < sma50
+        ):
+            return None
 
-        # 20 EMA must be below SL
-        # and above 200 EMA.
+        if not (
+            ema20 > sma50
+        ):
+            return None
+
+        sl = trigger["high"]
+
         if not (
             ema200 < ema20 < sl
         ):
             return None
 
-        entry = current_price
-
-        tp = ema200
-
-        signal_key = (
-            f"{symbol}|SHORT|"
-            f"{short_4h['time']}"
-        )
-
         return {
-            "type": "SHORT",
-            "symbol": symbol.replace(
-                "_USDT",
-                ""
-            ),
-            "entry": entry,
+            "direction": "SHORT",
+            "symbol": symbol.replace("_USDT", ""),
+            "timeframe": timeframe,
+            "entry": price,
             "sl": sl,
-            "tp": tp,
+            "tp": ema200,
             "gap": gap,
-            "key": signal_key,
-            "trigger_time": short_4h["time"]
+            "trigger_time": trigger["time"],
         }
 
     return None
 
 
 # ============================================================
-# PRICE FORMAT
+# FORMAT PRICE
 # ============================================================
 
 def format_price(price):
@@ -744,12 +590,14 @@ def format_price(price):
 
 
 # ============================================================
-# TELEGRAM FORMAT
+# FORMAT TELEGRAM MESSAGE
 # ============================================================
 
 def format_signal(signal):
 
     symbol = signal["symbol"]
+    direction = signal["direction"]
+    timeframe = signal["timeframe"]
 
     entry = format_price(
         signal["entry"]
@@ -767,18 +615,14 @@ def format_signal(signal):
         signal["gap"]
     )
 
-    if signal["type"] == "LONG":
-
-        return (
-            f"#{symbol} LONG 🟢\n\n"
-            f"Entry: ${entry}\n"
-            f"SL: ${sl}\n\n"
-            f"**TP: ${tp} — 200 EMA**\n\n"
-            f"Gap: {gap}%"
-        )
+    emoji = (
+        "🟢"
+        if direction == "LONG"
+        else "🔴"
+    )
 
     return (
-        f"#{symbol} SHORT 🔴\n\n"
+        f"#{symbol} {direction} {timeframe} {emoji}\n\n"
         f"Entry: ${entry}\n"
         f"SL: ${sl}\n\n"
         f"**TP: ${tp} — 200 EMA**\n\n"
@@ -787,57 +631,53 @@ def format_signal(signal):
 
 
 # ============================================================
-# MAIN SCANNER
+# MAIN
 # ============================================================
 
 def main():
 
-    print(
-        "========================================"
-    )
-
-    print(
-        "LONG + SHORT SIGNAL BOT"
-    )
-
-    print(
-        "15M + 1H + 4H STRUCTURE"
-    )
-
-    print(
-        "20 EMA / 50 SMA / 200 EMA"
-    )
-
-    print(
-        "GAP > 10%"
-    )
-
-    print(
-        "========================================"
-    )
+    print("=" * 50)
+    print("LONG + SHORT SIGNAL BOT")
+    print("15M / 1H / 4H INDEPENDENT STRUCTURE")
+    print("20 EMA / 50 SMA / 200 EMA")
+    print("GAP > 10%")
+    print("=" * 50)
 
     history = load_history()
 
     print(
-        f"Previously sent signals: "
-        f"{len(history)}"
+        f"Previously sent signals: {len(history)}"
     )
 
     symbols = get_symbols()
 
     if not symbols:
 
-        print(
-            "No symbols found."
-        )
-
+        print("No symbols found.")
         return
 
     print(
         f"Scanning {len(symbols)} symbols..."
     )
 
-    signals = []
+    jobs = []
+
+    for symbol in symbols:
+
+        for timeframe in TIMEFRAMES:
+
+            jobs.append(
+                (
+                    symbol,
+                    timeframe,
+                )
+            )
+
+    print(
+        f"Total scans: {len(jobs)}"
+    )
+
+    new_signals = []
 
     with ThreadPoolExecutor(
         max_workers=MAX_WORKERS
@@ -845,20 +685,19 @@ def main():
 
         futures = {
             executor.submit(
-                analyze_symbol,
-                symbol
-            ): symbol
-
-            for symbol in symbols
+                analyze_timeframe,
+                symbol,
+                timeframe,
+            ): (
+                symbol,
+                timeframe,
+            )
+            for symbol, timeframe in jobs
         }
 
         completed = 0
 
-        for future in as_completed(
-            futures
-        ):
-
-            symbol = futures[future]
+        for future in as_completed(futures):
 
             completed += 1
 
@@ -868,59 +707,67 @@ def main():
 
                 if signal:
 
-                    print(
-                        f"FOUND: "
-                        f"{signal['type']} "
-                        f"{signal['symbol']} "
-                        f"Gap "
-                        f"{signal['gap']:.2f}%"
+                    key = (
+                        f"{signal['symbol']}|"
+                        f"{signal['direction']}|"
+                        f"{signal['timeframe']}|"
+                        f"{signal['trigger_time']}"
                     )
 
-                    if signal["key"] not in history:
+                    signal["key"] = key
 
-                        signals.append(
+                    if key not in history:
+
+                        new_signals.append(
                             signal
+                        )
+
+                        print(
+                            "NEW:",
+                            key,
                         )
 
             except Exception as e:
 
+                symbol, timeframe = futures[future]
+
                 print(
-                    f"{symbol}: {e}"
+                    f"{symbol} {timeframe}: {e}"
                 )
 
             if (
-                completed % 100 == 0
-                or completed == len(symbols)
+                completed % 300 == 0
+                or completed == len(jobs)
             ):
 
                 print(
                     f"Progress: "
-                    f"{completed}/"
-                    f"{len(symbols)}"
+                    f"{completed}/{len(jobs)}"
                 )
 
-    # ========================================================
-    # SORT
-    # ========================================================
+    # --------------------------------------------------------
+    # SORT BY GAP
+    # --------------------------------------------------------
 
-    signals.sort(
+    new_signals.sort(
         key=lambda x: x["gap"],
-        reverse=True
+        reverse=True,
     )
 
-    # ========================================================
-    # SEND NEW SIGNALS
-    # ========================================================
+    # --------------------------------------------------------
+    # SEND
+    # --------------------------------------------------------
 
-    if not signals:
+    if not new_signals:
 
-        print(
-            "No NEW signals."
-        )
-
+        print("No NEW signals.")
         return
 
-    for signal in signals:
+    print(
+        f"NEW SIGNALS: {len(new_signals)}"
+    )
+
+    for signal in new_signals:
 
         message = format_signal(
             signal
@@ -930,7 +777,11 @@ def main():
         print(message)
         print()
 
-        if send_telegram(message):
+        sent = send_telegram(
+            message
+        )
+
+        if sent:
 
             history.add(
                 signal["key"]
@@ -945,8 +796,7 @@ def main():
         time.sleep(0.5)
 
     print(
-        f"New signals sent: "
-        f"{len(signals)}"
+        "Finished."
     )
 
 
