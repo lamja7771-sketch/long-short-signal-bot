@@ -52,6 +52,7 @@ def send_telegram(message):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
     try:
+
         response = requests.post(
             url,
             data={
@@ -82,18 +83,21 @@ def send_telegram(message):
 def load_history():
 
     try:
+
         with open(HISTORY_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         return set(data)
 
     except Exception:
+
         return set()
 
 
 def save_history(history):
 
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+
         json.dump(
             sorted(history),
             f,
@@ -159,6 +163,7 @@ def push_history():
         print("Signal history pushed to GitHub.")
 
     except Exception as e:
+
         print("History push error:", e)
 
 
@@ -179,6 +184,7 @@ def get_symbols():
         )
 
         if response.status_code != 200:
+
             print("Symbol error:", response.text)
             return []
 
@@ -248,9 +254,11 @@ def get_candles(symbol, timeframe):
         except Exception as e:
 
             if attempt == 2:
+
                 print(
                     f"{symbol} {timeframe}: {e}"
                 )
+
                 return []
 
             time.sleep(2 ** attempt)
@@ -293,6 +301,7 @@ def parse_candles(data):
             candles.append(candle)
 
         except Exception:
+
             continue
 
     candles.sort(
@@ -369,15 +378,12 @@ def find_structure_break(candles):
 
     window = candles[-STRUCTURE_CANDLES:]
 
-    # --------------------------------------------------------
+    long_bos = None
+    short_bos = None
+
+    # ========================================================
     # LONG BOS
-    #
-    # Find a swing high inside the 20-candle window.
-    # Then check whether a later candle CLOSED above it.
-    #
-    # This means BOS can happen on candle 15, 16, 17,
-    # 18, 19, or 20 of the structure window.
-    # --------------------------------------------------------
+    # ========================================================
 
     for i in range(2, len(window) - 1):
 
@@ -396,20 +402,23 @@ def find_structure_break(candles):
 
             if window[j]["close"] > swing_high:
 
-                return {
+                candidate = {
                     "direction": "LONG",
                     "candle": window[j],
                     "structure_level": swing_high,
                 }
 
-    # --------------------------------------------------------
+                # Keep the most recent LONG BOS
+                if (
+                    long_bos is None
+                    or candidate["candle"]["time"]
+                    > long_bos["candle"]["time"]
+                ):
+                    long_bos = candidate
+
+    # ========================================================
     # SHORT BOS
-    #
-    # Find a swing low inside the 20-candle window.
-    # Then check whether a later candle CLOSED below it.
-    #
-    # BOS can happen anywhere inside the structure window.
-    # --------------------------------------------------------
+    # ========================================================
 
     for i in range(2, len(window) - 1):
 
@@ -428,13 +437,40 @@ def find_structure_break(candles):
 
             if window[j]["close"] < swing_low:
 
-                return {
+                candidate = {
                     "direction": "SHORT",
                     "candle": window[j],
                     "structure_level": swing_low,
                 }
 
-    return None
+                # Keep the most recent SHORT BOS
+                if (
+                    short_bos is None
+                    or candidate["candle"]["time"]
+                    > short_bos["candle"]["time"]
+                ):
+                    short_bos = candidate
+
+    # ========================================================
+    # SELECT MOST RECENT BOS BETWEEN LONG + SHORT
+    # ========================================================
+
+    candidates = [
+        bos
+        for bos in (
+            long_bos,
+            short_bos,
+        )
+        if bos is not None
+    ]
+
+    if not candidates:
+        return None
+
+    return max(
+        candidates,
+        key=lambda x: x["candle"]["time"],
+    )
 
 
 # ============================================================
@@ -628,17 +664,33 @@ def format_signal(signal):
     direction = signal["direction"]
     timeframe = signal["timeframe"]
 
-    entry = format_price(
-        signal["entry"]
-    )
+    entry_price = signal["entry"]
+    sl_price = signal["sl"]
+    ema_tp_price = signal["tp"]
 
-    sl = format_price(
-        signal["sl"]
-    )
+    entry = format_price(entry_price)
 
-    tp = format_price(
-        signal["tp"]
-    )
+    sl = format_price(sl_price)
+
+    # --------------------------------------------------------
+    # TP1 = 5%
+    # TP2 = 10%
+    # TP3 = 200 EMA
+    # --------------------------------------------------------
+
+    if direction == "LONG":
+
+        tp1_price = entry_price * 1.05
+        tp2_price = entry_price * 1.10
+
+    else:
+
+        tp1_price = entry_price * 0.95
+        tp2_price = entry_price * 0.90
+
+    tp1 = format_price(tp1_price)
+    tp2 = format_price(tp2_price)
+    tp3 = format_price(ema_tp_price)
 
     gap = round(
         signal["gap"]
@@ -654,7 +706,9 @@ def format_signal(signal):
         f"#{symbol} {direction} {timeframe} {emoji}\n\n"
         f"Entry: ${entry}\n"
         f"SL: ${sl}\n\n"
-        f"**TP: ${tp} — 200 EMA**\n\n"
+        f"**TP1: ${tp1} — 5%**\n"
+        f"**TP2: ${tp2} — 10%**\n"
+        f"**TP3: ${tp3}**\n\n"
         f"Gap: {gap}%"
     )
 
@@ -671,6 +725,7 @@ def main():
     print("20 EMA / 50 SMA / 200 EMA")
     print("GAP > 10%")
     print("BOS SCANNED INSIDE 20-CANDLE STRUCTURE WINDOW")
+    print("MOST RECENT BOS SELECTED: LONG vs SHORT")
     print("=" * 50)
 
     history = load_history()
