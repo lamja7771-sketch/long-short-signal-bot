@@ -20,7 +20,7 @@ SMA_PERIOD = 50
 EMA_FAST = 20
 EMA_SLOW = 200
 
-# RECENT BOS WINDOW
+# Recent BOS window
 BOS_LOOKBACK = 10
 
 TIMEFRAMES = {
@@ -72,6 +72,7 @@ def send_telegram(message):
         print("Telegram error:", response.text)
 
     except Exception as e:
+
         print("Telegram error:", e)
 
     return False
@@ -85,7 +86,12 @@ def load_history():
 
     try:
 
-        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+        with open(
+            HISTORY_FILE,
+            "r",
+            encoding="utf-8",
+        ) as f:
+
             data = json.load(f)
 
         return set(data)
@@ -97,7 +103,11 @@ def load_history():
 
 def save_history(history):
 
-    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+    with open(
+        HISTORY_FILE,
+        "w",
+        encoding="utf-8",
+    ) as f:
 
         json.dump(
             sorted(history),
@@ -135,12 +145,21 @@ def push_history():
         )
 
         subprocess.run(
-            ["git", "add", HISTORY_FILE],
+            [
+                "git",
+                "add",
+                HISTORY_FILE,
+            ],
             check=True,
         )
 
         changed = subprocess.run(
-            ["git", "diff", "--cached", "--quiet"]
+            [
+                "git",
+                "diff",
+                "--cached",
+                "--quiet",
+            ]
         )
 
         if changed.returncode == 0:
@@ -189,7 +208,11 @@ def get_symbols():
 
         if response.status_code != 200:
 
-            print("Symbol error:", response.text)
+            print(
+                "Symbol error:",
+                response.text,
+            )
+
             return []
 
         data = response.json()
@@ -198,19 +221,32 @@ def get_symbols():
 
         for item in data:
 
-            symbol = item.get("name", "")
+            symbol = item.get(
+                "name",
+                "",
+            )
 
             if (
                 symbol.endswith("_USDT")
-                and not item.get("in_delisting", False)
+                and not item.get(
+                    "in_delisting",
+                    False,
+                )
             ):
+
                 symbols.append(symbol)
 
-        return sorted(set(symbols))
+        return sorted(
+            set(symbols)
+        )
 
     except Exception as e:
 
-        print("Symbol request error:", e)
+        print(
+            "Symbol request error:",
+            e,
+        )
+
         return []
 
 
@@ -218,9 +254,15 @@ def get_symbols():
 # GET CANDLES
 # ============================================================
 
-def get_candles(symbol, timeframe):
+def get_candles(
+    symbol,
+    timeframe,
+):
 
-    url = f"{GATE_URL}/futures/usdt/candlesticks"
+    url = (
+        f"{GATE_URL}"
+        f"/futures/usdt/candlesticks"
+    )
 
     params = {
         "contract": symbol,
@@ -243,14 +285,21 @@ def get_candles(symbol, timeframe):
 
                 data = response.json()
 
-                if isinstance(data, list):
+                if isinstance(
+                    data,
+                    list,
+                ):
+
                     return data
 
                 return []
 
             if response.status_code == 429:
 
-                time.sleep(2 ** attempt)
+                time.sleep(
+                    2 ** attempt
+                )
+
                 continue
 
             return []
@@ -265,7 +314,9 @@ def get_candles(symbol, timeframe):
 
                 return []
 
-            time.sleep(2 ** attempt)
+            time.sleep(
+                2 ** attempt
+            )
 
     return []
 
@@ -282,7 +333,10 @@ def parse_candles(data):
 
         try:
 
-            if isinstance(item, dict):
+            if isinstance(
+                item,
+                dict,
+            ):
 
                 candle = {
                     "time": int(item["t"]),
@@ -329,7 +383,9 @@ def remove_open_candle(
     return [
         candle
         for candle in candles
-        if candle["time"] + timeframe_seconds <= now
+        if candle["time"]
+        + timeframe_seconds
+        <= now
     ]
 
 
@@ -337,131 +393,161 @@ def remove_open_candle(
 # SMA
 # ============================================================
 
-def calculate_sma(values, period):
+def calculate_sma(
+    values,
+    period,
+):
 
     if len(values) < period:
+
         return None
 
-    return sum(values[-period:]) / period
+    return (
+        sum(values[-period:])
+        / period
+    )
 
 
 # ============================================================
 # EMA
 # ============================================================
 
-def calculate_ema(values, period):
+def calculate_ema(
+    values,
+    period,
+):
 
     if len(values) < period:
+
         return None
 
-    multiplier = 2 / (period + 1)
+    multiplier = 2 / (
+        period + 1
+    )
 
-    value = sum(values[:period]) / period
+    value = (
+        sum(values[:period])
+        / period
+    )
 
     for price in values[period:]:
 
         value = (
-            (price - value) * multiplier
+            (price - value)
+            * multiplier
         ) + value
 
     return value
 
 
 # ============================================================
-# FIND MOST RECENT BOS
+# SLIGHTLY LOOSER RECENT BOS
+# ============================================================
 #
 # IMPORTANT:
-# BOS is searched only inside the MOST RECENT
-# 10 COMPLETED CANDLES.
 #
-# We find both LONG and SHORT BOS candidates
-# and select the most recent one.
+# This is the ONLY strategy change.
+#
+# We still look only at the most recent 10 completed candles.
+#
+# Instead of requiring a swing to be surrounded by BOTH
+# neighboring candles, we allow a simpler recent structure
+# level.
+#
+# LONG:
+#   Current candle can break the previous local high.
+#
+# SHORT:
+#   Current candle can break the previous local low.
+#
+# We collect ALL valid BOS events and select the MOST RECENT.
+#
 # ============================================================
 
 def find_structure_break(candles):
 
-    if len(candles) < BOS_LOOKBACK + 5:
+    if len(candles) < BOS_LOOKBACK + 3:
         return None
 
     window = candles[-BOS_LOOKBACK:]
 
-    long_bos = None
-    short_bos = None
+    candidates = []
 
     # ========================================================
     # LONG BOS
     # ========================================================
 
-    for i in range(2, len(window) - 1):
+    for j in range(1, len(window)):
 
-        swing_high = window[i]["high"]
+        current = window[j]
 
-        if not (
-            swing_high > window[i - 1]["high"]
-            and
-            swing_high > window[i + 1]["high"]
-        ):
+        # Use the highest high from the recent candles
+        # immediately before the BOS candle.
+        #
+        # At least 2 candles of structure are used when
+        # possible, making this slightly looser than the
+        # previous strict swing-high confirmation.
+        #
+        start = max(0, j - 3)
+
+        previous_candles = window[start:j]
+
+        if not previous_candles:
             continue
 
-        for j in range(i + 1, len(window)):
+        structure_high = max(
+            candle["high"]
+            for candle in previous_candles
+        )
 
-            if window[j]["close"] > swing_high:
+        # BOS requires a CLOSE above structure.
+        if current["close"] > structure_high:
 
-                candidate = {
+            candidates.append(
+                {
                     "direction": "LONG",
-                    "candle": window[j],
-                    "structure_level": swing_high,
+                    "candle": current,
+                    "structure_level": structure_high,
                 }
-
-                if (
-                    long_bos is None
-                    or candidate["candle"]["time"]
-                    > long_bos["candle"]["time"]
-                ):
-                    long_bos = candidate
+            )
 
     # ========================================================
     # SHORT BOS
     # ========================================================
 
-    for i in range(2, len(window) - 1):
+    for j in range(1, len(window)):
 
-        swing_low = window[i]["low"]
+        current = window[j]
 
-        if not (
-            swing_low < window[i - 1]["low"]
-            and
-            swing_low < window[i + 1]["low"]
-        ):
+        start = max(0, j - 3)
+
+        previous_candles = window[start:j]
+
+        if not previous_candles:
             continue
 
-        for j in range(i + 1, len(window)):
-
-            if window[j]["close"] < swing_low:
-
-                candidate = {
-                    "direction": "SHORT",
-                    "candle": window[j],
-                    "structure_level": swing_low,
-                }
-
-                if (
-                    short_bos is None
-                    or candidate["candle"]["time"]
-                    > short_bos["candle"]["time"]
-                ):
-                    short_bos = candidate
-
-    candidates = [
-        bos
-        for bos in (
-            long_bos,
-            short_bos,
+        structure_low = min(
+            candle["low"]
+            for candle in previous_candles
         )
-        if bos is not None
-    ]
+
+        # BOS requires a CLOSE below structure.
+        if current["close"] < structure_low:
+
+            candidates.append(
+                {
+                    "direction": "SHORT",
+                    "candle": current,
+                    "structure_level": structure_low,
+                }
+            )
+
+    # ========================================================
+    # MOST RECENT BOS
+    # ========================================================
 
     if not candidates:
+
         return None
 
     return max(
@@ -472,13 +558,12 @@ def find_structure_break(candles):
 
 # ============================================================
 # ANALYZE ONE SYMBOL / ONE TIMEFRAME
-#
-# Returns:
-#   signal
-#   or diagnostic information
 # ============================================================
 
-def analyze_timeframe(symbol, timeframe):
+def analyze_timeframe(
+    symbol,
+    timeframe,
+):
 
     raw = get_candles(
         symbol,
@@ -492,32 +577,37 @@ def analyze_timeframe(symbol, timeframe):
         TIMEFRAMES[timeframe],
     )
 
-    if len(candles) < EMA_SLOW + BOS_LOOKBACK + 5:
+    if len(candles) < (
+        EMA_SLOW
+        + BOS_LOOKBACK
+        + 5
+    ):
 
-        return {
-            "signal": None,
-            "diagnostic": None,
-        }
+        return None
 
-    # ========================================================
+    # --------------------------------------------------------
     # STRUCTURE
-    # ========================================================
+    # --------------------------------------------------------
 
-    structure = find_structure_break(candles)
+    structure = find_structure_break(
+        candles
+    )
 
     if not structure:
 
-        return {
-            "signal": None,
-            "diagnostic": None,
-        }
+        return None
 
-    direction = structure["direction"]
-    trigger = structure["candle"]
+    direction = structure[
+        "direction"
+    ]
 
-    # ========================================================
+    trigger = structure[
+        "candle"
+    ]
+
+    # --------------------------------------------------------
     # INDICATORS
-    # ========================================================
+    # --------------------------------------------------------
 
     closes = [
         candle["close"]
@@ -547,62 +637,26 @@ def analyze_timeframe(symbol, timeframe):
         ema200,
     ):
 
-        return {
-            "signal": None,
-            "diagnostic": None,
-        }
+        return None
 
-    # ========================================================
-    # GAP
-    # ========================================================
+    # --------------------------------------------------------
+    # GAP > 10%
+    # --------------------------------------------------------
 
     if ema200 == 0:
 
-        return {
-            "signal": None,
-            "diagnostic": None,
-        }
+        return None
 
     gap = (
-        abs(sma50 - ema200)
+        abs(
+            sma50 - ema200
+        )
         / abs(ema200)
     ) * 100
 
-    symbol_name = symbol.replace(
-        "_USDT",
-        "",
-    )
-
-    # ========================================================
-    # DIAGNOSTIC
-    # ========================================================
-
-    diagnostic = {
-        "symbol": symbol_name,
-        "timeframe": timeframe,
-        "direction": direction,
-        "price": price,
-        "sma50": sma50,
-        "ema20": ema20,
-        "ema200": ema200,
-        "gap": gap,
-        "trigger_time": trigger["time"],
-    }
-
-    # ========================================================
-    # GAP CHECK
-    # ========================================================
-
     if gap <= 10:
 
-        diagnostic["reason"] = (
-            f"GAP {gap:.2f}% <= 10%"
-        )
-
-        return {
-            "signal": None,
-            "diagnostic": diagnostic,
-        }
+        return None
 
     # ========================================================
     # LONG
@@ -615,62 +669,41 @@ def analyze_timeframe(symbol, timeframe):
     if direction == "LONG":
 
         if not (
-            sma50 < price < ema200
+            sma50
+            < price
+            < ema200
         ):
 
-            diagnostic["reason"] = (
-                "LONG price condition failed"
-            )
-
-            return {
-                "signal": None,
-                "diagnostic": diagnostic,
-            }
+            return None
 
         if not (
             ema20 < sma50
         ):
 
-            diagnostic["reason"] = (
-                "LONG EMA20 < SMA50 condition failed"
-            )
-
-            return {
-                "signal": None,
-                "diagnostic": diagnostic,
-            }
+            return None
 
         sl = trigger["low"]
 
         if not (
-            sl < ema20 < sma50
+            sl
+            < ema20
+            < sma50
         ):
 
-            diagnostic["reason"] = (
-                "LONG SL / EMA20 / SMA50 condition failed"
-            )
+            return None
 
-            return {
-                "signal": None,
-                "diagnostic": diagnostic,
-            }
-
-        signal = {
+        return {
             "direction": "LONG",
-            "symbol": symbol_name,
+            "symbol": symbol.replace(
+                "_USDT",
+                "",
+            ),
             "timeframe": timeframe,
             "entry": price,
             "sl": sl,
             "tp": ema200,
             "gap": gap,
             "trigger_time": trigger["time"],
-        }
-
-        diagnostic["reason"] = "QUALIFIED"
-
-        return {
-            "signal": signal,
-            "diagnostic": diagnostic,
         }
 
     # ========================================================
@@ -684,49 +717,35 @@ def analyze_timeframe(symbol, timeframe):
     if direction == "SHORT":
 
         if not (
-            ema200 < price < sma50
+            ema200
+            < price
+            < sma50
         ):
 
-            diagnostic["reason"] = (
-                "SHORT price condition failed"
-            )
-
-            return {
-                "signal": None,
-                "diagnostic": diagnostic,
-            }
+            return None
 
         if not (
             ema20 > sma50
         ):
 
-            diagnostic["reason"] = (
-                "SHORT EMA20 > SMA50 condition failed"
-            )
-
-            return {
-                "signal": None,
-                "diagnostic": diagnostic,
-            }
+            return None
 
         sl = trigger["high"]
 
         if not (
-            ema200 < ema20 < sl
+            ema200
+            < ema20
+            < sl
         ):
 
-            diagnostic["reason"] = (
-                "SHORT EMA200 / EMA20 / SL condition failed"
-            )
+            return None
 
-            return {
-                "signal": None,
-                "diagnostic": diagnostic,
-            }
-
-        signal = {
+        return {
             "direction": "SHORT",
-            "symbol": symbol_name,
+            "symbol": symbol.replace(
+                "_USDT",
+                "",
+            ),
             "timeframe": timeframe,
             "entry": price,
             "sl": sl,
@@ -735,17 +754,7 @@ def analyze_timeframe(symbol, timeframe):
             "trigger_time": trigger["time"],
         }
 
-        diagnostic["reason"] = "QUALIFIED"
-
-        return {
-            "signal": signal,
-            "diagnostic": diagnostic,
-        }
-
-    return {
-        "signal": None,
-        "diagnostic": None,
-    }
+    return None
 
 
 # ============================================================
@@ -755,15 +764,19 @@ def analyze_timeframe(symbol, timeframe):
 def format_price(price):
 
     if price >= 100:
+
         return f"{price:.2f}"
 
     if price >= 1:
+
         return f"{price:.4f}"
 
     if price >= 0.01:
+
         return f"{price:.6f}"
 
     if price >= 0.0001:
+
         return f"{price:.8f}"
 
     return f"{price:.10f}"
@@ -771,23 +784,42 @@ def format_price(price):
 
 # ============================================================
 # FORMAT TELEGRAM MESSAGE
+# ============================================================
 #
 # TP1 = 5%
 # TP2 = 10%
-# TP3 = 200 EMA
+# TP3 = 200 EMA PRICE
 #
-# EMA IS NOT NAMED IN ALERT.
+# We DO NOT write "200 EMA" in the alert.
+# We DO NOT show TP percentages.
+#
 # ============================================================
 
 def format_signal(signal):
 
-    symbol = signal["symbol"]
-    direction = signal["direction"]
-    timeframe = signal["timeframe"]
+    symbol = signal[
+        "symbol"
+    ]
 
-    entry_price = signal["entry"]
-    sl_price = signal["sl"]
-    tp3_price = signal["tp"]
+    direction = signal[
+        "direction"
+    ]
+
+    timeframe = signal[
+        "timeframe"
+    ]
+
+    entry_price = signal[
+        "entry"
+    ]
+
+    sl_price = signal[
+        "sl"
+    ]
+
+    ema_tp_price = signal[
+        "tp"
+    ]
 
     entry = format_price(
         entry_price
@@ -797,15 +829,29 @@ def format_signal(signal):
         sl_price
     )
 
+    # --------------------------------------------------------
+    # TP1
+    # --------------------------------------------------------
+
     if direction == "LONG":
 
-        tp1_price = entry_price * 1.05
-        tp2_price = entry_price * 1.10
+        tp1_price = (
+            entry_price * 1.05
+        )
+
+        tp2_price = (
+            entry_price * 1.10
+        )
 
     else:
 
-        tp1_price = entry_price * 0.95
-        tp2_price = entry_price * 0.90
+        tp1_price = (
+            entry_price * 0.95
+        )
+
+        tp2_price = (
+            entry_price * 0.90
+        )
 
     tp1 = format_price(
         tp1_price
@@ -815,8 +861,12 @@ def format_signal(signal):
         tp2_price
     )
 
+    # --------------------------------------------------------
+    # TP3 = EMA-based price
+    # --------------------------------------------------------
+
     tp3 = format_price(
-        tp3_price
+        ema_tp_price
     )
 
     gap = round(
@@ -830,12 +880,18 @@ def format_signal(signal):
     )
 
     return (
-        f"#{symbol} {direction} {timeframe} {emoji}\n\n"
+        f"#{symbol} "
+        f"{direction} "
+        f"{timeframe} "
+        f"{emoji}\n\n"
+
         f"Entry: ${entry}\n"
         f"SL: ${sl}\n\n"
+
         f"**TP1: ${tp1}**\n"
         f"**TP2: ${tp2}**\n"
         f"**TP3: ${tp3}**\n\n"
+
         f"Gap: {gap}%"
     )
 
@@ -847,27 +903,49 @@ def format_signal(signal):
 def main():
 
     print("=" * 50)
-    print("LONG + SHORT SIGNAL BOT")
-    print("15M / 1H / 4H INDEPENDENT STRUCTURE")
-    print("20 EMA / 50 SMA / 200 EMA")
-    print("GAP > 10%")
-    print("RECENT BOS: LAST 10 COMPLETED CANDLES")
-    print("MOST RECENT BOS SELECTED")
-    print("TP1 5% / TP2 10% / TP3 EMA-BASED")
-    print("NO RSI")
+    print(
+        "LONG + SHORT SIGNAL BOT"
+    )
+    print(
+        "15M / 1H / 4H INDEPENDENT STRUCTURE"
+    )
+    print(
+        "20 EMA / 50 SMA / 200 EMA"
+    )
+    print(
+        "GAP > 10%"
+    )
+    print(
+        "SLIGHTLY LOOSER RECENT BOS"
+    )
+    print(
+        "RECENT BOS: LAST 10 COMPLETED CANDLES"
+    )
+    print(
+        "MOST RECENT BOS SELECTED"
+    )
+    print(
+        "TP1 5% / TP2 10% / TP3 EMA-BASED"
+    )
+    print(
+        "NO RSI"
+    )
     print("=" * 50)
 
     history = load_history()
 
     print(
-        f"Previously sent signals: {len(history)}"
+        f"Previously sent signals: "
+        f"{len(history)}"
     )
 
     symbols = get_symbols()
 
     if not symbols:
 
-        print("No symbols found.")
+        print(
+            "No symbols found."
+        )
 
         send_telegram(
             "⚠️ No symbols found.\n\n"
@@ -877,7 +955,8 @@ def main():
         return
 
     print(
-        f"Scanning {len(symbols)} symbols..."
+        f"Scanning "
+        f"{len(symbols)} symbols..."
     )
 
     jobs = []
@@ -894,32 +973,11 @@ def main():
             )
 
     print(
-        f"Total scans: {len(jobs)}"
+        f"Total scans: "
+        f"{len(jobs)}"
     )
 
     new_signals = []
-
-    # ========================================================
-    # DIAGNOSTIC COUNTERS
-    # ========================================================
-
-    bos_found = 0
-
-    long_bos = 0
-    short_bos = 0
-
-    gap_failed = 0
-    price_failed = 0
-    ema_failed = 0
-    sl_failed = 0
-
-    qualified = 0
-
-    diagnostic_examples = []
-
-    # ========================================================
-    # SCAN
-    # ========================================================
 
     with ThreadPoolExecutor(
         max_workers=MAX_WORKERS
@@ -934,69 +992,21 @@ def main():
                 symbol,
                 timeframe,
             )
-            for symbol, timeframe in jobs
+            for symbol, timeframe
+            in jobs
         }
 
         completed = 0
 
-        for future in as_completed(futures):
+        for future in as_completed(
+            futures
+        ):
 
             completed += 1
 
             try:
 
-                result = future.result()
-
-                signal = result["signal"]
-                diagnostic = result["diagnostic"]
-
-                # =================================================
-                # DIAGNOSTIC
-                # =================================================
-
-                if diagnostic:
-
-                    bos_found += 1
-
-                    direction = diagnostic["direction"]
-
-                    if direction == "LONG":
-                        long_bos += 1
-                    else:
-                        short_bos += 1
-
-                    reason = diagnostic["reason"]
-
-                    if reason == "QUALIFIED":
-
-                        qualified += 1
-
-                    elif "GAP" in reason:
-
-                        gap_failed += 1
-
-                    elif "price condition" in reason:
-
-                        price_failed += 1
-
-                    elif "EMA20" in reason:
-
-                        ema_failed += 1
-
-                    elif "SL" in reason:
-
-                        sl_failed += 1
-
-                    # Keep a few examples only
-                    if len(diagnostic_examples) < 30:
-
-                        diagnostic_examples.append(
-                            diagnostic
-                        )
-
-                # =================================================
-                # SIGNAL
-                # =================================================
+                signal = future.result()
 
                 if signal:
 
@@ -1022,10 +1032,14 @@ def main():
 
             except Exception as e:
 
-                symbol, timeframe = futures[future]
+                symbol, timeframe = (
+                    futures[future]
+                )
 
                 print(
-                    f"{symbol} {timeframe}: {e}"
+                    f"{symbol} "
+                    f"{timeframe}: "
+                    f"{e}"
                 )
 
             if (
@@ -1035,82 +1049,9 @@ def main():
 
                 print(
                     f"Progress: "
-                    f"{completed}/{len(jobs)}"
+                    f"{completed}/"
+                    f"{len(jobs)}"
                 )
-
-    # ========================================================
-    # DIAGNOSTIC SUMMARY
-    # ========================================================
-
-    print()
-    print("=" * 50)
-    print("DIAGNOSTIC SUMMARY")
-    print("=" * 50)
-
-    print(
-        f"BOS found: {bos_found}"
-    )
-
-    print(
-        f"LONG BOS: {long_bos}"
-    )
-
-    print(
-        f"SHORT BOS: {short_bos}"
-    )
-
-    print(
-        f"Rejected by GAP: {gap_failed}"
-    )
-
-    print(
-        f"Rejected by PRICE: {price_failed}"
-    )
-
-    print(
-        f"Rejected by EMA/SMA: {ema_failed}"
-    )
-
-    print(
-        f"Rejected by SL: {sl_failed}"
-    )
-
-    print(
-        f"Qualified: {qualified}"
-    )
-
-    print(
-        f"NEW signals: {len(new_signals)}"
-    )
-
-    # ========================================================
-    # SHOW EXAMPLES
-    # ========================================================
-
-    if diagnostic_examples:
-
-        print()
-        print(
-            "RECENT BOS DIAGNOSTIC EXAMPLES:"
-        )
-
-        for item in diagnostic_examples[:30]:
-
-            print(
-                f"{item['symbol']} "
-                f"{item['timeframe']} "
-                f"{item['direction']} | "
-                f"Price={format_price(item['price'])} | "
-                f"SMA50={format_price(item['sma50'])} | "
-                f"EMA20={format_price(item['ema20'])} | "
-                f"EMA200={format_price(item['ema200'])} | "
-                f"Gap={item['gap']:.2f}% | "
-                f"{item['reason']}"
-            )
-
-    print(
-        "=" * 50
-    )
 
     # ========================================================
     # SORT BY GAP
@@ -1143,7 +1084,8 @@ def main():
     # ========================================================
 
     print(
-        f"NEW SIGNALS: {len(new_signals)}"
+        f"NEW SIGNALS: "
+        f"{len(new_signals)}"
     )
 
     for signal in new_signals:
@@ -1184,4 +1126,5 @@ def main():
 # ============================================================
 
 if __name__ == "__main__":
+
     main()
