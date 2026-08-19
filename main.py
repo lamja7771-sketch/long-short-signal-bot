@@ -506,29 +506,49 @@ def analyze_timeframe(symbol, timeframe):
     direction = structure["direction"]
     trigger = structure["candle"]
 
+    # ========================================================
+    # FIND THE EXACT BOS CANDLE INDEX
+    # ========================================================
+
+    trigger_index = None
+
+    for i, candle in enumerate(candles):
+
+        if candle["time"] == trigger["time"]:
+            trigger_index = i
+            break
+
+    if trigger_index is None:
+        return None
+
     # --------------------------------------------------------
-    # INDICATORS
+    # INDICATORS AT BOS CANDLE
     # --------------------------------------------------------
 
-    closes = [
+    # IMPORTANT:
+    # Only candles up to and including the BOS candle
+    # are used for all indicator calculations.
+
+    bos_closes = [
         candle["close"]
-        for candle in candles
+        for candle in candles[:trigger_index + 1]
     ]
 
-    price = closes[-1]
+    # Entry is the BOS candle CLOSE.
+    price = trigger["close"]
 
     sma50 = calculate_sma(
-        closes,
+        bos_closes,
         SMA_PERIOD,
     )
 
     ema20 = calculate_ema(
-        closes,
+        bos_closes,
         EMA_FAST,
     )
 
     ema200 = calculate_ema(
-        closes,
+        bos_closes,
         EMA_SLOW,
     )
 
@@ -539,9 +559,9 @@ def analyze_timeframe(symbol, timeframe):
     ):
         return None
 
-    # --------------------------------------------------------
-    # GAP > 10%
-    # --------------------------------------------------------
+    # ========================================================
+    # GAP > 10% AT BOS CANDLE
+    # ========================================================
 
     if ema200 == 0:
         return None
@@ -557,7 +577,7 @@ def analyze_timeframe(symbol, timeframe):
     # ========================================================
     # LONG
     #
-    # 50 SMA < PRICE < 200 EMA
+    # 50 SMA < BOS CLOSE < 200 EMA
     # 20 EMA < 50 SMA
     # SL < 20 EMA
     # ========================================================
@@ -585,19 +605,29 @@ def analyze_timeframe(symbol, timeframe):
             "direction": "LONG",
             "symbol": symbol.replace("_USDT", ""),
             "timeframe": timeframe,
+
+            # BOS candle close
             "entry": price,
+
+            # BOS candle low
             "sl": sl,
+
+            # 200 EMA at BOS candle
             "tp": ema200,
+
+            # Gap at BOS candle
             "gap": gap,
+
+            # BOS candle timestamp
             "trigger_time": trigger["time"],
         }
 
     # ========================================================
     # SHORT
     #
-    # 200 EMA < PRICE < 50 SMA
+    # 200 EMA < BOS CLOSE < 50 SMA
     # 20 EMA > 50 SMA
-    # 20 EMA < SL
+    # 200 EMA < 20 EMA < SL
     # ========================================================
 
     if direction == "SHORT":
@@ -623,10 +653,20 @@ def analyze_timeframe(symbol, timeframe):
             "direction": "SHORT",
             "symbol": symbol.replace("_USDT", ""),
             "timeframe": timeframe,
+
+            # BOS candle close
             "entry": price,
+
+            # BOS candle high
             "sl": sl,
+
+            # 200 EMA at BOS candle
             "tp": ema200,
+
+            # Gap at BOS candle
             "gap": gap,
+
+            # BOS candle timestamp
             "trigger_time": trigger["time"],
         }
 
@@ -675,7 +715,7 @@ def format_signal(signal):
     # --------------------------------------------------------
     # TP1 = 5%
     # TP2 = 10%
-    # TP3 = 200 EMA
+    # TP3 = 200 EMA AT BOS
     # --------------------------------------------------------
 
     if direction == "LONG":
@@ -726,6 +766,7 @@ def main():
     print("GAP > 10%")
     print("BOS SCANNED INSIDE 20-CANDLE STRUCTURE WINDOW")
     print("MOST RECENT BOS SELECTED: LONG vs SHORT")
+    print("ENTRY + INDICATORS BASED ON BOS CANDLE")
     print("=" * 50)
 
     history = load_history()
