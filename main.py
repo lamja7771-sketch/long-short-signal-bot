@@ -355,45 +355,84 @@ def calculate_ema(values, period):
 
 
 # ============================================================
-# STRUCTURE BREAK
+# STRUCTURE BREAK / BOS
 # ============================================================
 
 def find_structure_break(candles):
 
-    if len(candles) < STRUCTURE_CANDLES + 1:
+    if len(candles) < STRUCTURE_CANDLES + 5:
         return None
 
-    current = candles[-1]
+    # --------------------------------------------------------
+    # Look at the most recent 20 COMPLETED candles
+    # --------------------------------------------------------
 
-    previous = candles[
-        -(STRUCTURE_CANDLES + 1):-1
-    ]
+    window = candles[-STRUCTURE_CANDLES:]
 
-    previous_high = max(
-        candle["high"]
-        for candle in previous
-    )
+    # --------------------------------------------------------
+    # LONG BOS
+    #
+    # Find a swing high inside the 20-candle window.
+    # Then check whether a later candle CLOSED above it.
+    #
+    # This means BOS can happen on candle 15, 16, 17,
+    # 18, 19, or 20 of the structure window.
+    # --------------------------------------------------------
 
-    previous_low = min(
-        candle["low"]
-        for candle in previous
-    )
+    for i in range(2, len(window) - 1):
 
-    # LONG BREAKOUT
-    if current["close"] > previous_high:
+        swing_high = window[i]["high"]
 
-        return {
-            "direction": "LONG",
-            "candle": current,
-        }
+        # Confirm swing high
+        if not (
+            swing_high > window[i - 1]["high"]
+            and
+            swing_high > window[i + 1]["high"]
+        ):
+            continue
 
-    # SHORT BREAKDOWN
-    if current["close"] < previous_low:
+        # Check candles after the swing high
+        for j in range(i + 1, len(window)):
 
-        return {
-            "direction": "SHORT",
-            "candle": current,
-        }
+            if window[j]["close"] > swing_high:
+
+                return {
+                    "direction": "LONG",
+                    "candle": window[j],
+                    "structure_level": swing_high,
+                }
+
+    # --------------------------------------------------------
+    # SHORT BOS
+    #
+    # Find a swing low inside the 20-candle window.
+    # Then check whether a later candle CLOSED below it.
+    #
+    # BOS can happen anywhere inside the structure window.
+    # --------------------------------------------------------
+
+    for i in range(2, len(window) - 1):
+
+        swing_low = window[i]["low"]
+
+        # Confirm swing low
+        if not (
+            swing_low < window[i - 1]["low"]
+            and
+            swing_low < window[i + 1]["low"]
+        ):
+            continue
+
+        # Check candles after the swing low
+        for j in range(i + 1, len(window)):
+
+            if window[j]["close"] < swing_low:
+
+                return {
+                    "direction": "SHORT",
+                    "candle": window[j],
+                    "structure_level": swing_low,
+                }
 
     return None
 
@@ -419,7 +458,10 @@ def analyze_timeframe(symbol, timeframe):
     if len(candles) < EMA_SLOW + STRUCTURE_CANDLES + 5:
         return None
 
+    # --------------------------------------------------------
     # STRUCTURE
+    # --------------------------------------------------------
+
     structure = find_structure_break(candles)
 
     if not structure:
@@ -428,7 +470,10 @@ def analyze_timeframe(symbol, timeframe):
     direction = structure["direction"]
     trigger = structure["candle"]
 
+    # --------------------------------------------------------
     # INDICATORS
+    # --------------------------------------------------------
+
     closes = [
         candle["close"]
         for candle in candles
@@ -458,7 +503,10 @@ def analyze_timeframe(symbol, timeframe):
     ):
         return None
 
+    # --------------------------------------------------------
     # GAP > 10%
+    # --------------------------------------------------------
+
     if ema200 == 0:
         return None
 
@@ -622,6 +670,7 @@ def main():
     print("15M / 1H / 4H INDEPENDENT STRUCTURE")
     print("20 EMA / 50 SMA / 200 EMA")
     print("GAP > 10%")
+    print("BOS SCANNED INSIDE 20-CANDLE STRUCTURE WINDOW")
     print("=" * 50)
 
     history = load_history()
