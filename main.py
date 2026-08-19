@@ -515,7 +515,11 @@ def analyze_timeframe(symbol, timeframe):
         for candle in candles
     ]
 
-    price = closes[-1]
+    # ========================================================
+    # ENTRY = BOS CANDLE CLOSE
+    # ========================================================
+
+    price = trigger["close"]
 
     sma50 = calculate_sma(
         closes,
@@ -557,7 +561,7 @@ def analyze_timeframe(symbol, timeframe):
     # ========================================================
     # LONG
     #
-    # 50 SMA < PRICE < 200 EMA
+    # 50 SMA < BOS CLOSE < 200 EMA
     # 20 EMA < 50 SMA
     # SL < 20 EMA
     # ========================================================
@@ -595,9 +599,9 @@ def analyze_timeframe(symbol, timeframe):
     # ========================================================
     # SHORT
     #
-    # 200 EMA < PRICE < 50 SMA
+    # 200 EMA < BOS CLOSE < 50 SMA
     # 20 EMA > 50 SMA
-    # 20 EMA < SL
+    # 200 EMA < 20 EMA < SL
     # ========================================================
 
     if direction == "SHORT":
@@ -676,6 +680,8 @@ def format_signal(signal):
     # TP1 = 5%
     # TP2 = 10%
     # TP3 = 200 EMA
+    #
+    # Percentages and EMA name are NOT shown in alert.
     # --------------------------------------------------------
 
     if direction == "LONG":
@@ -706,8 +712,8 @@ def format_signal(signal):
         f"#{symbol} {direction} {timeframe} {emoji}\n\n"
         f"Entry: ${entry}\n"
         f"SL: ${sl}\n\n"
-        f"**TP1: ${tp1} — 5%**\n"
-        f"**TP2: ${tp2} — 10%**\n"
+        f"**TP1: ${tp1}**\n"
+        f"**TP2: ${tp2}**\n"
         f"**TP3: ${tp3}**\n\n"
         f"Gap: {gap}%"
     )
@@ -726,6 +732,7 @@ def main():
     print("GAP > 10%")
     print("BOS SCANNED INSIDE 20-CANDLE STRUCTURE WINDOW")
     print("MOST RECENT BOS SELECTED: LONG vs SHORT")
+    print("ENTRY = BOS CANDLE CLOSE")
     print("=" * 50)
 
     history = load_history()
