@@ -379,10 +379,7 @@ def find_structure_break(candles):
         for candle in previous
     )
 
-    # --------------------------------------------------------
     # LONG BREAKOUT
-    # --------------------------------------------------------
-
     if current["close"] > previous_high:
 
         return {
@@ -390,10 +387,7 @@ def find_structure_break(candles):
             "candle": current,
         }
 
-    # --------------------------------------------------------
     # SHORT BREAKDOWN
-    # --------------------------------------------------------
-
     if current["close"] < previous_low:
 
         return {
@@ -425,13 +419,8 @@ def analyze_timeframe(symbol, timeframe):
     if len(candles) < EMA_SLOW + STRUCTURE_CANDLES + 5:
         return None
 
-    # --------------------------------------------------------
     # STRUCTURE
-    # --------------------------------------------------------
-
-    structure = find_structure_break(
-        candles
-    )
+    structure = find_structure_break(candles)
 
     if not structure:
         return None
@@ -439,10 +428,7 @@ def analyze_timeframe(symbol, timeframe):
     direction = structure["direction"]
     trigger = structure["candle"]
 
-    # --------------------------------------------------------
     # INDICATORS
-    # --------------------------------------------------------
-
     closes = [
         candle["close"]
         for candle in candles
@@ -472,12 +458,7 @@ def analyze_timeframe(symbol, timeframe):
     ):
         return None
 
-    # --------------------------------------------------------
-    # GAP
-    #
-    # STRICTLY GREATER THAN 10%
-    # --------------------------------------------------------
-
+    # GAP > 10%
     if ema200 == 0:
         return None
 
@@ -654,6 +635,12 @@ def main():
     if not symbols:
 
         print("No symbols found.")
+
+        send_telegram(
+            "⚠️ No symbols found.\n\n"
+            "Bot scan failed."
+        )
+
         return
 
     print(
@@ -745,23 +732,33 @@ def main():
                     f"{completed}/{len(jobs)}"
                 )
 
-    # --------------------------------------------------------
+    # ========================================================
     # SORT BY GAP
-    # --------------------------------------------------------
+    # ========================================================
 
     new_signals.sort(
         key=lambda x: x["gap"],
         reverse=True,
     )
 
-    # --------------------------------------------------------
-    # SEND
-    # --------------------------------------------------------
+    # ========================================================
+    # NO NEW SIGNAL
+    # ========================================================
 
     if not new_signals:
 
         print("No NEW signals.")
+
+        send_telegram(
+            "🔍 No signal found.\n\n"
+            "Next scan: 15 minutes"
+        )
+
         return
+
+    # ========================================================
+    # SEND NEW SIGNALS
+    # ========================================================
 
     print(
         f"NEW SIGNALS: {len(new_signals)}"
@@ -795,9 +792,7 @@ def main():
 
         time.sleep(0.5)
 
-    print(
-        "Finished."
-    )
+    print("Finished.")
 
 
 # ============================================================
