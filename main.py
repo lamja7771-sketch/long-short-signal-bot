@@ -1,5 +1,6 @@
 import os
 import time
+import threading
 import requests
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -18,7 +19,7 @@ SMA_PERIOD = 50
 EMA_FAST = 20
 EMA_SLOW = 200
 
-# More historical data for proper EMA200 warm-up
+# Proper EMA200 historical warm-up
 CANDLE_LIMIT = 1000
 
 # Recent BOS window
@@ -30,15 +31,6 @@ EMA20_TOLERANCE = 0.02
 
 # ============================================================
 # 2:10 PRICE / GAP RATIO
-#
-# Every 10% SMA50-EMA200 gap allows 2% price distance
-# from SMA50.
-#
-# 10% gap  -> 2% price tolerance
-# 20% gap  -> 4%
-# 35% gap  -> 7%
-# 50% gap  -> 10%
-# 80% gap  -> 16%
 # ============================================================
 
 PRICE_GAP_RATIO = 0.20
@@ -68,13 +60,57 @@ TIMEFRAMES = {
 }
 
 
-MAX_WORKERS = 12
+# ============================================================
+# PERFORMANCE
+# ============================================================
+
+# Increased from 12.
+# 16 gives more parallelism while still keeping some protection
+# against Gate API rate limiting.
+MAX_WORKERS = 16
+
+REQUEST_TIMEOUT = 20
+SYMBOL_TIMEOUT = 60
 
 
 HEADERS = {
-    "User-Agent": "Long-Short-Signal-Bot/2.0",
+    "User-Agent": "Long-Short-Signal-Bot/2.1",
     "Accept": "application/json",
+    "Connection": "keep-alive",
 }
+
+
+# ============================================================
+# THREAD-LOCAL HTTP SESSION
+#
+# Each worker thread gets its own requests.Session().
+#
+# This allows HTTP connections to be reused instead of creating
+# a new connection for every request.
+# ============================================================
+
+_thread_local = threading.local()
+
+
+def get_session():
+
+    session = getattr(
+        _thread_local,
+        "session",
+        None,
+    )
+
+    if session is None:
+
+        session = requests.Session()
+
+        session.headers.update(
+            HEADERS
+        )
+
+        _thread_local.session = session
+
+    return session
 
 
 # ============================================================
@@ -85,7 +121,10 @@ def send_telegram(message):
 
     if not BOT_TOKEN or not CHAT_ID:
 
-        print("Telegram secrets are missing.")
+        print(
+            "Telegram secrets are missing."
+        )
+
         return False
 
     url = (
@@ -108,7 +147,10 @@ def send_telegram(message):
 
         if response.status_code == 200:
 
-            print("Telegram message sent.")
+            print(
+                "Telegram message sent."
+            )
+
             return True
 
         print(
@@ -138,10 +180,11 @@ def get_symbols():
 
     try:
 
-        response = requests.get(
+        session = get_session()
+
+        response = session.get(
             url,
-            headers=HEADERS,
-            timeout=30,
+            timeout=REQUEST_TIMEOUT,
         )
 
         if response.status_code != 200:
@@ -174,7 +217,9 @@ def get_symbols():
 
                 symbols.append(symbol)
 
-        return sorted(set(symbols))
+        return sorted(
+            set(symbols)
+        )
 
     except Exception as e:
 
@@ -187,9 +232,127 @@ def get_symbols():
 
 
 # ============================================================
+# GET ALL LIVE SPOT PRICES
+#
+# IMPORTANT:
+#
+# Instead of making one ticker request for every symbol and
+# every timeframe, we request ALL spot tickers once.
+#
+# This is a major performance improvement.
+#
+# The returned price is still the LIVE SPOT price and is used
+# only as the current Entry price.
+# ============================================================
+
+def get_all_spot_prices():
+
+    url = (
+        f"{GATE_URL}/spot/tickers"
+    )
+
+    for attempt in range(3):
+
+        try:
+
+            session = get_session()
+
+            response = session.get(
+                url,
+                timeout=REQUEST_TIMEOUT,
+            )
+
+            if response.status_code == 200:
+
+                data = response.json()
+
+                prices = {}
+
+                if not isinstance(
+                    data,
+                    list,
+                ):
+
+                    return prices
+
+                for item in data:
+
+                    try:
+
+                        symbol = item.get(
+                            "currency_pair"
+                        )
+
+                        last_price = item.get(
+                            "last"
+                        )
+
+                        if (
+                            symbol
+                            and last_price is not None
+                        ):
+
+                            prices[symbol] = float(
+                                last_price
+                            )
+
+                    except Exception:
+
+                        continue
+
+                print(
+                    f"Loaded {len(prices)} "
+                    f"live Spot prices."
+                )
+
+                return prices
+
+            if response.status_code == 429:
+
+                wait_time = 2 ** attempt
+
+                print(
+                    "Spot ticker rate limited. "
+                    f"Retrying in {wait_time}s..."
+                )
+
+                time.sleep(
+                    wait_time
+                )
+
+                continue
+
+            print(
+                "Spot ticker error:",
+                response.text,
+            )
+
+            return {}
+
+        except Exception as e:
+
+            if attempt == 2:
+
+                print(
+                    "Spot ticker request error:",
+                    e,
+                )
+
+                return {}
+
+            wait_time = 2 ** attempt
+
+            time.sleep(
+                wait_time
+            )
+
+    return {}
+
+
+# ============================================================
 # GET FUTURES CANDLES
 #
-# USED ONLY FOR BOS / STRUCTURE
+# FUTURES = BOS / STRUCTURE ONLY
 # ============================================================
 
 def get_futures_candles(
@@ -212,26 +375,33 @@ def get_futures_candles(
 
         try:
 
-            response = requests.get(
+            session = get_session()
+
+            response = session.get(
                 url,
                 params=params,
-                headers=HEADERS,
-                timeout=20,
+                timeout=REQUEST_TIMEOUT,
             )
 
             if response.status_code == 200:
 
                 data = response.json()
 
-                if isinstance(data, list):
+                if isinstance(
+                    data,
+                    list,
+                ):
+
                     return data
 
                 return []
 
             if response.status_code == 429:
 
+                wait_time = 2 ** attempt
+
                 time.sleep(
-                    2 ** attempt
+                    wait_time
                 )
 
                 continue
@@ -243,14 +413,18 @@ def get_futures_candles(
             if attempt == 2:
 
                 print(
-                    f"Futures {symbol} "
-                    f"{timeframe}: {e}"
+                    f"Futures "
+                    f"{symbol} "
+                    f"{timeframe}: "
+                    f"{e}"
                 )
 
                 return []
 
+            wait_time = 2 ** attempt
+
             time.sleep(
-                2 ** attempt
+                wait_time
             )
 
     return []
@@ -259,10 +433,7 @@ def get_futures_candles(
 # ============================================================
 # GET SPOT CANDLES
 #
-# USED ONLY FOR:
-# SMA50
-# EMA20
-# EMA200
+# SPOT = SMA50 / EMA20 / EMA200
 # ============================================================
 
 def get_spot_candles(
@@ -284,26 +455,33 @@ def get_spot_candles(
 
         try:
 
-            response = requests.get(
+            session = get_session()
+
+            response = session.get(
                 url,
                 params=params,
-                headers=HEADERS,
-                timeout=20,
+                timeout=REQUEST_TIMEOUT,
             )
 
             if response.status_code == 200:
 
                 data = response.json()
 
-                if isinstance(data, list):
+                if isinstance(
+                    data,
+                    list,
+                ):
+
                     return data
 
                 return []
 
             if response.status_code == 429:
 
+                wait_time = 2 ** attempt
+
                 time.sleep(
-                    2 ** attempt
+                    wait_time
                 )
 
                 continue
@@ -315,93 +493,21 @@ def get_spot_candles(
             if attempt == 2:
 
                 print(
-                    f"Spot {symbol} "
-                    f"{timeframe}: {e}"
+                    f"Spot "
+                    f"{symbol} "
+                    f"{timeframe}: "
+                    f"{e}"
                 )
 
                 return []
 
+            wait_time = 2 ** attempt
+
             time.sleep(
-                2 ** attempt
+                wait_time
             )
 
     return []
-
-
-# ============================================================
-# GET LIVE SPOT PRICE
-#
-# USED ONLY FOR CURRENT ENTRY PRICE
-# ============================================================
-
-def get_spot_price(symbol):
-
-    url = (
-        f"{GATE_URL}/spot/tickers"
-    )
-
-    params = {
-        "currency_pair": symbol,
-    }
-
-    for attempt in range(3):
-
-        try:
-
-            response = requests.get(
-                url,
-                params=params,
-                headers=HEADERS,
-                timeout=20,
-            )
-
-            if response.status_code == 200:
-
-                data = response.json()
-
-                if (
-                    isinstance(data, list)
-                    and len(data) > 0
-                ):
-
-                    last_price = data[0].get(
-                        "last"
-                    )
-
-                    if last_price is not None:
-
-                        return float(
-                            last_price
-                        )
-
-                return None
-
-            if response.status_code == 429:
-
-                time.sleep(
-                    2 ** attempt
-                )
-
-                continue
-
-            return None
-
-        except Exception as e:
-
-            if attempt == 2:
-
-                print(
-                    f"Spot price "
-                    f"{symbol}: {e}"
-                )
-
-                return None
-
-            time.sleep(
-                2 ** attempt
-            )
-
-    return None
 
 
 # ============================================================
@@ -416,34 +522,60 @@ def parse_futures_candles(data):
 
         try:
 
-            if isinstance(item, dict):
+            if isinstance(
+                item,
+                dict,
+            ):
 
                 candle = {
-                    "time": int(item["t"]),
-                    "open": float(item["o"]),
-                    "high": float(item["h"]),
-                    "low": float(item["l"]),
-                    "close": float(item["c"]),
+                    "time": int(
+                        item["t"]
+                    ),
+                    "open": float(
+                        item["o"]
+                    ),
+                    "high": float(
+                        item["h"]
+                    ),
+                    "low": float(
+                        item["l"]
+                    ),
+                    "close": float(
+                        item["c"]
+                    ),
                 }
 
             else:
 
                 candle = {
-                    "time": int(item[0]),
-                    "open": float(item[5]),
-                    "high": float(item[3]),
-                    "low": float(item[4]),
-                    "close": float(item[2]),
+                    "time": int(
+                        item[0]
+                    ),
+                    "open": float(
+                        item[5]
+                    ),
+                    "high": float(
+                        item[3]
+                    ),
+                    "low": float(
+                        item[4]
+                    ),
+                    "close": float(
+                        item[2]
+                    ),
                 }
 
-            candles.append(candle)
+            candles.append(
+                candle
+            )
 
         except Exception:
 
             continue
 
     candles.sort(
-        key=lambda x: x["time"]
+        key=lambda x:
+            x["time"]
     )
 
     return candles
@@ -466,21 +598,34 @@ def parse_spot_candles(data):
         try:
 
             candle = {
-                "time": int(item[0]),
-                "open": float(item[5]),
-                "high": float(item[3]),
-                "low": float(item[4]),
-                "close": float(item[2]),
+                "time": int(
+                    item[0]
+                ),
+                "open": float(
+                    item[5]
+                ),
+                "high": float(
+                    item[3]
+                ),
+                "low": float(
+                    item[4]
+                ),
+                "close": float(
+                    item[2]
+                ),
             }
 
-            candles.append(candle)
+            candles.append(
+                candle
+            )
 
         except Exception:
 
             continue
 
     candles.sort(
-        key=lambda x: x["time"]
+        key=lambda x:
+            x["time"]
     )
 
     return candles
@@ -501,7 +646,9 @@ def remove_open_candle(
     timeframe_seconds,
 ):
 
-    now = int(time.time())
+    now = int(
+        time.time()
+    )
 
     return [
         candle
@@ -524,10 +671,13 @@ def calculate_sma(
 ):
 
     if len(values) < period:
+
         return None
 
     return (
-        sum(values[-period:])
+        sum(
+            values[-period:]
+        )
         / period
     )
 
@@ -535,16 +685,7 @@ def calculate_sma(
 # ============================================================
 # EMA
 #
-# Proper historical warm-up:
-#
-# First EMA value = SMA of first `period`
-# candles.
-#
-# Then EMA is calculated through ALL remaining
-# historical candles.
-#
-# With 1000 candles, EMA200 gets a much better
-# historical warm-up.
+# Proper historical warm-up.
 # ============================================================
 
 def calculate_ema(
@@ -553,21 +694,31 @@ def calculate_ema(
 ):
 
     if len(values) < period:
+
         return None
 
     multiplier = (
-        2 / (period + 1)
+        2
+        / (
+            period
+            + 1
+        )
     )
 
     value = (
-        sum(values[:period])
+        sum(
+            values[:period]
+        )
         / period
     )
 
     for price in values[period:]:
 
         value = (
-            (price - value)
+            (
+                price
+                - value
+            )
             * multiplier
         ) + value
 
@@ -582,10 +733,13 @@ def calculate_ema(
 # Selects the MOST RECENT LONG or SHORT BOS.
 # ============================================================
 
-def find_structure_break(candles):
+def find_structure_break(
+    candles
+):
 
     if len(candles) < (
-        STRUCTURE_CANDLES + 3
+        STRUCTURE_CANDLES
+        + 3
     ):
 
         return None
@@ -634,8 +788,14 @@ def find_structure_break(candles):
 
                 if (
                     long_bos is None
-                    or candidate["candle"]["time"]
-                    > long_bos["candle"]["time"]
+                    or
+                    candidate[
+                        "candle"
+                    ]["time"]
+                    >
+                    long_bos[
+                        "candle"
+                    ]["time"]
                 ):
 
                     long_bos = candidate
@@ -677,8 +837,14 @@ def find_structure_break(candles):
 
                 if (
                     short_bos is None
-                    or candidate["candle"]["time"]
-                    > short_bos["candle"]["time"]
+                    or
+                    candidate[
+                        "candle"
+                    ]["time"]
+                    >
+                    short_bos[
+                        "candle"
+                    ]["time"]
                 ):
 
                     short_bos = candidate
@@ -697,6 +863,7 @@ def find_structure_break(candles):
     ]
 
     if not candidates:
+
         return None
 
     return max(
@@ -708,23 +875,48 @@ def find_structure_break(candles):
 
 # ============================================================
 # ANALYZE ONE SYMBOL / ONE TIMEFRAME
+#
+# PERFORMANCE CHANGE:
+#
+# Futures candles and Spot candles are requested
+# simultaneously.
+#
+# Signal calculations remain unchanged.
 # ============================================================
 
 def analyze_timeframe(
     symbol,
     timeframe,
+    spot_prices,
 ):
 
     # ========================================================
-    # 1. FUTURES CANDLES
-    #
-    # FUTURES = BOS / STRUCTURE ONLY
+    # 1. FUTURES + SPOT CANDLES IN PARALLEL
     # ========================================================
 
-    futures_raw = get_futures_candles(
-        symbol,
-        timeframe,
-    )
+    with ThreadPoolExecutor(
+        max_workers=2
+    ) as executor:
+
+        futures_request = executor.submit(
+            get_futures_candles,
+            symbol,
+            timeframe,
+        )
+
+        spot_request = executor.submit(
+            get_spot_candles,
+            symbol,
+            timeframe,
+        )
+
+        futures_raw = futures_request.result()
+
+        spot_raw = spot_request.result()
+
+    # ========================================================
+    # FUTURES = BOS / STRUCTURE
+    # ========================================================
 
     futures_candles = parse_futures_candles(
         futures_raw
@@ -736,7 +928,8 @@ def analyze_timeframe(
     )
 
     if len(futures_candles) < (
-        STRUCTURE_CANDLES + 3
+        STRUCTURE_CANDLES
+        + 3
     ):
 
         return None
@@ -746,21 +939,20 @@ def analyze_timeframe(
     )
 
     if not structure:
+
         return None
 
-    direction = structure["direction"]
-    trigger = structure["candle"]
+    direction = structure[
+        "direction"
+    ]
+
+    trigger = structure[
+        "candle"
+    ]
 
     # ========================================================
-    # 2. SPOT CANDLES
-    #
     # SPOT = SMA50 / EMA20 / EMA200
     # ========================================================
-
-    spot_raw = get_spot_candles(
-        symbol,
-        timeframe,
-    )
 
     spot_candles = parse_spot_candles(
         spot_raw
@@ -811,35 +1003,36 @@ def analyze_timeframe(
         return None
 
     # ========================================================
-    # 3. LIVE SPOT PRICE
+    # LIVE SPOT PRICE
     #
-    # Used only for current price-position testing.
+    # Retrieved from the single all-tickers request.
     # ========================================================
 
-    price = get_spot_price(
+    price = spot_prices.get(
         symbol
     )
 
     if price is None:
+
         return None
 
     if price <= 0:
+
         return None
 
     # ========================================================
     # SMA50 / EMA200 GAP
-    #
-    # SAME FORMULA AS YOUR CURRENT BOT
-    #
-    # abs(SMA50 - EMA200)
-    # / abs(EMA200) * 100
     # ========================================================
 
     if ema200 == 0:
+
         return None
 
     gap = (
-        abs(sma50 - ema200)
+        abs(
+            sma50
+            - ema200
+        )
         / abs(ema200)
     ) * 100
 
@@ -852,6 +1045,7 @@ def analyze_timeframe(
     ]
 
     if gap <= minimum_gap:
+
         return None
 
     # ========================================================
@@ -861,11 +1055,13 @@ def analyze_timeframe(
     # ========================================================
 
     price_tolerance = (
-        gap * PRICE_GAP_RATIO
+        gap
+        * PRICE_GAP_RATIO
     )
 
     price_tolerance_decimal = (
-        price_tolerance / 100
+        price_tolerance
+        / 100
     )
 
     # ========================================================
@@ -882,9 +1078,6 @@ def analyze_timeframe(
             )
         )
 
-        # Live Spot price must be above SMA50
-        # but within the dynamic allowed distance.
-
         if not (
             sma50
             < price
@@ -892,8 +1085,6 @@ def analyze_timeframe(
         ):
 
             return None
-
-        # EMA20 must be within 2% above SMA50.
 
         if not (
             ema20
@@ -906,8 +1097,7 @@ def analyze_timeframe(
 
             return None
 
-        # SL = BOS candle low.
-
+        # SL = FUTURES BOS candle low
         sl = trigger["low"]
 
         if not (
@@ -953,9 +1143,6 @@ def analyze_timeframe(
             )
         )
 
-        # Live Spot price must be below SMA50
-        # but within the dynamic allowed distance.
-
         if not (
             minimum_price
             <= price
@@ -963,8 +1150,6 @@ def analyze_timeframe(
         ):
 
             return None
-
-        # EMA20 must be within 2% below SMA50.
 
         if not (
             ema20
@@ -977,8 +1162,7 @@ def analyze_timeframe(
 
             return None
 
-        # SL = BOS candle high.
-
+        # SL = FUTURES BOS candle high
         sl = trigger["high"]
 
         if not (
@@ -1021,15 +1205,19 @@ def analyze_timeframe(
 def format_price(price):
 
     if price >= 100:
+
         return f"{price:.2f}"
 
     if price >= 1:
+
         return f"{price:.4f}"
 
     if price >= 0.01:
+
         return f"{price:.6f}"
 
     if price >= 0.0001:
+
         return f"{price:.8f}"
 
     return f"{price:.10f}"
@@ -1065,13 +1253,27 @@ def format_signal(signal):
 
     if direction == "LONG":
 
-        tp1_price = entry_price * 1.05
-        tp2_price = entry_price * 1.10
+        tp1_price = (
+            entry_price
+            * 1.05
+        )
+
+        tp2_price = (
+            entry_price
+            * 1.10
+        )
 
     else:
 
-        tp1_price = entry_price * 0.95
-        tp2_price = entry_price * 0.90
+        tp1_price = (
+            entry_price
+            * 0.95
+        )
+
+        tp2_price = (
+            entry_price
+            * 0.90
+        )
 
     tp1 = format_price(
         tp1_price
@@ -1124,6 +1326,8 @@ def format_signal(signal):
 # ============================================================
 
 def main():
+
+    scan_start = time.time()
 
     print("=" * 60)
 
@@ -1184,10 +1388,6 @@ def main():
     )
 
     print(
-        "SLIGHTLY LOOSER RECENT BOS"
-    )
-
-    print(
         "RECENT BOS: LAST 10 COMPLETED FUTURES CANDLES"
     )
 
@@ -1200,11 +1400,7 @@ def main():
     )
 
     print(
-        "NO JSON HISTORY"
-    )
-
-    print(
-        "NO RSI"
+        "OPTIMIZED API SCANNING"
     )
 
     print("=" * 60)
@@ -1234,12 +1430,54 @@ def main():
     )
 
     # ========================================================
+    # GET ALL LIVE SPOT PRICES ONCE
+    #
+    # HUGE PERFORMANCE IMPROVEMENT
+    # ========================================================
+
+    price_start = time.time()
+
+    spot_prices = get_all_spot_prices()
+
+    price_time = (
+        time.time()
+        - price_start
+    )
+
+    print(
+        f"Live Spot prices loaded in "
+        f"{price_time:.2f}s"
+    )
+
+    if not spot_prices:
+
+        print(
+            "No Spot prices found."
+        )
+
+        send_telegram(
+            "⚠️ Spot ticker request failed.\n\n"
+            "Bot scan failed."
+        )
+
+        return
+
+    # ========================================================
     # BUILD JOBS
     # ========================================================
 
     jobs = []
 
     for symbol in symbols:
+
+        # Only create jobs where a live Spot price exists.
+        #
+        # This avoids wasting API calls on symbols that cannot
+        # produce a signal anyway.
+
+        if symbol not in spot_prices:
+
+            continue
 
         for timeframe in TIMEFRAMES:
 
@@ -1259,6 +1497,8 @@ def main():
     # RUN SCAN
     # ========================================================
 
+    scan_api_start = time.time()
+
     new_signals = []
 
     with ThreadPoolExecutor(
@@ -1270,6 +1510,7 @@ def main():
                 analyze_timeframe,
                 symbol,
                 timeframe,
+                spot_prices,
             ): (
                 symbol,
                 timeframe,
@@ -1320,18 +1561,31 @@ def main():
                 or completed == len(jobs)
             ):
 
+                elapsed = (
+                    time.time()
+                    - scan_api_start
+                )
+
                 print(
                     f"Progress: "
                     f"{completed}/"
-                    f"{len(jobs)}"
+                    f"{len(jobs)} "
+                    f"| "
+                    f"{elapsed:.1f}s"
                 )
+
+    scan_api_time = (
+        time.time()
+        - scan_api_start
+    )
 
     # ========================================================
     # SORT BY GAP
     # ========================================================
 
     new_signals.sort(
-        key=lambda x: x["gap"],
+        key=lambda x:
+            x["gap"],
         reverse=True,
     )
 
@@ -1341,8 +1595,23 @@ def main():
 
     if not new_signals:
 
+        total_time = (
+            time.time()
+            - scan_start
+        )
+
         print(
             "No signals found."
+        )
+
+        print(
+            f"API scan time: "
+            f"{scan_api_time:.2f}s"
+        )
+
+        print(
+            f"Total runtime: "
+            f"{total_time:.2f}s"
         )
 
         send_telegram(
@@ -1377,6 +1646,34 @@ def main():
 
         time.sleep(0.5)
 
+    # ========================================================
+    # PERFORMANCE SUMMARY
+    # ========================================================
+
+    total_time = (
+        time.time()
+        - scan_start
+    )
+
+    print("=" * 60)
+
+    print(
+        f"API SCAN TIME: "
+        f"{scan_api_time:.2f}s"
+    )
+
+    print(
+        f"TOTAL RUNTIME: "
+        f"{total_time:.2f}s"
+    )
+
+    print(
+        f"SIGNALS: "
+        f"{len(new_signals)}"
+    )
+
+    print("=" * 60)
+
     print(
         "Finished."
     )
@@ -1387,4 +1684,5 @@ def main():
 # ============================================================
 
 if __name__ == "__main__":
+
     main()
