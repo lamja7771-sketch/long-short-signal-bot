@@ -23,35 +23,21 @@ EMA_SLOW = 200
 # Slightly looser BOS
 STRUCTURE_CANDLES = 10
 
-# Existing EMA20 tolerance
+# EMA20 tolerance
 EMA20_TOLERANCE = 0.02
 
-# ============================================================
-# PRICE DISTANCE FROM SMA50
-#
-# Price must remain close to SMA50.
-#
-# LONG:
-#   SMA50 < PRICE <= SMA50 + 2%
-#
-# SHORT:
-#   SMA50 - 2% <= PRICE < SMA50
-#
-# ============================================================
-
+# Price must be close to SMA50
+# Maximum distance = 2%
 PRICE_SMA50_TOLERANCE = 0.02
 
 
 # ============================================================
 # TIMEFRAME-SPECIFIC GAP REQUIREMENTS
 #
-# The SMA50 / EMA200 gap must be greater than:
-#
-# 15M  -> 10%
-# 1H   -> 20%
-# 4H   -> 35%
-# Daily -> 30%
-#
+# 15M  -> >10%
+# 1H   -> >20%
+# 4H   -> >35%
+# Daily -> >30%
 # ============================================================
 
 GAP_MINIMUM = {
@@ -116,7 +102,6 @@ def send_telegram(message):
         if response.status_code == 200:
 
             print("Telegram message sent.")
-
             return True
 
         print(
@@ -174,6 +159,10 @@ def save_history(history):
 
 # ============================================================
 # SAVE HISTORY TO GITHUB
+#
+# FIXED:
+# If GitHub has a newer commit, pull/rebase
+# before pushing.
 # ============================================================
 
 def push_history():
@@ -195,12 +184,12 @@ def push_history():
                 "git",
                 "config",
                 "user.email",
-                "41898282+github-actions[bot]"
-                "@users.noreply.github.com",
+                "41898282+github-actions[bot]@users.noreply.github.com",
             ],
             check=True,
         )
 
+        # Add history file
         subprocess.run(
             [
                 "git",
@@ -210,6 +199,7 @@ def push_history():
             check=True,
         )
 
+        # Check whether there is anything to commit
         changed = subprocess.run(
             [
                 "git",
@@ -222,6 +212,7 @@ def push_history():
         if changed.returncode == 0:
             return
 
+        # Commit
         subprocess.run(
             [
                 "git",
@@ -232,17 +223,70 @@ def push_history():
             check=True,
         )
 
-        subprocess.run(
+        # ----------------------------------------------------
+        # Pull latest remote changes and rebase
+        # ----------------------------------------------------
+
+        print(
+            "Syncing latest GitHub changes..."
+        )
+
+        pull_result = subprocess.run(
+            [
+                "git",
+                "pull",
+                "--rebase",
+                "origin",
+                "main",
+            ]
+        )
+
+        if pull_result.returncode != 0:
+
+            print(
+                "Git pull/rebase failed."
+            )
+
+            # Try to abort rebase if one started
+            subprocess.run(
+                [
+                    "git",
+                    "rebase",
+                    "--abort",
+                ],
+                check=False,
+            )
+
+            return
+
+        # ----------------------------------------------------
+        # Push
+        # ----------------------------------------------------
+
+        print(
+            "Pushing signal history..."
+        )
+
+        push_result = subprocess.run(
             [
                 "git",
                 "push",
-            ],
-            check=True,
+                "origin",
+                "main",
+            ]
         )
 
-        print(
-            "Signal history pushed to GitHub."
-        )
+        if push_result.returncode == 0:
+
+            print(
+                "Signal history pushed to GitHub."
+            )
+
+        else:
+
+            print(
+                "Signal history push failed."
+            )
 
     except Exception as e:
 
@@ -348,7 +392,6 @@ def get_candles(
                 data = response.json()
 
                 if isinstance(data, list):
-
                     return data
 
                 return []
@@ -497,10 +540,8 @@ def calculate_ema(
 # ============================================================
 # SLIGHTLY LOOSER RECENT BOS
 #
-# BOS is searched inside the most recent
-# 10 COMPLETED candles.
-#
-# Latest LONG or SHORT BOS is selected.
+# Searches latest 10 completed candles.
+# Selects the MOST RECENT LONG or SHORT BOS.
 # ============================================================
 
 def find_structure_break(candles):
@@ -605,7 +646,7 @@ def find_structure_break(candles):
                     short_bos = candidate
 
     # ========================================================
-    # SELECT MOST RECENT BOS
+    # MOST RECENT BOS
     # ========================================================
 
     candidates = [
@@ -729,25 +770,17 @@ def analyze_timeframe(
         return None
 
     # ========================================================
-    # PRICE DISTANCE FROM SMA50
-    #
-    # Maximum allowed = 2%
-    #
-    # LONG:
-    #   SMA50 < price <= SMA50 + 2%
-    #
-    # SHORT:
-    #   SMA50 - 2% <= price < SMA50
-    # ========================================================
-
-    # ========================================================
     # LONG
+    #
+    # Price:
+    #   Above SMA50
+    #   Maximum 2% above SMA50
+    #
+    # EMA20:
+    #   Within 2% tolerance of SMA50
     # ========================================================
 
     if direction == "LONG":
-
-        # Price must be ABOVE SMA50
-        # but no more than 2% away.
 
         if not (
             sma50 < price
@@ -757,8 +790,6 @@ def analyze_timeframe(
 
             return None
 
-        # Existing EMA20 tolerance
-
         if not (
             ema20
             <= sma50
@@ -766,8 +797,6 @@ def analyze_timeframe(
         ):
 
             return None
-
-        # Stop must be below EMA20/SMA50 area
 
         sl = trigger["low"]
 
@@ -802,12 +831,16 @@ def analyze_timeframe(
 
     # ========================================================
     # SHORT
+    #
+    # Price:
+    #   Below SMA50
+    #   Maximum 2% below SMA50
+    #
+    # EMA20:
+    #   Within 2% tolerance of SMA50
     # ========================================================
 
     if direction == "SHORT":
-
-        # Price must be BELOW SMA50
-        # but no more than 2% away.
 
         if not (
             sma50
@@ -818,8 +851,6 @@ def analyze_timeframe(
 
             return None
 
-        # Existing EMA20 tolerance
-
         if not (
             ema20
             >= sma50
@@ -827,8 +858,6 @@ def analyze_timeframe(
         ):
 
             return None
-
-        # Stop must be above EMA20
 
         sl = trigger["high"]
 
@@ -909,11 +938,11 @@ def format_signal(signal):
         sl_price
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # TP1 = 5%
     # TP2 = 10%
     # TP3 = 200 EMA
-    # --------------------------------------------------------
+    # ========================================================
 
     if direction == "LONG":
 
