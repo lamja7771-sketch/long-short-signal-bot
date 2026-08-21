@@ -26,18 +26,30 @@ STRUCTURE_CANDLES = 10
 # EMA20 tolerance
 EMA20_TOLERANCE = 0.02
 
-# Price must be close to SMA50
-# Maximum distance = 2%
-PRICE_SMA50_TOLERANCE = 0.02
+# ============================================================
+# 2:10 PRICE / GAP RATIO
+#
+# For every 10% SMA50-EMA200 gap,
+# price may be maximum 2% away from SMA50.
+#
+# Example:
+#
+# Gap 10%  -> Price tolerance 2%
+# Gap 20%  -> Price tolerance 4%
+# Gap 35%  -> Price tolerance 7%
+# Gap 50%  -> Price tolerance 10%
+# Gap 80%  -> Price tolerance 16%
+#
+# Formula:
+#
+# price_tolerance = actual_gap * 0.20
+# ============================================================
+
+PRICE_GAP_RATIO = 0.20
 
 
 # ============================================================
-# TIMEFRAME-SPECIFIC GAP REQUIREMENTS
-#
-# 15M  -> >10%
-# 1H   -> >20%
-# 4H   -> >35%
-# Daily -> >30%
+# TIMEFRAME-SPECIFIC MINIMUM GAP
 # ============================================================
 
 GAP_MINIMUM = {
@@ -159,10 +171,6 @@ def save_history(history):
 
 # ============================================================
 # SAVE HISTORY TO GITHUB
-#
-# FIXED:
-# If GitHub has a newer commit, pull/rebase
-# before pushing.
 # ============================================================
 
 def push_history():
@@ -189,7 +197,6 @@ def push_history():
             check=True,
         )
 
-        # Add history file
         subprocess.run(
             [
                 "git",
@@ -199,7 +206,6 @@ def push_history():
             check=True,
         )
 
-        # Check whether there is anything to commit
         changed = subprocess.run(
             [
                 "git",
@@ -212,7 +218,6 @@ def push_history():
         if changed.returncode == 0:
             return
 
-        # Commit
         subprocess.run(
             [
                 "git",
@@ -222,10 +227,6 @@ def push_history():
             ],
             check=True,
         )
-
-        # ----------------------------------------------------
-        # Pull latest remote changes and rebase
-        # ----------------------------------------------------
 
         print(
             "Syncing latest GitHub changes..."
@@ -247,7 +248,6 @@ def push_history():
                 "Git pull/rebase failed."
             )
 
-            # Try to abort rebase if one started
             subprocess.run(
                 [
                     "git",
@@ -258,10 +258,6 @@ def push_history():
             )
 
             return
-
-        # ----------------------------------------------------
-        # Push
-        # ----------------------------------------------------
 
         print(
             "Pushing signal history..."
@@ -751,7 +747,7 @@ def analyze_timeframe(
         return None
 
     # ========================================================
-    # TIMEFRAME-SPECIFIC GAP
+    # SMA50 / EMA200 GAP
     # ========================================================
 
     if ema200 == 0:
@@ -762,6 +758,10 @@ def analyze_timeframe(
         / abs(ema200)
     ) * 100
 
+    # ========================================================
+    # TIMEFRAME-SPECIFIC MINIMUM GAP
+    # ========================================================
+
     minimum_gap = GAP_MINIMUM[
         timeframe
     ]
@@ -770,26 +770,56 @@ def analyze_timeframe(
         return None
 
     # ========================================================
+    # DYNAMIC PRICE TOLERANCE
+    #
+    # THIS IS THE IMPORTANT NEW PART.
+    #
+    # Actual gap × 20%
+    #
+    # Example:
+    #
+    # 10% gap  -> 2% price tolerance
+    # 20% gap  -> 4%
+    # 35% gap  -> 7%
+    # 80% gap  -> 16%
+    # ========================================================
+
+    price_tolerance = (
+        gap * PRICE_GAP_RATIO
+    )
+
+    price_tolerance_decimal = (
+        price_tolerance / 100
+    )
+
+    # ========================================================
     # LONG
     #
-    # Price:
-    #   Above SMA50
-    #   Maximum 2% above SMA50
+    # Price must be ABOVE SMA50,
+    # but not farther than the dynamic tolerance.
     #
-    # EMA20:
-    #   Within 2% tolerance of SMA50
+    # EMA20 remains within 2% tolerance.
     # ========================================================
 
     if direction == "LONG":
 
+        maximum_price = (
+            sma50
+            * (
+                1
+                + price_tolerance_decimal
+            )
+        )
+
         if not (
-            sma50 < price
-            <= sma50
-            * (1 + PRICE_SMA50_TOLERANCE)
+            sma50
+            < price
+            <= maximum_price
         ):
 
             return None
 
+        # EMA20 tolerance
         if not (
             ema20
             <= sma50
@@ -825,6 +855,8 @@ def analyze_timeframe(
                 ema200,
             "gap":
                 gap,
+            "price_tolerance":
+                price_tolerance,
             "trigger_time":
                 trigger["time"],
         }
@@ -832,25 +864,31 @@ def analyze_timeframe(
     # ========================================================
     # SHORT
     #
-    # Price:
-    #   Below SMA50
-    #   Maximum 2% below SMA50
+    # Price must be BELOW SMA50,
+    # but not farther than the dynamic tolerance.
     #
-    # EMA20:
-    #   Within 2% tolerance of SMA50
+    # EMA20 remains within 2% tolerance.
     # ========================================================
 
     if direction == "SHORT":
 
-        if not (
+        minimum_price = (
             sma50
-            * (1 - PRICE_SMA50_TOLERANCE)
+            * (
+                1
+                - price_tolerance_decimal
+            )
+        )
+
+        if not (
+            minimum_price
             <= price
             < sma50
         ):
 
             return None
 
+        # EMA20 tolerance
         if not (
             ema20
             >= sma50
@@ -888,6 +926,8 @@ def analyze_timeframe(
                 ema200,
             "gap":
                 gap,
+            "price_tolerance":
+                price_tolerance,
             "trigger_time":
                 trigger["time"],
         }
@@ -980,6 +1020,11 @@ def format_signal(signal):
         signal["gap"]
     )
 
+    price_tolerance = round(
+        signal["price_tolerance"],
+        2,
+    )
+
     emoji = (
         "🟢"
         if direction == "LONG"
@@ -999,7 +1044,9 @@ def format_signal(signal):
         f"**TP2: ${tp2}**\n"
         f"**TP3: ${tp3}**\n\n"
 
-        f"Gap: {gap}%"
+        f"Gap: {gap}%\n"
+        f"SMA50 Distance Allowed: "
+        f"{price_tolerance}%"
     )
 
 
@@ -1024,7 +1071,7 @@ def main():
     )
 
     print(
-        "TIMEFRAME-SPECIFIC GAP"
+        "TIMEFRAME-SPECIFIC MINIMUM GAP"
     )
 
     print(
@@ -1044,7 +1091,11 @@ def main():
     )
 
     print(
-        "PRICE MAX 2% FROM SMA50"
+        "PRICE / GAP RATIO = 2:10"
+    )
+
+    print(
+        "PRICE TOLERANCE = ACTUAL GAP × 20%"
     )
 
     print(
