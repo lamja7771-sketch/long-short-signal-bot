@@ -1,7 +1,5 @@
 import os
 import time
-import json
-import subprocess
 import requests
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -20,29 +18,27 @@ SMA_PERIOD = 50
 EMA_FAST = 20
 EMA_SLOW = 200
 
-# Slightly looser BOS
+# More historical data for proper EMA200 warm-up
+CANDLE_LIMIT = 1000
+
+# Recent BOS window
 STRUCTURE_CANDLES = 10
 
-# EMA20 tolerance
+# EMA20 tolerance = 2%
 EMA20_TOLERANCE = 0.02
+
 
 # ============================================================
 # 2:10 PRICE / GAP RATIO
 #
-# For every 10% SMA50-EMA200 gap,
-# price may be maximum 2% away from SMA50.
+# Every 10% SMA50-EMA200 gap allows 2% price distance
+# from SMA50.
 #
-# Example:
-#
-# Gap 10%  -> Price tolerance 2%
-# Gap 20%  -> Price tolerance 4%
-# Gap 35%  -> Price tolerance 7%
-# Gap 50%  -> Price tolerance 10%
-# Gap 80%  -> Price tolerance 16%
-#
-# Formula:
-#
-# price_tolerance = actual_gap * 0.20
+# 10% gap  -> 2% price tolerance
+# 20% gap  -> 4%
+# 35% gap  -> 7%
+# 50% gap  -> 10%
+# 80% gap  -> 16%
 # ============================================================
 
 PRICE_GAP_RATIO = 0.20
@@ -72,13 +68,11 @@ TIMEFRAMES = {
 }
 
 
-CANDLE_LIMIT = 250
 MAX_WORKERS = 12
 
-HISTORY_FILE = "signals.json"
 
 HEADERS = {
-    "User-Agent": "Long-Short-Signal-Bot/1.0",
+    "User-Agent": "Long-Short-Signal-Bot/2.0",
     "Accept": "application/json",
 }
 
@@ -90,6 +84,7 @@ HEADERS = {
 def send_telegram(message):
 
     if not BOT_TOKEN or not CHAT_ID:
+
         print("Telegram secrets are missing.")
         return False
 
@@ -132,168 +127,7 @@ def send_telegram(message):
 
 
 # ============================================================
-# SIGNAL HISTORY
-# ============================================================
-
-def load_history():
-
-    try:
-
-        with open(
-            HISTORY_FILE,
-            "r",
-            encoding="utf-8",
-        ) as f:
-
-            data = json.load(f)
-
-        return set(data)
-
-    except Exception:
-
-        return set()
-
-
-def save_history(history):
-
-    with open(
-        HISTORY_FILE,
-        "w",
-        encoding="utf-8",
-    ) as f:
-
-        json.dump(
-            sorted(history),
-            f,
-            indent=2,
-        )
-
-
-# ============================================================
-# SAVE HISTORY TO GITHUB
-# ============================================================
-
-def push_history():
-
-    try:
-
-        subprocess.run(
-            [
-                "git",
-                "config",
-                "user.name",
-                "github-actions[bot]",
-            ],
-            check=True,
-        )
-
-        subprocess.run(
-            [
-                "git",
-                "config",
-                "user.email",
-                "41898282+github-actions[bot]@users.noreply.github.com",
-            ],
-            check=True,
-        )
-
-        subprocess.run(
-            [
-                "git",
-                "add",
-                HISTORY_FILE,
-            ],
-            check=True,
-        )
-
-        changed = subprocess.run(
-            [
-                "git",
-                "diff",
-                "--cached",
-                "--quiet",
-            ]
-        )
-
-        if changed.returncode == 0:
-            return
-
-        subprocess.run(
-            [
-                "git",
-                "commit",
-                "-m",
-                "Update signal history",
-            ],
-            check=True,
-        )
-
-        print(
-            "Syncing latest GitHub changes..."
-        )
-
-        pull_result = subprocess.run(
-            [
-                "git",
-                "pull",
-                "--rebase",
-                "origin",
-                "main",
-            ]
-        )
-
-        if pull_result.returncode != 0:
-
-            print(
-                "Git pull/rebase failed."
-            )
-
-            subprocess.run(
-                [
-                    "git",
-                    "rebase",
-                    "--abort",
-                ],
-                check=False,
-            )
-
-            return
-
-        print(
-            "Pushing signal history..."
-        )
-
-        push_result = subprocess.run(
-            [
-                "git",
-                "push",
-                "origin",
-                "main",
-            ]
-        )
-
-        if push_result.returncode == 0:
-
-            print(
-                "Signal history pushed to GitHub."
-            )
-
-        else:
-
-            print(
-                "Signal history push failed."
-            )
-
-    except Exception as e:
-
-        print(
-            "History push error:",
-            e,
-        )
-
-
-# ============================================================
-# GET GATE.IO SYMBOLS
+# GET GATE.IO FUTURES SYMBOLS
 # ============================================================
 
 def get_symbols():
@@ -353,10 +187,12 @@ def get_symbols():
 
 
 # ============================================================
-# GET CANDLES
+# GET FUTURES CANDLES
+#
+# USED ONLY FOR BOS / STRUCTURE
 # ============================================================
 
-def get_candles(
+def get_futures_candles(
     symbol,
     timeframe,
 ):
@@ -407,7 +243,8 @@ def get_candles(
             if attempt == 2:
 
                 print(
-                    f"{symbol} {timeframe}: {e}"
+                    f"Futures {symbol} "
+                    f"{timeframe}: {e}"
                 )
 
                 return []
@@ -420,10 +257,158 @@ def get_candles(
 
 
 # ============================================================
-# PARSE CANDLES
+# GET SPOT CANDLES
+#
+# USED ONLY FOR:
+# SMA50
+# EMA20
+# EMA200
 # ============================================================
 
-def parse_candles(data):
+def get_spot_candles(
+    symbol,
+    timeframe,
+):
+
+    url = (
+        f"{GATE_URL}/spot/candlesticks"
+    )
+
+    params = {
+        "currency_pair": symbol,
+        "interval": timeframe,
+        "limit": CANDLE_LIMIT,
+    }
+
+    for attempt in range(3):
+
+        try:
+
+            response = requests.get(
+                url,
+                params=params,
+                headers=HEADERS,
+                timeout=20,
+            )
+
+            if response.status_code == 200:
+
+                data = response.json()
+
+                if isinstance(data, list):
+                    return data
+
+                return []
+
+            if response.status_code == 429:
+
+                time.sleep(
+                    2 ** attempt
+                )
+
+                continue
+
+            return []
+
+        except Exception as e:
+
+            if attempt == 2:
+
+                print(
+                    f"Spot {symbol} "
+                    f"{timeframe}: {e}"
+                )
+
+                return []
+
+            time.sleep(
+                2 ** attempt
+            )
+
+    return []
+
+
+# ============================================================
+# GET LIVE SPOT PRICE
+#
+# USED ONLY FOR CURRENT ENTRY PRICE
+# ============================================================
+
+def get_spot_price(symbol):
+
+    url = (
+        f"{GATE_URL}/spot/tickers"
+    )
+
+    params = {
+        "currency_pair": symbol,
+    }
+
+    for attempt in range(3):
+
+        try:
+
+            response = requests.get(
+                url,
+                params=params,
+                headers=HEADERS,
+                timeout=20,
+            )
+
+            if response.status_code == 200:
+
+                data = response.json()
+
+                if (
+                    isinstance(data, list)
+                    and len(data) > 0
+                ):
+
+                    last_price = data[0].get(
+                        "last"
+                    )
+
+                    if last_price is not None:
+
+                        return float(
+                            last_price
+                        )
+
+                return None
+
+            if response.status_code == 429:
+
+                time.sleep(
+                    2 ** attempt
+                )
+
+                continue
+
+            return None
+
+        except Exception as e:
+
+            if attempt == 2:
+
+                print(
+                    f"Spot price "
+                    f"{symbol}: {e}"
+                )
+
+                return None
+
+            time.sleep(
+                2 ** attempt
+            )
+
+    return None
+
+
+# ============================================================
+# PARSE FUTURES CANDLES
+# ============================================================
+
+def parse_futures_candles(data):
 
     candles = []
 
@@ -465,7 +450,50 @@ def parse_candles(data):
 
 
 # ============================================================
+# PARSE SPOT CANDLES
+#
+# Gate Spot:
+#
+# [timestamp, volume, close, high, low, open, amount]
+# ============================================================
+
+def parse_spot_candles(data):
+
+    candles = []
+
+    for item in data:
+
+        try:
+
+            candle = {
+                "time": int(item[0]),
+                "open": float(item[5]),
+                "high": float(item[3]),
+                "low": float(item[4]),
+                "close": float(item[2]),
+            }
+
+            candles.append(candle)
+
+        except Exception:
+
+            continue
+
+    candles.sort(
+        key=lambda x: x["time"]
+    )
+
+    return candles
+
+
+# ============================================================
 # REMOVE CURRENT OPEN CANDLE
+#
+# ONLY CLOSED CANDLES ARE USED FOR:
+# - BOS
+# - SMA50
+# - EMA20
+# - EMA200
 # ============================================================
 
 def remove_open_candle(
@@ -506,6 +534,17 @@ def calculate_sma(
 
 # ============================================================
 # EMA
+#
+# Proper historical warm-up:
+#
+# First EMA value = SMA of first `period`
+# candles.
+#
+# Then EMA is calculated through ALL remaining
+# historical candles.
+#
+# With 1000 candles, EMA200 gets a much better
+# historical warm-up.
 # ============================================================
 
 def calculate_ema(
@@ -516,7 +555,9 @@ def calculate_ema(
     if len(values) < period:
         return None
 
-    multiplier = 2 / (period + 1)
+    multiplier = (
+        2 / (period + 1)
+    )
 
     value = (
         sum(values[:period])
@@ -534,9 +575,10 @@ def calculate_ema(
 
 
 # ============================================================
-# SLIGHTLY LOOSER RECENT BOS
+# FIND RECENT BOS
 #
-# Searches latest 10 completed candles.
+# Searches latest 10 completed FUTURES candles.
+#
 # Selects the MOST RECENT LONG or SHORT BOS.
 # ============================================================
 
@@ -673,55 +715,77 @@ def analyze_timeframe(
     timeframe,
 ):
 
-    raw = get_candles(
+    # ========================================================
+    # 1. FUTURES CANDLES
+    #
+    # FUTURES = BOS / STRUCTURE ONLY
+    # ========================================================
+
+    futures_raw = get_futures_candles(
         symbol,
         timeframe,
     )
 
-    candles = parse_candles(raw)
+    futures_candles = parse_futures_candles(
+        futures_raw
+    )
 
-    candles = remove_open_candle(
-        candles,
+    futures_candles = remove_open_candle(
+        futures_candles,
         TIMEFRAMES[timeframe],
     )
 
-    if len(candles) < (
-        EMA_SLOW
-        + STRUCTURE_CANDLES
-        + 5
+    if len(futures_candles) < (
+        STRUCTURE_CANDLES + 3
     ):
 
         return None
 
-    # --------------------------------------------------------
-    # STRUCTURE
-    # --------------------------------------------------------
-
     structure = find_structure_break(
-        candles
+        futures_candles
     )
 
     if not structure:
         return None
 
-    direction = structure[
-        "direction"
-    ]
+    direction = structure["direction"]
+    trigger = structure["candle"]
 
-    trigger = structure[
-        "candle"
-    ]
+    # ========================================================
+    # 2. SPOT CANDLES
+    #
+    # SPOT = SMA50 / EMA20 / EMA200
+    # ========================================================
 
-    # --------------------------------------------------------
-    # INDICATORS
-    # --------------------------------------------------------
+    spot_raw = get_spot_candles(
+        symbol,
+        timeframe,
+    )
+
+    spot_candles = parse_spot_candles(
+        spot_raw
+    )
+
+    spot_candles = remove_open_candle(
+        spot_candles,
+        TIMEFRAMES[timeframe],
+    )
+
+    # Need enough data for EMA200 warm-up.
+    if len(spot_candles) < (
+        EMA_SLOW + 50
+    ):
+
+        return None
 
     closes = [
         candle["close"]
-        for candle in candles
+        for candle in spot_candles
     ]
 
-    price = closes[-1]
+    # ========================================================
+    # SPOT INDICATORS
+    # ========================================================
 
     sma50 = calculate_sma(
         closes,
@@ -747,7 +811,28 @@ def analyze_timeframe(
         return None
 
     # ========================================================
+    # 3. LIVE SPOT PRICE
+    #
+    # Used only for current price-position testing.
+    # ========================================================
+
+    price = get_spot_price(
+        symbol
+    )
+
+    if price is None:
+        return None
+
+    if price <= 0:
+        return None
+
+    # ========================================================
     # SMA50 / EMA200 GAP
+    #
+    # SAME FORMULA AS YOUR CURRENT BOT
+    #
+    # abs(SMA50 - EMA200)
+    # / abs(EMA200) * 100
     # ========================================================
 
     if ema200 == 0:
@@ -759,7 +844,7 @@ def analyze_timeframe(
     ) * 100
 
     # ========================================================
-    # TIMEFRAME-SPECIFIC MINIMUM GAP
+    # MINIMUM GAP
     # ========================================================
 
     minimum_gap = GAP_MINIMUM[
@@ -772,16 +857,7 @@ def analyze_timeframe(
     # ========================================================
     # DYNAMIC PRICE TOLERANCE
     #
-    # THIS IS THE IMPORTANT NEW PART.
-    #
-    # Actual gap × 20%
-    #
-    # Example:
-    #
-    # 10% gap  -> 2% price tolerance
-    # 20% gap  -> 4%
-    # 35% gap  -> 7%
-    # 80% gap  -> 16%
+    # Actual gap * 20%
     # ========================================================
 
     price_tolerance = (
@@ -794,11 +870,6 @@ def analyze_timeframe(
 
     # ========================================================
     # LONG
-    #
-    # Price must be ABOVE SMA50,
-    # but not farther than the dynamic tolerance.
-    #
-    # EMA20 remains within 2% tolerance.
     # ========================================================
 
     if direction == "LONG":
@@ -811,6 +882,9 @@ def analyze_timeframe(
             )
         )
 
+        # Live Spot price must be above SMA50
+        # but within the dynamic allowed distance.
+
         if not (
             sma50
             < price
@@ -819,42 +893,46 @@ def analyze_timeframe(
 
             return None
 
-        # EMA20 tolerance
+        # EMA20 must be within 2% above SMA50.
+
         if not (
             ema20
             <= sma50
-            * (1 + EMA20_TOLERANCE)
+            * (
+                1
+                + EMA20_TOLERANCE
+            )
         ):
 
             return None
 
+        # SL = BOS candle low.
+
         sl = trigger["low"]
 
         if not (
-            sl < ema20
+            sl
+            < ema20
             <= sma50
-            * (1 + EMA20_TOLERANCE)
+            * (
+                1
+                + EMA20_TOLERANCE
+            )
         ):
 
             return None
 
         return {
             "direction": "LONG",
-            "symbol":
-                symbol.replace(
-                    "_USDT",
-                    "",
-                ),
-            "timeframe":
-                timeframe,
-            "entry":
-                price,
-            "sl":
-                sl,
-            "tp":
-                ema200,
-            "gap":
-                gap,
+            "symbol": symbol.replace(
+                "_USDT",
+                "",
+            ),
+            "timeframe": timeframe,
+            "entry": price,
+            "sl": sl,
+            "tp": ema200,
+            "gap": gap,
             "price_tolerance":
                 price_tolerance,
             "trigger_time":
@@ -863,11 +941,6 @@ def analyze_timeframe(
 
     # ========================================================
     # SHORT
-    #
-    # Price must be BELOW SMA50,
-    # but not farther than the dynamic tolerance.
-    #
-    # EMA20 remains within 2% tolerance.
     # ========================================================
 
     if direction == "SHORT":
@@ -880,6 +953,9 @@ def analyze_timeframe(
             )
         )
 
+        # Live Spot price must be below SMA50
+        # but within the dynamic allowed distance.
+
         if not (
             minimum_price
             <= price
@@ -888,14 +964,20 @@ def analyze_timeframe(
 
             return None
 
-        # EMA20 tolerance
+        # EMA20 must be within 2% below SMA50.
+
         if not (
             ema20
             >= sma50
-            * (1 - EMA20_TOLERANCE)
+            * (
+                1
+                - EMA20_TOLERANCE
+            )
         ):
 
             return None
+
+        # SL = BOS candle high.
 
         sl = trigger["high"]
 
@@ -903,7 +985,10 @@ def analyze_timeframe(
             ema200
             < ema20
             >= sma50
-            * (1 - EMA20_TOLERANCE)
+            * (
+                1
+                - EMA20_TOLERANCE
+            )
             and sl > ema20
         ):
 
@@ -911,21 +996,15 @@ def analyze_timeframe(
 
         return {
             "direction": "SHORT",
-            "symbol":
-                symbol.replace(
-                    "_USDT",
-                    "",
-                ),
-            "timeframe":
-                timeframe,
-            "entry":
-                price,
-            "sl":
-                sl,
-            "tp":
-                ema200,
-            "gap":
-                gap,
+            "symbol": symbol.replace(
+                "_USDT",
+                "",
+            ),
+            "timeframe": timeframe,
+            "entry": price,
+            "sl": sl,
+            "tp": ema200,
+            "gap": gap,
             "price_tolerance":
                 price_tolerance,
             "trigger_time":
@@ -986,23 +1065,13 @@ def format_signal(signal):
 
     if direction == "LONG":
 
-        tp1_price = (
-            entry_price * 1.05
-        )
-
-        tp2_price = (
-            entry_price * 1.10
-        )
+        tp1_price = entry_price * 1.05
+        tp2_price = entry_price * 1.10
 
     else:
 
-        tp1_price = (
-            entry_price * 0.95
-        )
-
-        tp2_price = (
-            entry_price * 0.90
-        )
+        tp1_price = entry_price * 0.95
+        tp2_price = entry_price * 0.90
 
     tp1 = format_price(
         tp1_price
@@ -1067,7 +1136,19 @@ def main():
     )
 
     print(
-        "20 EMA / 50 SMA / 200 EMA"
+        "SPOT SMA50 / SPOT EMA20 / SPOT EMA200"
+    )
+
+    print(
+        "FUTURES BOS / STRUCTURE"
+    )
+
+    print(
+        "LIVE SPOT ENTRY PRICE"
+    )
+
+    print(
+        "PROPER EMA200 WARM-UP"
     )
 
     print(
@@ -1095,7 +1176,7 @@ def main():
     )
 
     print(
-        "PRICE TOLERANCE = ACTUAL GAP × 20%"
+        "PRICE TOLERANCE = ACTUAL GAP x 20%"
     )
 
     print(
@@ -1107,7 +1188,7 @@ def main():
     )
 
     print(
-        "RECENT BOS: LAST 10 COMPLETED CANDLES"
+        "RECENT BOS: LAST 10 COMPLETED FUTURES CANDLES"
     )
 
     print(
@@ -1115,7 +1196,11 @@ def main():
     )
 
     print(
-        "TP1 5% / TP2 10% / TP3 EMA-BASED"
+        "TP1 5% / TP2 10% / TP3 EMA200"
+    )
+
+    print(
+        "NO JSON HISTORY"
     )
 
     print(
@@ -1124,12 +1209,9 @@ def main():
 
     print("=" * 60)
 
-    history = load_history()
-
-    print(
-        f"Previously sent signals: "
-        f"{len(history)}"
-    )
+    # ========================================================
+    # GET SYMBOLS
+    # ========================================================
 
     symbols = get_symbols()
 
@@ -1151,6 +1233,10 @@ def main():
         f"{len(symbols)} symbols..."
     )
 
+    # ========================================================
+    # BUILD JOBS
+    # ========================================================
+
     jobs = []
 
     for symbol in symbols:
@@ -1168,6 +1254,10 @@ def main():
         f"Total scans: "
         f"{len(jobs)}"
     )
+
+    # ========================================================
+    # RUN SCAN
+    # ========================================================
 
     new_signals = []
 
@@ -1198,31 +1288,20 @@ def main():
 
             try:
 
-                signal = (
-                    future.result()
-                )
+                signal = future.result()
 
                 if signal:
 
-                    key = (
-                        f"{signal['symbol']}|"
-                        f"{signal['direction']}|"
-                        f"{signal['timeframe']}|"
-                        f"{signal['trigger_time']}"
+                    new_signals.append(
+                        signal
                     )
 
-                    signal["key"] = key
-
-                    if key not in history:
-
-                        new_signals.append(
-                            signal
-                        )
-
-                        print(
-                            "NEW:",
-                            key,
-                        )
+                    print(
+                        "SIGNAL:",
+                        signal["symbol"],
+                        signal["direction"],
+                        signal["timeframe"],
+                    )
 
             except Exception as e:
 
@@ -1257,13 +1336,13 @@ def main():
     )
 
     # ========================================================
-    # NO NEW SIGNAL
+    # NO SIGNAL
     # ========================================================
 
     if not new_signals:
 
         print(
-            "No NEW signals."
+            "No signals found."
         )
 
         send_telegram(
@@ -1274,11 +1353,11 @@ def main():
         return
 
     # ========================================================
-    # SEND NEW SIGNALS
+    # SEND SIGNALS
     # ========================================================
 
     print(
-        f"NEW SIGNALS: "
+        f"SIGNALS FOUND: "
         f"{len(new_signals)}"
     )
 
@@ -1292,21 +1371,9 @@ def main():
         print(message)
         print()
 
-        sent = send_telegram(
+        send_telegram(
             message
         )
-
-        if sent:
-
-            history.add(
-                signal["key"]
-            )
-
-            save_history(
-                history
-            )
-
-            push_history()
 
         time.sleep(0.5)
 
