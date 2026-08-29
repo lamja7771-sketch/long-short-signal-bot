@@ -68,5 +68,26 @@
     "timeframe": "4h",
     "trigger_time": 1787990400,
     "sent_at": 1788017717
+  },
+  "LAB_LONG_4h_1787932800": {
+    "symbol": "LAB",
+    "direction": "LONG",
+    "timeframe": "4h",
+    "trigger_time": 1787932800,
+    "sent_at": 1788019328
+  },
+  "BEAT_LONG_4h_1788004800": {
+    "symbol": "BEAT",
+    "direction": "LONG",
+    "timeframe": "4h",
+    "trigger_time": 1788004800,
+    "sent_at": 1788019329
+  },
+  "BANK_LONG_4h_1788004800": {
+    "symbol": "BANK",
+    "direction": "LONG",
+    "timeframe": "4h",
+    "trigger_time": 1788004800,
+    "sent_at": 1788019330
   }
 }
