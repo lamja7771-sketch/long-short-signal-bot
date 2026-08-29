@@ -1,7 +1,7 @@
 ```yaml
 name: Long Short Signal Bot
 
-on:
+"on":
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
