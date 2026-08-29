@@ -74,7 +74,7 @@
     "direction": "LONG",
     "timeframe": "4h",
     "trigger_time": 1787932800,
-    "sent_at": 1788029751
+    "sent_at": 1788039017
   },
   "BEAT_LONG_4h_1788004800": {
     "symbol": "BEAT",
