@@ -33,5 +33,12 @@
     "timeframe": "15m",
     "trigger_time": 1787987700,
     "sent_at": 1787989378
+  },
+  "BANK_LONG_4h_1787976000": {
+    "symbol": "BANK",
+    "direction": "LONG",
+    "timeframe": "4h",
+    "trigger_time": 1787976000,
+    "sent_at": 1787990506
   }
 }
