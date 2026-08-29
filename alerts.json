@@ -74,7 +74,7 @@
     "direction": "LONG",
     "timeframe": "4h",
     "trigger_time": 1787932800,
-    "sent_at": 1788039017
+    "sent_at": 1788046464
   },
   "BEAT_LONG_4h_1788004800": {
     "symbol": "BEAT",
@@ -89,5 +89,12 @@
     "timeframe": "4h",
     "trigger_time": 1788004800,
     "sent_at": 1788029751
+  },
+  "HEMI_SHORT_1h_1788040800": {
+    "symbol": "HEMI",
+    "direction": "SHORT",
+    "timeframe": "1h",
+    "trigger_time": 1788040800,
+    "sent_at": 1788046463
   }
 }
