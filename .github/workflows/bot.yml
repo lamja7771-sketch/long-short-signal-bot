@@ -6,13 +6,6 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
 
-# Prevent overlapping bot runs.
-# If one scan is still running, the next run waits
-# instead of cancelling the current scan.
-concurrency:
-  group: long-short-signal-bot
-  cancel-in-progress: false
-
 permissions:
   contents: write
 
@@ -21,47 +14,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ======================================================
-      # GET CODE
-      # ======================================================
-
       - name: Get code
         uses: actions/checkout@v4
-
-      # ======================================================
-      # SET UP PYTHON
-      # ======================================================
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      # ======================================================
-      # INSTALL DEPENDENCIES
-      # ======================================================
-
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      # ======================================================
-      # RUN BOT
-      # ======================================================
+        run: pip install -r requirements.txt
 
       - name: Run bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          python main.py
-
-      # ======================================================
-      # SAVE ALERT HISTORY
-      #
-      # This keeps the 60-minute repeat cooldown
-      # between GitHub Actions runs.
-      # ======================================================
+        run: python main.py
 
       - name: Save alert history
         run: |
