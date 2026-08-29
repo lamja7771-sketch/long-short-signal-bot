@@ -1129,6 +1129,24 @@ def analyze_timeframe(
 
     if direction == "LONG":
 
+        # ====================================================
+        # EMA200 PRICE POSITION FIX
+        #
+        # LONG MUST BE:
+        #
+        # SMA50 < CURRENT PRICE < EMA200
+        #
+        # This prevents EMA200/TP3 from being below entry.
+        # ====================================================
+
+        if not (
+            sma50
+            < price
+            < ema200
+        ):
+
+            return None
+
         maximum_price = (
             sma50
             * (
@@ -1192,6 +1210,24 @@ def analyze_timeframe(
     # ========================================================
 
     if direction == "SHORT":
+
+        # ====================================================
+        # EMA200 PRICE POSITION FIX
+        #
+        # SHORT MUST BE:
+        #
+        # EMA200 < CURRENT PRICE < SMA50
+        #
+        # This prevents EMA200/TP3 from being above entry.
+        # ====================================================
+
+        if not (
+            ema200
+            < price
+            < sma50
+        ):
+
+            return None
 
         minimum_price = (
             sma50
@@ -1450,6 +1486,18 @@ def main():
 
     print(
         "TP1 5% / TP2 10% / TP3 EMA200"
+    )
+
+    print(
+        "EMA200 PRICE POSITION FILTER ENABLED"
+    )
+
+    print(
+        "LONG = SMA50 < PRICE < EMA200"
+    )
+
+    print(
+        "SHORT = EMA200 < PRICE < SMA50"
     )
 
     print(
