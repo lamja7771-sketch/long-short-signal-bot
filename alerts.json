@@ -39,6 +39,20 @@
     "direction": "LONG",
     "timeframe": "4h",
     "trigger_time": 1787976000,
-    "sent_at": 1787990506
+    "sent_at": 1788001335
+  },
+  "VELVET_LONG_1h_1787997600": {
+    "symbol": "VELVET",
+    "direction": "LONG",
+    "timeframe": "1h",
+    "trigger_time": 1787997600,
+    "sent_at": 1788001334
+  },
+  "MAGMA_SHORT_15m_1787996700": {
+    "symbol": "MAGMA",
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "trigger_time": 1787996700,
+    "sent_at": 1788001336
   }
 }
