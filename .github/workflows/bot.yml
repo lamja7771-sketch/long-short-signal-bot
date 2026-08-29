@@ -4,20 +4,32 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "5 * * * *"
+    # Run every 5 minutes
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
 
+# Prevent two bot runs from running at the same time.
+# This is important because the bot updates alerts.json/signals.json.
+concurrency:
+  group: long-short-signal-bot
+  cancel-in-progress: false
+
 jobs:
+
   run-bot:
+
     runs-on: ubuntu-latest
+
+    timeout-minutes: 10
 
     steps:
 
       # ============================================================
       # CHECKOUT REPOSITORY
       # ============================================================
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -27,6 +39,7 @@ jobs:
       # ============================================================
       # SET UP PYTHON
       # ============================================================
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -35,6 +48,7 @@ jobs:
       # ============================================================
       # INSTALL DEPENDENCIES
       # ============================================================
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -43,6 +57,7 @@ jobs:
       # ============================================================
       # RUN BOT
       # ============================================================
+
       - name: Run bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -51,13 +66,20 @@ jobs:
           python main.py
 
       # ============================================================
-      # COMMIT UPDATED ALERT HISTORY
+      # CONFIGURE GIT
       # ============================================================
-      - name: Commit alert history
+
+      - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      # ============================================================
+      # SAVE LOCAL ALERT HISTORY
+      # ============================================================
+
+      - name: Commit alert history
+        run: |
           git add alerts.json signals.json
 
           if git diff --cached --quiet; then
@@ -67,17 +89,37 @@ jobs:
           fi
 
       # ============================================================
-      # SYNC WITH REMOTE
-      # FIXES: ! [rejected] main -> main (fetch first)
+      # FETCH LATEST REMOTE VERSION
+      #
+      # IMPORTANT:
+      # Another GitHub run may have updated alerts.json.
+      # Fetch first, then rebase our local commit.
       # ============================================================
-      - name: Sync with remote
+
+      - name: Fetch latest remote
         run: |
           git fetch origin main
+
+      # ============================================================
+      # REBASE ON LATEST REMOTE
+      # ============================================================
+
+      - name: Rebase on latest main
+        run: |
           git rebase origin/main
 
       # ============================================================
-      # PUSH UPDATED HISTORY
+      # PUSH
       # ============================================================
+
       - name: Push alert history
         run: |
           git push origin HEAD:main
+
+      # ============================================================
+      # FINISHED
+      # ============================================================
+
+      - name: Finished
+        run: |
+          echo "Bot run completed successfully."
