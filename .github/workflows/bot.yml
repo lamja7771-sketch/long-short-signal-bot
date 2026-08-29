@@ -10,8 +10,6 @@ on:
 permissions:
   contents: write
 
-# Prevent two bot runs from running at the same time.
-# This is important because the bot updates alerts.json/signals.json.
 concurrency:
   group: long-short-signal-bot
   cancel-in-progress: false
@@ -27,7 +25,7 @@ jobs:
     steps:
 
       # ============================================================
-      # CHECKOUT REPOSITORY
+      # CHECKOUT
       # ============================================================
 
       - name: Checkout repository
@@ -37,7 +35,7 @@ jobs:
           persist-credentials: true
 
       # ============================================================
-      # SET UP PYTHON
+      # PYTHON
       # ============================================================
 
       - name: Set up Python
@@ -46,7 +44,7 @@ jobs:
           python-version: "3.12"
 
       # ============================================================
-      # INSTALL DEPENDENCIES
+      # DEPENDENCIES
       # ============================================================
 
       - name: Install dependencies
@@ -66,7 +64,7 @@ jobs:
           python main.py
 
       # ============================================================
-      # CONFIGURE GIT
+      # GIT CONFIG
       # ============================================================
 
       - name: Configure Git
@@ -75,7 +73,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       # ============================================================
-      # SAVE LOCAL ALERT HISTORY
+      # SAVE HISTORY
       # ============================================================
 
       - name: Commit alert history
@@ -89,11 +87,7 @@ jobs:
           fi
 
       # ============================================================
-      # FETCH LATEST REMOTE VERSION
-      #
-      # IMPORTANT:
-      # Another GitHub run may have updated alerts.json.
-      # Fetch first, then rebase our local commit.
+      # FETCH REMOTE
       # ============================================================
 
       - name: Fetch latest remote
@@ -101,7 +95,7 @@ jobs:
           git fetch origin main
 
       # ============================================================
-      # REBASE ON LATEST REMOTE
+      # REBASE
       # ============================================================
 
       - name: Rebase on latest main
