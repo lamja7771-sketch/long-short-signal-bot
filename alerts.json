@@ -1,0 +1,37 @@
+{
+  "BTR_LONG_1h_1787976000": {
+    "symbol": "BTR",
+    "direction": "LONG",
+    "timeframe": "1h",
+    "trigger_time": 1787976000,
+    "sent_at": 1787989374
+  },
+  "PUMP_SHORT_4h_1787961600": {
+    "symbol": "PUMP",
+    "direction": "SHORT",
+    "timeframe": "4h",
+    "trigger_time": 1787961600,
+    "sent_at": 1787989375
+  },
+  "BANK_LONG_4h_1787961600": {
+    "symbol": "BANK",
+    "direction": "LONG",
+    "timeframe": "4h",
+    "trigger_time": 1787961600,
+    "sent_at": 1787989376
+  },
+  "PROM_SHORT_1h_1787983200": {
+    "symbol": "PROM",
+    "direction": "SHORT",
+    "timeframe": "1h",
+    "trigger_time": 1787983200,
+    "sent_at": 1787989377
+  },
+  "\u9f99\u867e_SHORT_15m_1787987700": {
+    "symbol": "\u9f99\u867e",
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "trigger_time": 1787987700,
+    "sent_at": 1787989378
+  }
+}
