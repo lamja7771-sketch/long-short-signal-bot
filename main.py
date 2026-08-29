@@ -20,34 +20,32 @@ SMA_PERIOD = 50
 EMA_FAST = 20
 EMA_SLOW = 200
 
+
 # ============================================================
 # SPOT HISTORY
-#
-# Keep 1000 candles for proper EMA200 warm-up.
 # ============================================================
 
 SPOT_CANDLE_LIMIT = 1000
 
+
 # ============================================================
 # FUTURES HISTORY
-#
-# We only need enough completed candles to determine
-# the most recent BOS inside the last 10 completed candles.
-#
-# 10 structure candles + 3 safety candles.
 # ============================================================
 
 FUTURES_CANDLE_LIMIT = 20
 
-# Recent BOS window
 STRUCTURE_CANDLES = 10
 
-# EMA20 tolerance = 2%
+
+# ============================================================
+# EMA20 TOLERANCE
+# ============================================================
+
 EMA20_TOLERANCE = 0.02
 
 
 # ============================================================
-# 2:10 PRICE / GAP RATIO
+# PRICE / GAP RATIO
 # ============================================================
 
 PRICE_GAP_RATIO = 0.20
@@ -77,16 +75,6 @@ TIMEFRAMES = {
 
 # ============================================================
 # PERFORMANCE
-#
-# IMPORTANT:
-# Do NOT use 16 workers with nested thread pools.
-#
-# The old code effectively created up to:
-#
-# 16 outer workers × 2 inner workers
-# = up to 32 HTTP workers
-#
-# That can cause Gate rate limiting.
 # ============================================================
 
 MAX_WORKERS = 12
@@ -101,24 +89,24 @@ HEADERS = {
 
 
 # ============================================================
-# RATE LIMIT / RETRY SETTINGS
+# RATE LIMIT / RETRY
 # ============================================================
 
 MAX_RETRIES = 3
 
 RATE_LIMIT_BASE_WAIT = 1.5
 
-# Small delay between retries only.
 RETRY_JITTER = 0.25
 
 
 # ============================================================
-# REPEATED ALERT PROTECTION
+# REPEAT COOLDOWN
 #
-# Same:
-# symbol + direction + timeframe + BOS candle
+# SAME BOS:
+# repeat once every 60 minutes.
 #
-# can repeat after 60 minutes.
+# NEW BOS:
+# immediate alert.
 # ============================================================
 
 HISTORY_FILE = "alerts.json"
@@ -127,7 +115,7 @@ REPEAT_COOLDOWN = 60 * 60
 
 
 # ============================================================
-# THREAD-LOCAL HTTP SESSION
+# THREAD LOCAL SESSION
 # ============================================================
 
 _thread_local = threading.local()
@@ -219,12 +207,10 @@ def save_alert_history(history):
 
 
 # ============================================================
-# BUILD UNIQUE SIGNAL ID
+# SIGNAL ID
 #
-# BOS candle time is included.
-#
-# SAME BOS = SAME SIGNAL ID
-# NEW BOS = NEW SIGNAL ID
+# Same symbol + direction + timeframe + BOS candle
+# = same BOS.
 # ============================================================
 
 def get_signal_id(signal):
@@ -238,10 +224,21 @@ def get_signal_id(signal):
 
 
 # ============================================================
-# CHECK REPEAT COOLDOWN
+# CHECK WHETHER SIGNAL IS NEW / FRESH / REPEAT
+#
+# Returns:
+#
+# "NEW"
+#     Never alerted before.
+#
+# "REPEAT"
+#     Same BOS and 60 minutes have passed.
+#
+# "BLOCKED"
+#     Same BOS and less than 60 minutes have passed.
 # ============================================================
 
-def is_repeat_blocked(
+def get_signal_status(
     signal,
     alert_history,
 ):
@@ -255,7 +252,8 @@ def is_repeat_blocked(
     )
 
     if not record:
-        return False
+
+        return "NEW"
 
     sent_at = record.get(
         "sent_at",
@@ -270,35 +268,35 @@ def is_repeat_blocked(
 
     except Exception:
 
-        return False
+        return "NEW"
 
     elapsed = (
         time.time()
         - sent_at
     )
 
-    if elapsed < REPEAT_COOLDOWN:
+    if elapsed >= REPEAT_COOLDOWN:
 
-        remaining = (
-            REPEAT_COOLDOWN
-            - elapsed
-        )
+        return "REPEAT"
 
-        remaining_minutes = (
-            remaining / 60
-        )
+    remaining = (
+        REPEAT_COOLDOWN
+        - elapsed
+    )
 
-        print(
-            "SKIPPED REPEAT:",
-            signal["symbol"],
-            signal["direction"],
-            signal["timeframe"],
-            f"| {remaining_minutes:.1f} min remaining",
-        )
+    remaining_minutes = (
+        remaining / 60
+    )
 
-        return True
+    print(
+        "SKIPPED SAME BOS:",
+        signal["symbol"],
+        signal["direction"],
+        signal["timeframe"],
+        f"| {remaining_minutes:.1f} min remaining",
+    )
 
-    return False
+    return "BLOCKED"
 
 
 # ============================================================
@@ -357,9 +355,7 @@ def send_telegram(message):
 
 
 # ============================================================
-# GENERIC GATE GET
-#
-# Centralized retry / 429 handling.
+# GATE GET
 # ============================================================
 
 def gate_get(
@@ -405,10 +401,13 @@ def gate_get(
                 if retry_after:
 
                     try:
+
                         wait_time = float(
                             retry_after
                         )
+
                     except Exception:
+
                         wait_time = (
                             RATE_LIMIT_BASE_WAIT
                             * (2 ** attempt)
@@ -421,9 +420,7 @@ def gate_get(
                         * (2 ** attempt)
                     )
 
-                wait_time += (
-                    RETRY_JITTER
-                )
+                wait_time += RETRY_JITTER
 
                 print(
                     f"RATE LIMITED: "
@@ -441,7 +438,7 @@ def gate_get(
                 continue
 
             # ==================================================
-            # OTHER HTTP ERROR
+            # OTHER ERROR
             # ==================================================
 
             print(
@@ -485,7 +482,7 @@ def gate_get(
 
 
 # ============================================================
-# GET GATE.IO FUTURES SYMBOLS
+# GET FUTURES SYMBOLS
 # ============================================================
 
 def get_symbols():
@@ -539,9 +536,7 @@ def get_symbols():
 
 
 # ============================================================
-# GET ALL LIVE SPOT PRICES
-#
-# ONE request for all symbols.
+# ALL LIVE SPOT PRICES
 # ============================================================
 
 def get_all_spot_prices():
@@ -598,13 +593,9 @@ def get_all_spot_prices():
 
 
 # ============================================================
-# GET FUTURES CANDLES
+# FUTURES CANDLES
 #
-# FUTURES = BOS / STRUCTURE ONLY
-#
-# OPTIMIZED:
-# Only request the small amount of history
-# actually required for recent BOS.
+# FUTURES = BOS / STRUCTURE
 # ============================================================
 
 def get_futures_candles(
@@ -640,14 +631,11 @@ def get_futures_candles(
 
 
 # ============================================================
-# GET SPOT CANDLES
+# SPOT CANDLES
 #
 # SPOT = SMA50 / EMA20 / EMA200
 #
-# IMPORTANT:
-# This is called ONLY AFTER a Futures BOS is found.
-#
-# This is the main request reduction.
+# ONLY requested after BOS.
 # ============================================================
 
 def get_spot_candles(
@@ -888,8 +876,6 @@ def calculate_ema(
 
 # ============================================================
 # FIND RECENT BOS
-#
-# LAST 10 COMPLETED FUTURES CANDLES
 # ============================================================
 
 def find_structure_break(
@@ -1008,10 +994,6 @@ def find_structure_break(
 
                     short_bos = candidate
 
-    # ========================================================
-    # MOST RECENT BOS
-    # ========================================================
-
     candidates = [
         bos
         for bos in (
@@ -1035,14 +1017,11 @@ def find_structure_break(
 # ============================================================
 # ANALYZE ONE SYMBOL / ONE TIMEFRAME
 #
-# IMPORTANT OPTIMIZATION:
+# FUTURES FIRST
+# BOS FIRST
+# SPOT ONLY AFTER BOS
 #
-# 1. Futures first.
-# 2. Find BOS.
-# 3. If no BOS -> STOP.
-# 4. Only then request Spot candles.
-#
-# Signal rules remain unchanged.
+# SIGNAL LOGIC UNCHANGED
 # ============================================================
 
 def analyze_timeframe(
@@ -1052,7 +1031,7 @@ def analyze_timeframe(
 ):
 
     # ========================================================
-    # STEP 1: FUTURES
+    # FUTURES FIRST
     # ========================================================
 
     futures_raw = get_futures_candles(
@@ -1077,7 +1056,7 @@ def analyze_timeframe(
         return None, "data_error"
 
     # ========================================================
-    # STEP 2: FIND BOS
+    # BOS
     # ========================================================
 
     structure = find_structure_break(
@@ -1086,8 +1065,6 @@ def analyze_timeframe(
 
     if not structure:
 
-        # IMPORTANT:
-        # No BOS means no reason to request Spot candles.
         return None, "no_bos"
 
     direction = structure[
@@ -1099,9 +1076,7 @@ def analyze_timeframe(
     ]
 
     # ========================================================
-    # STEP 3: SPOT CANDLES
-    #
-    # Only requested if BOS exists.
+    # SPOT ONLY AFTER BOS
     # ========================================================
 
     spot_raw = get_spot_candles(
@@ -1130,9 +1105,7 @@ def analyze_timeframe(
     ]
 
     # ========================================================
-    # SPOT INDICATORS
-    #
-    # CLOSED CANDLES ONLY
+    # INDICATORS
     # ========================================================
 
     sma50 = calculate_sma(
@@ -1175,7 +1148,7 @@ def analyze_timeframe(
         return None, "data_error"
 
     # ========================================================
-    # SMA50 / EMA200 GAP
+    # GAP
     # ========================================================
 
     if ema200 == 0:
@@ -1221,8 +1194,6 @@ def analyze_timeframe(
     # ========================================================
 
     if direction == "LONG":
-
-        # SMA50 < CURRENT PRICE < EMA200
 
         if not (
             sma50
@@ -1295,8 +1266,6 @@ def analyze_timeframe(
     # ========================================================
 
     if direction == "SHORT":
-
-        # EMA200 < CURRENT PRICE < SMA50
 
         if not (
             ema200
@@ -1375,19 +1344,15 @@ def analyze_timeframe(
 def format_price(price):
 
     if price >= 100:
-
         return f"{price:.2f}"
 
     if price >= 1:
-
         return f"{price:.4f}"
 
     if price >= 0.01:
-
         return f"{price:.6f}"
 
     if price >= 0.0001:
-
         return f"{price:.8f}"
 
     return f"{price:.10f}"
@@ -1414,12 +1379,6 @@ def format_signal(signal):
     sl = format_price(
         sl_price
     )
-
-    # ========================================================
-    # TP1 = 5%
-    # TP2 = 10%
-    # TP3 = EMA200
-    # ========================================================
 
     if direction == "LONG":
 
@@ -1492,7 +1451,7 @@ def format_signal(signal):
 
 
 # ============================================================
-# TIMEFRAME DISPLAY NAME
+# TIMEFRAME NAME
 # ============================================================
 
 def timeframe_name(timeframe):
@@ -1510,7 +1469,7 @@ def timeframe_name(timeframe):
 
 
 # ============================================================
-# FORMAT NO-SETUP REPORT
+# NO FRESH SIGNAL REPORT
 # ============================================================
 
 def format_no_setup_report(
@@ -1546,10 +1505,10 @@ def format_no_setup_report(
 
     return (
         f"━━━━━━━━━━━━━━━━━━━━\n"
-        f"📊 {name} SIGNAL SCAN\n"
+        f"📊 {name} FRESH SIGNAL SCAN\n"
         f"━━━━━━━━━━━━━━━━━━━━\n\n"
 
-        f"❌ *NO QUALIFYING SETUP*\n\n"
+        f"❌ *ZERO FRESH SIGNALS FOUND*\n\n"
 
         f"🪙 Coins scanned: {scanned}\n"
         f"🚫 Rejected: {rejected}\n\n"
@@ -1562,29 +1521,7 @@ def format_no_setup_report(
         f"{sl_structure}\n"
         f"⚠️ Data/API errors: {data_error}\n\n"
 
-        f"✅ Qualifying setups: 0"
-    )
-
-
-# ============================================================
-# FORMAT TIMEFRAME SUMMARY
-# ============================================================
-
-def format_timeframe_summary(
-    timeframe,
-    stats,
-    signal_count,
-):
-
-    name = timeframe_name(
-        timeframe
-    )
-
-    return (
-        f"📊 *{name}*\n"
-        f"🪙 Scanned: {stats['scanned']}\n"
-        f"🔎 BOS found: {stats['bos_found']}\n"
-        f"🆕 Alerts sent: {signal_count}"
+        f"✅ Fresh qualifying setups: 0"
     )
 
 
@@ -1683,7 +1620,11 @@ def main():
     )
 
     print(
-        "NO SETUP = TELEGRAM REPORT"
+        "FRESH SCAN = EVERY 5 MINUTES"
+    )
+
+    print(
+        "ZERO FRESH SIGNALS = TELEGRAM REPORT"
     )
 
     print(
@@ -1711,8 +1652,9 @@ def main():
 
     print("=" * 60)
 
+
     # ========================================================
-    # LOAD ALERT HISTORY
+    # LOAD HISTORY
     # ========================================================
 
     alert_history = load_alert_history()
@@ -1722,8 +1664,9 @@ def main():
         f"{len(alert_history)}"
     )
 
+
     # ========================================================
-    # GET SYMBOLS
+    # SYMBOLS
     # ========================================================
 
     symbols = get_symbols()
@@ -1746,8 +1689,9 @@ def main():
         f"{len(symbols)} symbols..."
     )
 
+
     # ========================================================
-    # GET ALL LIVE SPOT PRICES
+    # LIVE SPOT PRICES
     # ========================================================
 
     price_start = time.time()
@@ -1777,8 +1721,9 @@ def main():
 
         return
 
+
     # ========================================================
-    # BUILD JOBS
+    # JOBS
     # ========================================================
 
     jobs = []
@@ -1802,8 +1747,9 @@ def main():
         f"{len(jobs)}"
     )
 
+
     # ========================================================
-    # INITIALIZE STATISTICS
+    # STATISTICS
     # ========================================================
 
     stats = {}
@@ -1821,13 +1767,16 @@ def main():
             "data_error": 0,
         }
 
+
     # ========================================================
-    # RUN SCAN
+    # SCAN
     # ========================================================
 
     scan_api_start = time.time()
 
-    new_signals = []
+    fresh_signals = []
+
+    repeat_signals = []
 
     with ThreadPoolExecutor(
         max_workers=MAX_WORKERS
@@ -1869,9 +1818,9 @@ def main():
                     future.result()
                 )
 
-                # ====================================================
+                # =================================================
                 # SIGNAL FOUND
-                # ====================================================
+                # =================================================
 
                 if signal:
 
@@ -1879,31 +1828,55 @@ def main():
                         "bos_found"
                     ] += 1
 
-                    if is_repeat_blocked(
+                    status = get_signal_status(
                         signal,
                         alert_history,
-                    ):
+                    )
 
-                        pass
+                    # =============================================
+                    # NEW BOS
+                    # =============================================
 
-                    else:
+                    if status == "NEW":
 
-                        new_signals.append(
+                        fresh_signals.append(
                             signal
                         )
 
                         print(
-                            "NEW SIGNAL:",
+                            "NEW FRESH SIGNAL:",
                             signal["symbol"],
                             signal["direction"],
                             signal["timeframe"],
                         )
 
+                    # =============================================
+                    # SAME BOS AFTER 60 MINUTES
+                    # =============================================
+
+                    elif status == "REPEAT":
+
+                        repeat_signals.append(
+                            signal
+                        )
+
+                        print(
+                            "HOURLY REPEAT:",
+                            signal["symbol"],
+                            signal["direction"],
+                            signal["timeframe"],
+                        )
+
+                    # =============================================
+                    # SAME BOS STILL IN COOLDOWN
+                    # =============================================
+
                     continue
 
-                # ====================================================
+
+                # =================================================
                 # NO SIGNAL
-                # ====================================================
+                # =================================================
 
                 if reason == "no_bos":
 
@@ -1971,29 +1944,62 @@ def main():
                     f"{elapsed:.1f}s"
                 )
 
+
     scan_api_time = (
         time.time()
         - scan_api_start
     )
 
+
     # ========================================================
-    # SORT BY GAP
+    # SORT
     # ========================================================
 
-    new_signals.sort(
+    fresh_signals.sort(
         key=lambda x:
             x["gap"],
         reverse=True,
     )
 
+    repeat_signals.sort(
+        key=lambda x:
+            x["gap"],
+        reverse=True,
+    )
+
+
     # ========================================================
-    # SEND NEW SIGNALS
+    # COMBINE
+    #
+    # Fresh signals first.
+    # Hourly repeats after them.
+    # ========================================================
+
+    signals_to_send = (
+        fresh_signals
+        + repeat_signals
+    )
+
+
+    # ========================================================
+    # SEND SIGNALS
     # ========================================================
 
     print(
-        f"NEW SIGNALS READY: "
-        f"{len(new_signals)}"
+        f"FRESH SIGNALS: "
+        f"{len(fresh_signals)}"
     )
+
+    print(
+        f"HOURLY REPEATS: "
+        f"{len(repeat_signals)}"
+    )
+
+    print(
+        f"TOTAL SIGNAL ALERTS: "
+        f"{len(signals_to_send)}"
+    )
+
 
     sent_count_by_tf = {
         "15m": 0,
@@ -2001,24 +2007,66 @@ def main():
         "4h": 0,
     }
 
-    for signal in new_signals:
+    fresh_sent_by_tf = {
+        "15m": 0,
+        "1h": 0,
+        "4h": 0,
+    }
+
+    repeat_sent_by_tf = {
+        "15m": 0,
+        "1h": 0,
+        "4h": 0,
+    }
+
+
+    for signal in signals_to_send:
 
         message = format_signal(
             signal
         )
 
+        # =====================================================
+        # ADD ALERT TYPE
+        # =====================================================
+
+        signal_id = get_signal_id(
+            signal
+        )
+
+        status = get_signal_status(
+            signal,
+            alert_history,
+        )
+
+        if status == "REPEAT":
+
+            message = (
+                "🔄 *HOURLY REPEAT*\n\n"
+                + message
+            )
+
+        else:
+
+            message = (
+                "🆕 *FRESH SIGNAL*\n\n"
+                + message
+            )
+
         print()
         print(message)
         print()
+
 
         sent = send_telegram(
             message
         )
 
+
         if sent:
 
-            signal_id = get_signal_id(
-                signal
+            now = int(
+                time.time()
             )
 
             alert_history[
@@ -2026,14 +2074,18 @@ def main():
             ] = {
                 "symbol":
                     signal["symbol"],
+
                 "direction":
                     signal["direction"],
+
                 "timeframe":
                     signal["timeframe"],
+
                 "trigger_time":
                     signal["trigger_time"],
+
                 "sent_at":
-                    int(time.time()),
+                    now,
             }
 
             save_alert_history(
@@ -2044,19 +2096,36 @@ def main():
                 signal["timeframe"]
             ] += 1
 
+            if status == "REPEAT":
+
+                repeat_sent_by_tf[
+                    signal["timeframe"]
+                ] += 1
+
+            else:
+
+                fresh_sent_by_tf[
+                    signal["timeframe"]
+                ] += 1
+
         time.sleep(0.5)
 
+
     # ========================================================
-    # NO-SETUP REPORTS
+    # ZERO FRESH SIGNAL REPORT
     #
-    # Only send NO SETUP when that timeframe
-    # produced zero qualifying alerts.
+    # IMPORTANT:
+    #
+    # This checks FRESH signals only.
+    #
+    # If an hourly repeat exists but no NEW BOS exists,
+    # we do NOT call that a fresh signal.
     # ========================================================
 
     for timeframe in TIMEFRAMES:
 
         if (
-            sent_count_by_tf[
+            fresh_sent_by_tf[
                 timeframe
             ] == 0
         ):
@@ -2076,8 +2145,9 @@ def main():
                 report
             )
 
+
     # ========================================================
-    # PERFORMANCE SUMMARY
+    # PERFORMANCE
     # ========================================================
 
     total_time = (
@@ -2098,12 +2168,18 @@ def main():
     )
 
     print(
-        f"NEW SIGNALS SENT: "
-        f"{len(new_signals)}"
+        f"FRESH SIGNALS SENT: "
+        f"{sum(fresh_sent_by_tf.values())}"
     )
 
+    print(
+        f"HOURLY REPEATS SENT: "
+        f"{sum(repeat_sent_by_tf.values())}"
+    )
+
+
     # ========================================================
-    # PRINT TIMEFRAME STATISTICS
+    # STATISTICS
     # ========================================================
 
     for timeframe in TIMEFRAMES:
@@ -2111,6 +2187,7 @@ def main():
         s = stats[timeframe]
 
         print()
+
         print(
             f"===== "
             f"{timeframe_name(timeframe)} "
@@ -2158,11 +2235,21 @@ def main():
         )
 
         print(
-            f"Alerts sent: "
-            f"{sent_count_by_tf[timeframe]}"
+            f"Fresh alerts sent: "
+            f"{fresh_sent_by_tf[timeframe]}"
         )
 
+        print(
+            f"Hourly repeats sent: "
+            f"{repeat_sent_by_tf[timeframe]}"
+        )
+
+
     print()
+
+    print(
+        "FRESH SCAN = EVERY 5 MINUTES"
+    )
 
     print(
         "NEW BOS = IMMEDIATE ALERT"
@@ -2173,7 +2260,7 @@ def main():
     )
 
     print(
-        "NO SETUP = TELEGRAM REPORT"
+        "ZERO FRESH SIGNALS = TELEGRAM REPORT"
     )
 
     print("=" * 60)
