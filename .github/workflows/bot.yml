@@ -14,24 +14,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # ============================================================
+      # CHECKOUT REPOSITORY
+      # ============================================================
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: true
 
+      # ============================================================
+      # SET UP PYTHON
+      # ============================================================
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      # ============================================================
+      # INSTALL DEPENDENCIES
+      # ============================================================
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          pip install -r requirements.txt
 
+      # ============================================================
+      # RUN BOT
+      # ============================================================
       - name: Run bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -39,22 +50,34 @@ jobs:
         run: |
           python main.py
 
+      # ============================================================
+      # COMMIT UPDATED ALERT HISTORY
+      # ============================================================
       - name: Commit alert history
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add alerts.json signals.json 2>/dev/null || true
+          git add alerts.json signals.json
 
           if git diff --cached --quiet; then
             echo "No alert history changes to commit."
-            exit 0
+          else
+            git commit -m "Update alert history"
           fi
 
-          git commit -m "Update alert history"
-
-      - name: Sync with remote and push
+      # ============================================================
+      # SYNC WITH REMOTE
+      # FIXES: ! [rejected] main -> main (fetch first)
+      # ============================================================
+      - name: Sync with remote
         run: |
           git fetch origin main
           git rebase origin/main
+
+      # ============================================================
+      # PUSH UPDATED HISTORY
+      # ============================================================
+      - name: Push alert history
+        run: |
           git push origin HEAD:main
