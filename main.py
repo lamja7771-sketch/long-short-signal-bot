@@ -71,7 +71,7 @@ MAX_WORKERS = 16
 REQUEST_TIMEOUT = 20
 
 HEADERS = {
-    "User-Agent": "Long-Short-Signal-Bot/3.0",
+    "User-Agent": "Long-Short-Signal-Bot/4.0",
     "Accept": "application/json",
     "Connection": "keep-alive",
 }
@@ -80,13 +80,15 @@ HEADERS = {
 # ============================================================
 # REPEATED ALERT PROTECTION
 #
-# Same symbol + direction + timeframe + BOS candle
+# Same:
+# symbol + direction + timeframe + BOS candle
+#
 # can repeat after 60 minutes.
 # ============================================================
 
 HISTORY_FILE = "alerts.json"
 
-REPEAT_COOLDOWN = 60 * 60  # 60 minutes
+REPEAT_COOLDOWN = 60 * 60
 
 
 # ============================================================
@@ -184,14 +186,12 @@ def save_alert_history(history):
 # ============================================================
 # BUILD UNIQUE SIGNAL ID
 #
-# IMPORTANT:
-#
 # BOS candle time is included.
 #
-# Same setup = same ID.
+# Therefore:
 #
-# BUT the ID can now be sent again
-# after the 60-minute cooldown.
+# SAME BOS = SAME SIGNAL ID
+# NEW BOS = NEW SIGNAL ID
 # ============================================================
 
 def get_signal_id(signal):
@@ -546,6 +546,12 @@ def get_futures_candles(
 
                 wait_time = 2 ** attempt
 
+                print(
+                    f"Futures rate limit "
+                    f"{symbol} {timeframe}. "
+                    f"Retrying in {wait_time}s..."
+                )
+
                 time.sleep(
                     wait_time
                 )
@@ -625,6 +631,12 @@ def get_spot_candles(
             if response.status_code == 429:
 
                 wait_time = 2 ** attempt
+
+                print(
+                    f"Spot rate limit "
+                    f"{symbol} {timeframe}. "
+                    f"Retrying in {wait_time}s..."
+                )
 
                 time.sleep(
                     wait_time
@@ -1009,6 +1021,12 @@ def find_structure_break(
 
 # ============================================================
 # ANALYZE ONE SYMBOL / ONE TIMEFRAME
+#
+# RETURNS:
+#
+# signal, reason
+#
+# reason is used for accurate rejection statistics.
 # ============================================================
 
 def analyze_timeframe(
@@ -1063,7 +1081,7 @@ def analyze_timeframe(
         + 3
     ):
 
-        return None
+        return None, "data_error"
 
     structure = find_structure_break(
         futures_candles
@@ -1071,7 +1089,7 @@ def analyze_timeframe(
 
     if not structure:
 
-        return None
+        return None, "no_bos"
 
     direction = structure[
         "direction"
@@ -1098,7 +1116,7 @@ def analyze_timeframe(
         EMA_SLOW + 50
     ):
 
-        return None
+        return None, "data_error"
 
     closes = [
         candle["close"]
@@ -1126,7 +1144,7 @@ def analyze_timeframe(
         ema200,
     ):
 
-        return None
+        return None, "data_error"
 
     # ========================================================
     # LIVE SPOT PRICE
@@ -1138,11 +1156,11 @@ def analyze_timeframe(
 
     if price is None:
 
-        return None
+        return None, "data_error"
 
     if price <= 0:
 
-        return None
+        return None, "data_error"
 
     # ========================================================
     # SMA50 / EMA200 GAP
@@ -1150,7 +1168,7 @@ def analyze_timeframe(
 
     if ema200 == 0:
 
-        return None
+        return None, "data_error"
 
     gap = (
         abs(
@@ -1170,7 +1188,7 @@ def analyze_timeframe(
 
     if gap <= minimum_gap:
 
-        return None
+        return None, "gap"
 
     # ========================================================
     # PRICE TOLERANCE
@@ -1193,9 +1211,7 @@ def analyze_timeframe(
     if direction == "LONG":
 
         # ====================================================
-        # EMA200 PRICE POSITION FIX
-        #
-        # LONG MUST BE:
+        # LONG:
         #
         # SMA50 < CURRENT PRICE < EMA200
         # ====================================================
@@ -1206,7 +1222,7 @@ def analyze_timeframe(
             < ema200
         ):
 
-            return None
+            return None, "price"
 
         maximum_price = (
             sma50
@@ -1222,7 +1238,7 @@ def analyze_timeframe(
             <= maximum_price
         ):
 
-            return None
+            return None, "price"
 
         if not (
             ema20
@@ -1233,7 +1249,7 @@ def analyze_timeframe(
             )
         ):
 
-            return None
+            return None, "ema20"
 
         sl = trigger["low"]
 
@@ -1247,7 +1263,7 @@ def analyze_timeframe(
             )
         ):
 
-            return None
+            return None, "sl_structure"
 
         return {
             "direction": "LONG",
@@ -1264,7 +1280,7 @@ def analyze_timeframe(
                 price_tolerance,
             "trigger_time":
                 trigger["time"],
-        }
+        }, "signal"
 
     # ========================================================
     # SHORT
@@ -1273,9 +1289,7 @@ def analyze_timeframe(
     if direction == "SHORT":
 
         # ====================================================
-        # EMA200 PRICE POSITION FIX
-        #
-        # SHORT MUST BE:
+        # SHORT:
         #
         # EMA200 < CURRENT PRICE < SMA50
         # ====================================================
@@ -1286,7 +1300,7 @@ def analyze_timeframe(
             < sma50
         ):
 
-            return None
+            return None, "price"
 
         minimum_price = (
             sma50
@@ -1302,7 +1316,7 @@ def analyze_timeframe(
             < sma50
         ):
 
-            return None
+            return None, "price"
 
         if not (
             ema20
@@ -1313,7 +1327,7 @@ def analyze_timeframe(
             )
         ):
 
-            return None
+            return None, "ema20"
 
         sl = trigger["high"]
 
@@ -1328,7 +1342,7 @@ def analyze_timeframe(
             and sl > ema20
         ):
 
-            return None
+            return None, "sl_structure"
 
         return {
             "direction": "SHORT",
@@ -1345,9 +1359,9 @@ def analyze_timeframe(
                 price_tolerance,
             "trigger_time":
                 trigger["time"],
-        }
+        }, "signal"
 
-    return None
+    return None, "ema20"
 
 
 # ============================================================
@@ -1376,7 +1390,7 @@ def format_price(price):
 
 
 # ============================================================
-# FORMAT TELEGRAM MESSAGE
+# FORMAT SIGNAL
 # ============================================================
 
 def format_signal(signal):
@@ -1474,6 +1488,103 @@ def format_signal(signal):
 
 
 # ============================================================
+# TIMEFRAME DISPLAY NAME
+# ============================================================
+
+def timeframe_name(timeframe):
+
+    names = {
+        "15m": "15M",
+        "1h": "1H",
+        "4h": "4H",
+    }
+
+    return names.get(
+        timeframe,
+        timeframe.upper(),
+    )
+
+
+# ============================================================
+# FORMAT NO-SETUP REPORT
+# ============================================================
+
+def format_no_setup_report(
+    timeframe,
+    stats,
+):
+
+    name = timeframe_name(
+        timeframe
+    )
+
+    scanned = stats["scanned"]
+
+    no_bos = stats["no_bos"]
+    gap = stats["gap"]
+    price = stats["price"]
+    ema20 = stats["ema20"]
+    sl_structure = stats[
+        "sl_structure"
+    ]
+    data_error = stats[
+        "data_error"
+    ]
+
+    rejected = (
+        no_bos
+        + gap
+        + price
+        + ema20
+        + sl_structure
+        + data_error
+    )
+
+    return (
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"📊 {name} SIGNAL SCAN\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n\n"
+
+        f"❌ *NO QUALIFYING SETUP*\n\n"
+
+        f"🪙 Coins scanned: {scanned}\n"
+        f"🚫 Rejected: {rejected}\n\n"
+
+        f"🔎 No BOS: {no_bos}\n"
+        f"📉 Gap rejected: {gap}\n"
+        f"💰 Price rejected: {price}\n"
+        f"📏 EMA20 rejected: {ema20}\n"
+        f"🛑 SL/structure rejected: "
+        f"{sl_structure}\n"
+        f"⚠️ Data/API errors: {data_error}\n\n"
+
+        f"✅ Qualifying setups: 0"
+    )
+
+
+# ============================================================
+# FORMAT TIMEFRAME SUMMARY WHEN SIGNALS EXIST
+# ============================================================
+
+def format_timeframe_summary(
+    timeframe,
+    stats,
+    signal_count,
+):
+
+    name = timeframe_name(
+        timeframe
+    )
+
+    return (
+        f"📊 *{name}*\n"
+        f"🪙 Scanned: {stats['scanned']}\n"
+        f"🔎 BOS found: {stats['bos_found']}\n"
+        f"🆕 Alerts sent: {signal_count}"
+    )
+
+
+# ============================================================
 # MAIN
 # ============================================================
 
@@ -1560,7 +1671,15 @@ def main():
     )
 
     print(
-        "REPEATED SIGNALS = EVERY 60 MINUTES"
+        "NEW BOS = IMMEDIATE ALERT"
+    )
+
+    print(
+        "SAME BOS = REPEAT EVERY 60 MINUTES"
+    )
+
+    print(
+        "NO SETUP = TELEGRAM REPORT"
     )
 
     print("=" * 60)
@@ -1589,7 +1708,7 @@ def main():
         )
 
         send_telegram(
-            "⚠️ No symbols found.\n\n"
+            "⚠️ *No symbols found.*\n\n"
             "Bot scan failed."
         )
 
@@ -1625,7 +1744,7 @@ def main():
         )
 
         send_telegram(
-            "⚠️ Spot ticker request failed.\n\n"
+            "⚠️ *Spot ticker request failed.*\n\n"
             "Bot scan failed."
         )
 
@@ -1633,8 +1752,6 @@ def main():
 
     # ========================================================
     # BUILD JOBS
-    #
-    # ONLY 15M / 1H / 4H
     # ========================================================
 
     jobs = []
@@ -1658,6 +1775,25 @@ def main():
         f"Total scans: "
         f"{len(jobs)}"
     )
+
+    # ========================================================
+    # INITIALIZE STATISTICS
+    # ========================================================
+
+    stats = {}
+
+    for timeframe in TIMEFRAMES:
+
+        stats[timeframe] = {
+            "scanned": 0,
+            "bos_found": 0,
+            "no_bos": 0,
+            "gap": 0,
+            "price": 0,
+            "ema20": 0,
+            "sl_structure": 0,
+            "data_error": 0,
+        }
 
     # ========================================================
     # RUN SCAN
@@ -1693,17 +1829,34 @@ def main():
 
             completed += 1
 
+            symbol, timeframe = (
+                futures[future]
+            )
+
+            # Every job represents one scanned coin
+            stats[timeframe][
+                "scanned"
+            ] += 1
+
             try:
 
-                signal = future.result()
+                signal, reason = (
+                    future.result()
+                )
+
+                # ====================================================
+                # SIGNAL FOUND
+                # ====================================================
 
                 if signal:
 
-                    # ====================================================
-                    # REPEATED SIGNAL CHECK
-                    #
-                    # SAME SIGNAL CAN REPEAT EVERY 60 MINUTES
-                    # ====================================================
+                    stats[timeframe][
+                        "bos_found"
+                    ] += 1
+
+                    # =================================================
+                    # REPEAT CHECK
+                    # =================================================
 
                     if is_repeat_blocked(
                         signal,
@@ -1725,11 +1878,53 @@ def main():
                             signal["timeframe"],
                         )
 
+                    continue
+
+                # ====================================================
+                # NO SIGNAL
+                # ====================================================
+
+                if reason == "no_bos":
+
+                    stats[timeframe][
+                        "no_bos"
+                    ] += 1
+
+                elif reason == "gap":
+
+                    stats[timeframe][
+                        "gap"
+                    ] += 1
+
+                elif reason == "price":
+
+                    stats[timeframe][
+                        "price"
+                    ] += 1
+
+                elif reason == "ema20":
+
+                    stats[timeframe][
+                        "ema20"
+                    ] += 1
+
+                elif reason == "sl_structure":
+
+                    stats[timeframe][
+                        "sl_structure"
+                    ] += 1
+
+                else:
+
+                    stats[timeframe][
+                        "data_error"
+                    ] += 1
+
             except Exception as e:
 
-                symbol, timeframe = (
-                    futures[future]
-                )
+                stats[timeframe][
+                    "data_error"
+                ] += 1
 
                 print(
                     f"{symbol} "
@@ -1771,44 +1966,19 @@ def main():
     )
 
     # ========================================================
-    # NO NEW SIGNAL
-    # ========================================================
-
-    if not new_signals:
-
-        total_time = (
-            time.time()
-            - scan_start
-        )
-
-        print(
-            "No NEW signals found."
-        )
-
-        print(
-            f"API scan time: "
-            f"{scan_api_time:.2f}s"
-        )
-
-        print(
-            f"Total runtime: "
-            f"{total_time:.2f}s"
-        )
-
-        print(
-            "No repeated alerts sent."
-        )
-
-        return
-
-    # ========================================================
-    # SEND SIGNALS
+    # SEND NEW SIGNALS
     # ========================================================
 
     print(
-        f"NEW SIGNALS FOUND: "
+        f"NEW SIGNALS READY: "
         f"{len(new_signals)}"
     )
+
+    sent_count_by_tf = {
+        "15m": 0,
+        "1h": 0,
+        "4h": 0,
+    }
 
     for signal in new_signals:
 
@@ -1826,8 +1996,6 @@ def main():
 
         # ====================================================
         # SAVE LAST SENT TIME
-        #
-        # This resets the 60-minute cooldown.
         # ====================================================
 
         if sent:
@@ -1855,7 +2023,46 @@ def main():
                 alert_history
             )
 
+            sent_count_by_tf[
+                signal["timeframe"]
+            ] += 1
+
         time.sleep(0.5)
+
+    # ========================================================
+    # NO-SETUP REPORTS
+    #
+    # IMPORTANT:
+    #
+    # Only send a detailed NO SETUP report when that
+    # timeframe produced ZERO qualifying alerts.
+    #
+    # If a timeframe has an alert, the signal itself
+    # is sent instead of an additional "no setup" message.
+    # ========================================================
+
+    for timeframe in TIMEFRAMES:
+
+        if (
+            sent_count_by_tf[
+                timeframe
+            ] == 0
+        ):
+
+            report = (
+                format_no_setup_report(
+                    timeframe,
+                    stats[timeframe],
+                )
+            )
+
+            print()
+            print(report)
+            print()
+
+            send_telegram(
+                report
+            )
 
     # ========================================================
     # PERFORMANCE SUMMARY
@@ -1879,17 +2086,82 @@ def main():
     )
 
     print(
-        f"NEW SIGNALS: "
+        f"NEW SIGNALS SENT: "
         f"{len(new_signals)}"
     )
 
+    # ========================================================
+    # PRINT TIMEFRAME STATISTICS
+    # ========================================================
+
+    for timeframe in TIMEFRAMES:
+
+        s = stats[timeframe]
+
+        print()
+        print(
+            f"===== "
+            f"{timeframe_name(timeframe)} "
+            f"STATISTICS ====="
+        )
+
+        print(
+            f"Scanned: "
+            f"{s['scanned']}"
+        )
+
+        print(
+            f"BOS found: "
+            f"{s['bos_found']}"
+        )
+
+        print(
+            f"No BOS: "
+            f"{s['no_bos']}"
+        )
+
+        print(
+            f"Gap rejected: "
+            f"{s['gap']}"
+        )
+
+        print(
+            f"Price rejected: "
+            f"{s['price']}"
+        )
+
+        print(
+            f"EMA20 rejected: "
+            f"{s['ema20']}"
+        )
+
+        print(
+            f"SL/structure rejected: "
+            f"{s['sl_structure']}"
+        )
+
+        print(
+            f"Data/API errors: "
+            f"{s['data_error']}"
+        )
+
+        print(
+            f"Alerts sent: "
+            f"{sent_count_by_tf[timeframe]}"
+        )
+
+    print()
+
     print(
-        "DAILY: REMOVED"
+        "NEW BOS = IMMEDIATE ALERT"
     )
 
     print(
-        "REPEATED SIGNALS: "
-        "ALLOWED EVERY 60 MINUTES"
+        "SAME BOS = REPEAT EVERY 60 MINUTES"
+    )
+
+    print(
+        "NO SETUP = TELEGRAM REPORT"
     )
 
     print("=" * 60)
