@@ -29,6 +29,7 @@ STRUCTURE_CANDLES = 10
 # EMA20 tolerance = 2%
 EMA20_TOLERANCE = 0.02
 
+
 # ============================================================
 # 2:10 PRICE / GAP RATIO
 # ============================================================
@@ -67,9 +68,7 @@ TIMEFRAMES = {
 # ============================================================
 
 MAX_WORKERS = 16
-
 REQUEST_TIMEOUT = 20
-
 
 HEADERS = {
     "User-Agent": "Long-Short-Signal-Bot/3.0",
@@ -81,13 +80,13 @@ HEADERS = {
 # ============================================================
 # REPEATED ALERT PROTECTION
 #
-# The bot remembers previously sent signals.
-#
 # Same symbol + direction + timeframe + BOS candle
-# will NOT be sent again.
+# can repeat after 60 minutes.
 # ============================================================
 
 HISTORY_FILE = "alerts.json"
+
+REPEAT_COOLDOWN = 60 * 60  # 60 minutes
 
 
 # ============================================================
@@ -189,11 +188,10 @@ def save_alert_history(history):
 #
 # BOS candle time is included.
 #
-# Therefore:
+# Same setup = same ID.
 #
-# Same setup = no repeat
-#
-# New BOS candle = new alert
+# BUT the ID can now be sent again
+# after the 60-minute cooldown.
 # ============================================================
 
 def get_signal_id(signal):
@@ -204,6 +202,71 @@ def get_signal_id(signal):
         f"{signal['timeframe']}_"
         f"{signal['trigger_time']}"
     )
+
+
+# ============================================================
+# CHECK REPEAT COOLDOWN
+# ============================================================
+
+def is_repeat_blocked(
+    signal,
+    alert_history,
+):
+
+    signal_id = get_signal_id(
+        signal
+    )
+
+    record = alert_history.get(
+        signal_id
+    )
+
+    if not record:
+
+        return False
+
+    sent_at = record.get(
+        "sent_at",
+        0,
+    )
+
+    try:
+
+        sent_at = float(
+            sent_at
+        )
+
+    except Exception:
+
+        return False
+
+    elapsed = (
+        time.time()
+        - sent_at
+    )
+
+    if elapsed < REPEAT_COOLDOWN:
+
+        remaining = (
+            REPEAT_COOLDOWN
+            - elapsed
+        )
+
+        remaining_minutes = (
+            remaining / 60
+        )
+
+        print(
+            "SKIPPED REPEAT:",
+            signal["symbol"],
+            signal["direction"],
+            signal["timeframe"],
+            f"| {remaining_minutes:.1f} min remaining",
+        )
+
+        return True
+
+    return False
 
 
 # ============================================================
@@ -1135,8 +1198,6 @@ def analyze_timeframe(
         # LONG MUST BE:
         #
         # SMA50 < CURRENT PRICE < EMA200
-        #
-        # This prevents EMA200/TP3 from being below entry.
         # ====================================================
 
         if not (
@@ -1217,8 +1278,6 @@ def analyze_timeframe(
         # SHORT MUST BE:
         #
         # EMA200 < CURRENT PRICE < SMA50
-        #
-        # This prevents EMA200/TP3 from being above entry.
         # ====================================================
 
         if not (
@@ -1501,7 +1560,7 @@ def main():
     )
 
     print(
-        "REPEATED ALERT PROTECTION ENABLED"
+        "REPEATED SIGNALS = EVERY 60 MINUTES"
     )
 
     print("=" * 60)
@@ -1640,22 +1699,18 @@ def main():
 
                 if signal:
 
-                    signal_id = get_signal_id(
-                        signal
-                    )
-
                     # ====================================================
                     # REPEATED SIGNAL CHECK
+                    #
+                    # SAME SIGNAL CAN REPEAT EVERY 60 MINUTES
                     # ====================================================
 
-                    if signal_id in alert_history:
+                    if is_repeat_blocked(
+                        signal,
+                        alert_history,
+                    ):
 
-                        print(
-                            "SKIPPED REPEAT:",
-                            signal["symbol"],
-                            signal["direction"],
-                            signal["timeframe"],
-                        )
+                        pass
 
                     else:
 
@@ -1747,7 +1802,7 @@ def main():
         return
 
     # ========================================================
-    # SEND NEW SIGNALS
+    # SEND SIGNALS
     # ========================================================
 
     print(
@@ -1770,7 +1825,9 @@ def main():
         )
 
         # ====================================================
-        # ONLY SAVE AS SENT IF TELEGRAM ACCEPTED IT
+        # SAVE LAST SENT TIME
+        #
+        # This resets the 60-minute cooldown.
         # ====================================================
 
         if sent:
@@ -1831,7 +1888,8 @@ def main():
     )
 
     print(
-        "REPEATED ALERTS: BLOCKED"
+        "REPEATED SIGNALS: "
+        "ALLOWED EVERY 60 MINUTES"
     )
 
     print("=" * 60)
