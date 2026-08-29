@@ -54,5 +54,19 @@
     "timeframe": "15m",
     "trigger_time": 1787996700,
     "sent_at": 1788001336
+  },
+  "PUMP_SHORT_4h_1787990400": {
+    "symbol": "PUMP",
+    "direction": "SHORT",
+    "timeframe": "4h",
+    "trigger_time": 1787990400,
+    "sent_at": 1788005382
+  },
+  "BANK_LONG_4h_1787990400": {
+    "symbol": "BANK",
+    "direction": "LONG",
+    "timeframe": "4h",
+    "trigger_time": 1787990400,
+    "sent_at": 1788005383
   }
 }
