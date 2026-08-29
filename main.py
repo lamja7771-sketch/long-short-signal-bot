@@ -20,8 +20,24 @@ SMA_PERIOD = 50
 EMA_FAST = 20
 EMA_SLOW = 200
 
-# Proper EMA200 historical warm-up
-CANDLE_LIMIT = 1000
+# ============================================================
+# SPOT HISTORY
+#
+# Keep 1000 candles for proper EMA200 warm-up.
+# ============================================================
+
+SPOT_CANDLE_LIMIT = 1000
+
+# ============================================================
+# FUTURES HISTORY
+#
+# We only need enough completed candles to determine
+# the most recent BOS inside the last 10 completed candles.
+#
+# 10 structure candles + 3 safety candles.
+# ============================================================
+
+FUTURES_CANDLE_LIMIT = 20
 
 # Recent BOS window
 STRUCTURE_CANDLES = 10
@@ -39,8 +55,6 @@ PRICE_GAP_RATIO = 0.20
 
 # ============================================================
 # TIMEFRAME-SPECIFIC MINIMUM GAP
-#
-# DAILY REMOVED
 # ============================================================
 
 GAP_MINIMUM = {
@@ -52,8 +66,6 @@ GAP_MINIMUM = {
 
 # ============================================================
 # TIMEFRAMES
-#
-# DAILY REMOVED
 # ============================================================
 
 TIMEFRAMES = {
@@ -65,16 +77,39 @@ TIMEFRAMES = {
 
 # ============================================================
 # PERFORMANCE
+#
+# IMPORTANT:
+# Do NOT use 16 workers with nested thread pools.
+#
+# The old code effectively created up to:
+#
+# 16 outer workers × 2 inner workers
+# = up to 32 HTTP workers
+#
+# That can cause Gate rate limiting.
 # ============================================================
 
-MAX_WORKERS = 16
+MAX_WORKERS = 12
+
 REQUEST_TIMEOUT = 20
 
 HEADERS = {
-    "User-Agent": "Long-Short-Signal-Bot/4.0",
+    "User-Agent": "Long-Short-Signal-Bot/5.0",
     "Accept": "application/json",
     "Connection": "keep-alive",
 }
+
+
+# ============================================================
+# RATE LIMIT / RETRY SETTINGS
+# ============================================================
+
+MAX_RETRIES = 3
+
+RATE_LIMIT_BASE_WAIT = 1.5
+
+# Small delay between retries only.
+RETRY_JITTER = 0.25
 
 
 # ============================================================
@@ -188,8 +223,6 @@ def save_alert_history(history):
 #
 # BOS candle time is included.
 #
-# Therefore:
-#
 # SAME BOS = SAME SIGNAL ID
 # NEW BOS = NEW SIGNAL ID
 # ============================================================
@@ -222,7 +255,6 @@ def is_repeat_blocked(
     )
 
     if not record:
-
         return False
 
     sent_at = record.get(
@@ -325,6 +357,134 @@ def send_telegram(message):
 
 
 # ============================================================
+# GENERIC GATE GET
+#
+# Centralized retry / 429 handling.
+# ============================================================
+
+def gate_get(
+    url,
+    params=None,
+    label="Gate request",
+):
+
+    for attempt in range(
+        MAX_RETRIES
+    ):
+
+        try:
+
+            session = get_session()
+
+            response = session.get(
+                url,
+                params=params,
+                timeout=REQUEST_TIMEOUT,
+            )
+
+            # ==================================================
+            # SUCCESS
+            # ==================================================
+
+            if response.status_code == 200:
+
+                return response.json()
+
+            # ==================================================
+            # RATE LIMIT
+            # ==================================================
+
+            if response.status_code == 429:
+
+                retry_after = (
+                    response.headers.get(
+                        "Retry-After"
+                    )
+                )
+
+                if retry_after:
+
+                    try:
+                        wait_time = float(
+                            retry_after
+                        )
+                    except Exception:
+                        wait_time = (
+                            RATE_LIMIT_BASE_WAIT
+                            * (2 ** attempt)
+                        )
+
+                else:
+
+                    wait_time = (
+                        RATE_LIMIT_BASE_WAIT
+                        * (2 ** attempt)
+                    )
+
+                wait_time += (
+                    RETRY_JITTER
+                )
+
+                print(
+                    f"RATE LIMITED: "
+                    f"{label} | "
+                    f"retry {attempt + 1}/"
+                    f"{MAX_RETRIES} | "
+                    f"waiting "
+                    f"{wait_time:.2f}s"
+                )
+
+                time.sleep(
+                    wait_time
+                )
+
+                continue
+
+            # ==================================================
+            # OTHER HTTP ERROR
+            # ==================================================
+
+            print(
+                f"{label}: "
+                f"HTTP {response.status_code} | "
+                f"{response.text[:200]}"
+            )
+
+            return None
+
+        except Exception as e:
+
+            if attempt >= (
+                MAX_RETRIES - 1
+            ):
+
+                print(
+                    f"{label}: "
+                    f"request failed: "
+                    f"{e}"
+                )
+
+                return None
+
+            wait_time = (
+                RATE_LIMIT_BASE_WAIT
+                * (2 ** attempt)
+            )
+
+            print(
+                f"{label}: "
+                f"retrying after error "
+                f"in {wait_time:.2f}s"
+            )
+
+            time.sleep(
+                wait_time
+            )
+
+    return None
+
+
+# ============================================================
 # GET GATE.IO FUTURES SYMBOLS
 # ============================================================
 
@@ -334,29 +494,23 @@ def get_symbols():
         f"{GATE_URL}/futures/usdt/contracts"
     )
 
-    try:
+    data = gate_get(
+        url,
+        label="Futures symbols",
+    )
 
-        session = get_session()
+    if not isinstance(
+        data,
+        list,
+    ):
 
-        response = session.get(
-            url,
-            timeout=REQUEST_TIMEOUT,
-        )
+        return []
 
-        if response.status_code != 200:
+    symbols = []
 
-            print(
-                "Symbol error:",
-                response.text,
-            )
+    for item in data:
 
-            return []
-
-        data = response.json()
-
-        symbols = []
-
-        for item in data:
+        try:
 
             symbol = item.get(
                 "name",
@@ -371,24 +525,23 @@ def get_symbols():
                 )
             ):
 
-                symbols.append(symbol)
+                symbols.append(
+                    symbol
+                )
 
-        return sorted(
-            set(symbols)
-        )
+        except Exception:
 
-    except Exception as e:
+            continue
 
-        print(
-            "Symbol request error:",
-            e,
-        )
-
-        return []
+    return sorted(
+        set(symbols)
+    )
 
 
 # ============================================================
 # GET ALL LIVE SPOT PRICES
+#
+# ONE request for all symbols.
 # ============================================================
 
 def get_all_spot_prices():
@@ -397,108 +550,61 @@ def get_all_spot_prices():
         f"{GATE_URL}/spot/tickers"
     )
 
-    for attempt in range(3):
+    data = gate_get(
+        url,
+        label="Spot tickers",
+    )
+
+    if not isinstance(
+        data,
+        list,
+    ):
+
+        return {}
+
+    prices = {}
+
+    for item in data:
 
         try:
 
-            session = get_session()
-
-            response = session.get(
-                url,
-                timeout=REQUEST_TIMEOUT,
+            symbol = item.get(
+                "currency_pair"
             )
 
-            if response.status_code == 200:
-
-                data = response.json()
-
-                prices = {}
-
-                if not isinstance(
-                    data,
-                    list,
-                ):
-
-                    return prices
-
-                for item in data:
-
-                    try:
-
-                        symbol = item.get(
-                            "currency_pair"
-                        )
-
-                        last_price = item.get(
-                            "last"
-                        )
-
-                        if (
-                            symbol
-                            and last_price is not None
-                        ):
-
-                            prices[symbol] = float(
-                                last_price
-                            )
-
-                    except Exception:
-
-                        continue
-
-                print(
-                    f"Loaded {len(prices)} "
-                    f"live Spot prices."
-                )
-
-                return prices
-
-            if response.status_code == 429:
-
-                wait_time = 2 ** attempt
-
-                print(
-                    "Spot ticker rate limited. "
-                    f"Retrying in {wait_time}s..."
-                )
-
-                time.sleep(
-                    wait_time
-                )
-
-                continue
-
-            print(
-                "Spot ticker error:",
-                response.text,
+            last_price = item.get(
+                "last"
             )
 
-            return {}
+            if (
+                symbol
+                and last_price is not None
+            ):
 
-        except Exception as e:
-
-            if attempt == 2:
-
-                print(
-                    "Spot ticker request error:",
-                    e,
+                prices[symbol] = float(
+                    last_price
                 )
 
-                return {}
+        except Exception:
 
-            wait_time = 2 ** attempt
+            continue
 
-            time.sleep(
-                wait_time
-            )
+    print(
+        f"Loaded {len(prices)} "
+        f"live Spot prices."
+    )
 
-    return {}
+    return prices
 
 
 # ============================================================
 # GET FUTURES CANDLES
 #
 # FUTURES = BOS / STRUCTURE ONLY
+#
+# OPTIMIZED:
+# Only request the small amount of history
+# actually required for recent BOS.
 # ============================================================
 
 def get_futures_candles(
@@ -514,70 +620,21 @@ def get_futures_candles(
     params = {
         "contract": symbol,
         "interval": timeframe,
-        "limit": CANDLE_LIMIT,
+        "limit": FUTURES_CANDLE_LIMIT,
     }
 
-    for attempt in range(3):
+    data = gate_get(
+        url,
+        params=params,
+        label=f"Futures {symbol} {timeframe}",
+    )
 
-        try:
+    if isinstance(
+        data,
+        list,
+    ):
 
-            session = get_session()
-
-            response = session.get(
-                url,
-                params=params,
-                timeout=REQUEST_TIMEOUT,
-            )
-
-            if response.status_code == 200:
-
-                data = response.json()
-
-                if isinstance(
-                    data,
-                    list,
-                ):
-
-                    return data
-
-                return []
-
-            if response.status_code == 429:
-
-                wait_time = 2 ** attempt
-
-                print(
-                    f"Futures rate limit "
-                    f"{symbol} {timeframe}. "
-                    f"Retrying in {wait_time}s..."
-                )
-
-                time.sleep(
-                    wait_time
-                )
-
-                continue
-
-            return []
-
-        except Exception as e:
-
-            if attempt == 2:
-
-                print(
-                    f"Futures "
-                    f"{symbol} "
-                    f"{timeframe}: "
-                    f"{e}"
-                )
-
-                return []
-
-            wait_time = 2 ** attempt
-
-            time.sleep(
-                wait_time
-            )
+        return data
 
     return []
 
@@ -586,6 +643,11 @@ def get_futures_candles(
 # GET SPOT CANDLES
 #
 # SPOT = SMA50 / EMA20 / EMA200
+#
+# IMPORTANT:
+# This is called ONLY AFTER a Futures BOS is found.
+#
+# This is the main request reduction.
 # ============================================================
 
 def get_spot_candles(
@@ -600,70 +662,21 @@ def get_spot_candles(
     params = {
         "currency_pair": symbol,
         "interval": timeframe,
-        "limit": CANDLE_LIMIT,
+        "limit": SPOT_CANDLE_LIMIT,
     }
 
-    for attempt in range(3):
+    data = gate_get(
+        url,
+        params=params,
+        label=f"Spot {symbol} {timeframe}",
+    )
 
-        try:
+    if isinstance(
+        data,
+        list,
+    ):
 
-            session = get_session()
-
-            response = session.get(
-                url,
-                params=params,
-                timeout=REQUEST_TIMEOUT,
-            )
-
-            if response.status_code == 200:
-
-                data = response.json()
-
-                if isinstance(
-                    data,
-                    list,
-                ):
-
-                    return data
-
-                return []
-
-            if response.status_code == 429:
-
-                wait_time = 2 ** attempt
-
-                print(
-                    f"Spot rate limit "
-                    f"{symbol} {timeframe}. "
-                    f"Retrying in {wait_time}s..."
-                )
-
-                time.sleep(
-                    wait_time
-                )
-
-                continue
-
-            return []
-
-        except Exception as e:
-
-            if attempt == 2:
-
-                print(
-                    f"Spot "
-                    f"{symbol} "
-                    f"{timeframe}: "
-                    f"{e}"
-                )
-
-                return []
-
-            wait_time = 2 ** attempt
-
-            time.sleep(
-                wait_time
-            )
+        return data
 
     return []
 
@@ -833,7 +846,7 @@ def calculate_sma(
 # ============================================================
 # EMA
 #
-# Proper historical warm-up
+# Proper historical warm-up.
 # ============================================================
 
 def calculate_ema(
@@ -1022,11 +1035,14 @@ def find_structure_break(
 # ============================================================
 # ANALYZE ONE SYMBOL / ONE TIMEFRAME
 #
-# RETURNS:
+# IMPORTANT OPTIMIZATION:
 #
-# signal, reason
+# 1. Futures first.
+# 2. Find BOS.
+# 3. If no BOS -> STOP.
+# 4. Only then request Spot candles.
 #
-# reason is used for accurate rejection statistics.
+# Signal rules remain unchanged.
 # ============================================================
 
 def analyze_timeframe(
@@ -1036,36 +1052,13 @@ def analyze_timeframe(
 ):
 
     # ========================================================
-    # FUTURES + SPOT REQUESTS IN PARALLEL
+    # STEP 1: FUTURES
     # ========================================================
 
-    with ThreadPoolExecutor(
-        max_workers=2
-    ) as executor:
-
-        futures_request = executor.submit(
-            get_futures_candles,
-            symbol,
-            timeframe,
-        )
-
-        spot_request = executor.submit(
-            get_spot_candles,
-            symbol,
-            timeframe,
-        )
-
-        futures_raw = (
-            futures_request.result()
-        )
-
-        spot_raw = (
-            spot_request.result()
-        )
-
-    # ========================================================
-    # FUTURES = BOS
-    # ========================================================
+    futures_raw = get_futures_candles(
+        symbol,
+        timeframe,
+    )
 
     futures_candles = parse_futures_candles(
         futures_raw
@@ -1083,12 +1076,18 @@ def analyze_timeframe(
 
         return None, "data_error"
 
+    # ========================================================
+    # STEP 2: FIND BOS
+    # ========================================================
+
     structure = find_structure_break(
         futures_candles
     )
 
     if not structure:
 
+        # IMPORTANT:
+        # No BOS means no reason to request Spot candles.
         return None, "no_bos"
 
     direction = structure[
@@ -1100,8 +1099,15 @@ def analyze_timeframe(
     ]
 
     # ========================================================
-    # SPOT = INDICATORS
+    # STEP 3: SPOT CANDLES
+    #
+    # Only requested if BOS exists.
     # ========================================================
+
+    spot_raw = get_spot_candles(
+        symbol,
+        timeframe,
+    )
 
     spot_candles = parse_spot_candles(
         spot_raw
@@ -1122,6 +1128,12 @@ def analyze_timeframe(
         candle["close"]
         for candle in spot_candles
     ]
+
+    # ========================================================
+    # SPOT INDICATORS
+    #
+    # CLOSED CANDLES ONLY
+    # ========================================================
 
     sma50 = calculate_sma(
         closes,
@@ -1210,11 +1222,7 @@ def analyze_timeframe(
 
     if direction == "LONG":
 
-        # ====================================================
-        # LONG:
-        #
         # SMA50 < CURRENT PRICE < EMA200
-        # ====================================================
 
         if not (
             sma50
@@ -1288,11 +1296,7 @@ def analyze_timeframe(
 
     if direction == "SHORT":
 
-        # ====================================================
-        # SHORT:
-        #
         # EMA200 < CURRENT PRICE < SMA50
-        # ====================================================
 
         if not (
             ema200
@@ -1563,7 +1567,7 @@ def format_no_setup_report(
 
 
 # ============================================================
-# FORMAT TIMEFRAME SUMMARY WHEN SIGNALS EXIST
+# FORMAT TIMEFRAME SUMMARY
 # ============================================================
 
 def format_timeframe_summary(
@@ -1682,6 +1686,29 @@ def main():
         "NO SETUP = TELEGRAM REPORT"
     )
 
+    print(
+        "OPTIMIZED: FUTURES BOS FIRST"
+    )
+
+    print(
+        "OPTIMIZED: SPOT REQUEST ONLY AFTER BOS"
+    )
+
+    print(
+        f"FUTURES CANDLE LIMIT = "
+        f"{FUTURES_CANDLE_LIMIT}"
+    )
+
+    print(
+        f"SPOT CANDLE LIMIT = "
+        f"{SPOT_CANDLE_LIMIT}"
+    )
+
+    print(
+        f"MAX WORKERS = "
+        f"{MAX_WORKERS}"
+    )
+
     print("=" * 60)
 
     # ========================================================
@@ -1759,7 +1786,6 @@ def main():
     for symbol in symbols:
 
         if symbol not in spot_prices:
-
             continue
 
         for timeframe in TIMEFRAMES:
@@ -1833,7 +1859,6 @@ def main():
                 futures[future]
             )
 
-            # Every job represents one scanned coin
             stats[timeframe][
                 "scanned"
             ] += 1
@@ -1853,10 +1878,6 @@ def main():
                     stats[timeframe][
                         "bos_found"
                     ] += 1
-
-                    # =================================================
-                    # REPEAT CHECK
-                    # =================================================
 
                     if is_repeat_blocked(
                         signal,
@@ -1994,10 +2015,6 @@ def main():
             message
         )
 
-        # ====================================================
-        # SAVE LAST SENT TIME
-        # ====================================================
-
         if sent:
 
             signal_id = get_signal_id(
@@ -2032,13 +2049,8 @@ def main():
     # ========================================================
     # NO-SETUP REPORTS
     #
-    # IMPORTANT:
-    #
-    # Only send a detailed NO SETUP report when that
-    # timeframe produced ZERO qualifying alerts.
-    #
-    # If a timeframe has an alert, the signal itself
-    # is sent instead of an additional "no setup" message.
+    # Only send NO SETUP when that timeframe
+    # produced zero qualifying alerts.
     # ========================================================
 
     for timeframe in TIMEFRAMES:
