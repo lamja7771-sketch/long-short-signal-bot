@@ -103,5 +103,12 @@
     "timeframe": "15m",
     "trigger_time": 1788052500,
     "sent_at": 1788053863
+  },
+  "PUMP_SHORT_4h_1788105600": {
+    "symbol": "PUMP",
+    "direction": "SHORT",
+    "timeframe": "4h",
+    "trigger_time": 1788105600,
+    "sent_at": 1788127222
   }
 }
