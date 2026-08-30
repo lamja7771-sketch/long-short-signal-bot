@@ -95,6 +95,13 @@
     "direction": "SHORT",
     "timeframe": "1h",
     "trigger_time": 1788040800,
-    "sent_at": 1788046463
+    "sent_at": 1788053863
+  },
+  "\u9f99\u867e_SHORT_15m_1788052500": {
+    "symbol": "\u9f99\u867e",
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "trigger_time": 1788052500,
+    "sent_at": 1788053863
   }
 }
