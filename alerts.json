@@ -110,5 +110,26 @@
     "timeframe": "4h",
     "trigger_time": 1788105600,
     "sent_at": 1788127222
+  },
+  "BTR_SHORT_4h_1788134400": {
+    "symbol": "BTR",
+    "direction": "SHORT",
+    "timeframe": "4h",
+    "trigger_time": 1788134400,
+    "sent_at": 1788159107
+  },
+  "\u9f99\u867e_SHORT_1h_1788152400": {
+    "symbol": "\u9f99\u867e",
+    "direction": "SHORT",
+    "timeframe": "1h",
+    "trigger_time": 1788152400,
+    "sent_at": 1788159108
+  },
+  "PONS_SHORT_15m_1788157800": {
+    "symbol": "PONS",
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "trigger_time": 1788157800,
+    "sent_at": 1788159108
   }
 }
