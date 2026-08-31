@@ -30,16 +30,6 @@ SPOT_CANDLE_LIMIT = 1000
 
 
 # ============================================================
-# FUTURES HISTORY
-# ============================================================
-
-FUTURES_CANDLE_LIMIT = 30
-
-# LESS STRICT / MORE RECENT BOS
-STRUCTURE_CANDLES = 10
-
-
-# ============================================================
 # EMA20 TOLERANCE
 # ============================================================
 
@@ -84,20 +74,17 @@ TIMEFRAMES = {
 # ============================================================
 # PERFORMANCE
 #
-# IMPORTANT:
-# NO FIXED REQUEST PACER.
+# BOS/FUTURES REQUESTS HAVE BEEN COMPLETELY REMOVED.
 #
-# Gate is allowed to process requests as fast as possible.
-# Backoff happens ONLY when Gate actually returns 429.
+# Lower concurrency helps reduce Gate HTTP 429 errors.
 # ============================================================
 
-# INCREASED CONCURRENCY
-MAX_WORKERS = 20
+MAX_WORKERS = 6
 
 REQUEST_TIMEOUT = 20
 
 HEADERS = {
-    "User-Agent": "Long-Short-Signal-Bot/6.0",
+    "User-Agent": "Long-Short-Signal-Bot/7.0",
     "Accept": "application/json",
     "Connection": "keep-alive",
 }
@@ -128,11 +115,11 @@ TELEGRAM_DELAY = 0.30
 # ============================================================
 # REPEAT COOLDOWN
 #
-# SAME BOS:
+# Same signal:
 # repeat once every 60 minutes.
 #
-# NEW BOS:
-# immediate alert.
+# Signal identity:
+# symbol + direction + timeframe + trigger candle
 # ============================================================
 
 HISTORY_FILE = "alerts.json"
@@ -248,9 +235,10 @@ def save_alert_history(history):
 # SIGNAL ID
 #
 # Same:
-# symbol + direction + timeframe + BOS candle
+# symbol + direction + timeframe + trigger candle
 #
-# = same BOS
+# The trigger candle is the most recent completed candle
+# used for the signal.
 # ============================================================
 
 def get_signal_id(signal):
@@ -270,10 +258,10 @@ def get_signal_id(signal):
 #     Never alerted before.
 #
 # REPEAT
-#     Same BOS and 60 minutes passed.
+#     Same setup and 60 minutes passed.
 #
 # BLOCKED
-#     Same BOS and less than 60 minutes.
+#     Same setup and less than 60 minutes.
 # ============================================================
 
 def get_signal_status(
@@ -330,7 +318,7 @@ def get_signal_status(
         )
 
         print(
-            "SKIPPED SAME BOS:",
+            "SKIPPED SAME SETUP:",
             signal["symbol"],
             signal["direction"],
             signal["timeframe"],
@@ -398,15 +386,11 @@ def send_telegram(message):
 # ============================================================
 # GATE GET
 #
-# IMPORTANT OPTIMIZATION:
+# No fixed request pacer.
 #
-# There is NO fixed sleep between normal requests.
-#
-# Sleep happens ONLY on:
+# Sleep happens only on:
 # - HTTP 429
-# - temporary request exception
-#
-# Retry-After is respected when available.
+# - temporary request errors
 # ============================================================
 
 def gate_get(
@@ -630,6 +614,10 @@ def gate_get(
 
 # ============================================================
 # GET FUTURES SYMBOLS
+#
+# Futures are used ONLY to obtain the list of contracts.
+#
+# No Futures candles are requested anymore.
 # ============================================================
 
 def get_symbols():
@@ -740,53 +728,11 @@ def get_all_spot_prices():
 
 
 # ============================================================
-# FUTURES CANDLES
-#
-# FUTURES = BOS / STRUCTURE
-# ============================================================
-
-def get_futures_candles(
-    symbol,
-    timeframe,
-):
-
-    url = (
-        f"{GATE_URL}/futures/usdt/"
-        f"candlesticks"
-    )
-
-    params = {
-        "contract": symbol,
-        "interval": timeframe,
-        "limit": FUTURES_CANDLE_LIMIT,
-    }
-
-    data = gate_get(
-        url,
-        params=params,
-        label=(
-            f"Futures "
-            f"{symbol} "
-            f"{timeframe}"
-        ),
-    )
-
-    if isinstance(
-        data,
-        list,
-    ):
-
-        return data
-
-    return []
-
-
-# ============================================================
 # SPOT CANDLES
 #
 # SPOT = SMA50 / EMA20 / EMA200
 #
-# ONLY requested AFTER BOS.
+# BOS HAS BEEN COMPLETELY REMOVED.
 # ============================================================
 
 def get_spot_candles(
@@ -822,85 +768,6 @@ def get_spot_candles(
         return data
 
     return []
-
-
-# ============================================================
-# PARSE FUTURES CANDLES
-# ============================================================
-
-def parse_futures_candles(data):
-
-    candles = []
-
-    for item in data:
-
-        try:
-
-            # ------------------------------------------------
-            # Dictionary response
-            # ------------------------------------------------
-
-            if isinstance(
-                item,
-                dict,
-            ):
-
-                candle = {
-                    "time": int(
-                        item["t"]
-                    ),
-                    "open": float(
-                        item["o"]
-                    ),
-                    "high": float(
-                        item["h"]
-                    ),
-                    "low": float(
-                        item["l"]
-                    ),
-                    "close": float(
-                        item["c"]
-                    ),
-                }
-
-            # ------------------------------------------------
-            # Array response
-            # ------------------------------------------------
-
-            else:
-
-                candle = {
-                    "time": int(
-                        item[0]
-                    ),
-                    "open": float(
-                        item[5]
-                    ),
-                    "high": float(
-                        item[3]
-                    ),
-                    "low": float(
-                        item[4]
-                    ),
-                    "close": float(
-                        item[2]
-                    ),
-                }
-
-            candles.append(
-                candle
-            )
-
-        except Exception:
-
-            continue
-
-    candles.sort(
-        key=lambda x:
-            x["time"]
-    )
-
-    return candles
 
 
 # ============================================================
@@ -952,7 +819,7 @@ def parse_spot_candles(data):
 # ============================================================
 # REMOVE CURRENT OPEN CANDLE
 #
-# Indicators and BOS use CLOSED candles only.
+# Indicators and SL use CLOSED candles only.
 # ============================================================
 
 def remove_open_candle(
@@ -1001,9 +868,8 @@ def calculate_sma(
 #
 # Proper historical warm-up.
 #
-# Starts from SMA of the first 200 historical values
-# and then applies the EMA formula across all remaining
-# values.
+# Starts from SMA of the first period values
+# and then applies EMA across the remaining history.
 # ============================================================
 
 def calculate_ema(
@@ -1044,167 +910,21 @@ def calculate_ema(
 
 
 # ============================================================
-# FIND RECENT BOS
-#
-# Uses LAST 10 COMPLETED FUTURES CANDLES.
-#
-# More recent / less strict BOS window.
-#
-# Most recent valid LONG or SHORT BOS is selected.
-# ============================================================
-
-def find_structure_break(
-    candles
-):
-
-    if len(candles) < (
-        STRUCTURE_CANDLES
-        + 3
-    ):
-
-        return None
-
-    window = candles[
-        -STRUCTURE_CANDLES:
-    ]
-
-    long_bos = None
-    short_bos = None
-
-    # ========================================================
-    # LONG BOS
-    # ========================================================
-
-    for i in range(
-        1,
-        len(window) - 1,
-    ):
-
-        swing_high = window[i]["high"]
-
-        if (
-            swing_high
-            <= window[i - 1]["high"]
-        ):
-
-            continue
-
-        for j in range(
-            i + 1,
-            len(window),
-        ):
-
-            if (
-                window[j]["close"]
-                > swing_high
-            ):
-
-                candidate = {
-                    "direction": "LONG",
-                    "candle": window[j],
-                    "structure_level":
-                        swing_high,
-                }
-
-                if (
-                    long_bos is None
-                    or
-                    candidate[
-                        "candle"
-                    ]["time"]
-                    >
-                    long_bos[
-                        "candle"
-                    ]["time"]
-                ):
-
-                    long_bos = candidate
-
-    # ========================================================
-    # SHORT BOS
-    # ========================================================
-
-    for i in range(
-        1,
-        len(window) - 1,
-    ):
-
-        swing_low = window[i]["low"]
-
-        if (
-            swing_low
-            >= window[i - 1]["low"]
-        ):
-
-            continue
-
-        for j in range(
-            i + 1,
-            len(window),
-        ):
-
-            if (
-                window[j]["close"]
-                < swing_low
-            ):
-
-                candidate = {
-                    "direction": "SHORT",
-                    "candle": window[j],
-                    "structure_level":
-                        swing_low,
-                }
-
-                if (
-                    short_bos is None
-                    or
-                    candidate[
-                        "candle"
-                    ]["time"]
-                    >
-                    short_bos[
-                        "candle"
-                    ]["time"]
-                ):
-
-                    short_bos = candidate
-
-    candidates = [
-        bos
-        for bos in (
-            long_bos,
-            short_bos,
-        )
-        if bos is not None
-    ]
-
-    if not candidates:
-
-        return None
-
-    return max(
-        candidates,
-        key=lambda x:
-            x["candle"]["time"],
-    )
-
-
-# ============================================================
 # ANALYZE ONE SYMBOL / ONE TIMEFRAME
 #
-# OPTIMIZATION ORDER:
+# BOS HAS BEEN COMPLETELY REMOVED.
 #
-# 1. Futures request
+# New flow:
+#
+# 1. Spot candles
 # 2. Remove open candle
-# 3. Find BOS
-# 4. If no BOS -> STOP
-# 5. Spot request
-# 6. Calculate indicators
-# 7. Gap
-# 8. Price
-# 9. EMA20
-# 10. SL / structure
-# 11. Signal
+# 3. Calculate SMA50 / EMA20 / EMA200
+# 4. Get live Spot price
+# 5. Gap
+# 6. Price position
+# 7. EMA20
+# 8. Recent candle SL
+# 9. Signal
 # ============================================================
 
 def analyze_timeframe(
@@ -1214,52 +934,7 @@ def analyze_timeframe(
 ):
 
     # ========================================================
-    # FUTURES FIRST
-    # ========================================================
-
-    futures_raw = get_futures_candles(
-        symbol,
-        timeframe,
-    )
-
-    futures_candles = parse_futures_candles(
-        futures_raw
-    )
-
-    futures_candles = remove_open_candle(
-        futures_candles,
-        TIMEFRAMES[timeframe],
-    )
-
-    if len(futures_candles) < (
-        STRUCTURE_CANDLES
-        + 3
-    ):
-
-        return None, "data_error"
-
-    # ========================================================
-    # BOS
-    # ========================================================
-
-    structure = find_structure_break(
-        futures_candles
-    )
-
-    if not structure:
-
-        return None, "no_bos"
-
-    direction = structure[
-        "direction"
-    ]
-
-    trigger = structure[
-        "candle"
-    ]
-
-    # ========================================================
-    # SPOT ONLY AFTER BOS
+    # SPOT CANDLES
     # ========================================================
 
     spot_raw = get_spot_candles(
@@ -1283,10 +958,17 @@ def analyze_timeframe(
 
         return None, "data_error"
 
+    # ========================================================
+    # CLOSED CANDLE DATA
+    # ========================================================
+
     closes = [
         candle["close"]
         for candle in spot_candles
     ]
+
+    # Most recent completed candle.
+    trigger = spot_candles[-1]
 
     # ========================================================
     # INDICATORS
@@ -1362,7 +1044,7 @@ def analyze_timeframe(
     # ========================================================
     # PRICE / GAP ALLOWANCE
     #
-    # 20% of the calculated gap.
+    # 20% of calculated gap.
     # ========================================================
 
     price_tolerance = (
@@ -1378,19 +1060,19 @@ def analyze_timeframe(
     # ========================================================
     # LONG
     #
-    # PRICE:
     # SMA50 < PRICE < EMA200
     # ========================================================
 
-    if direction == "LONG":
+    if (
+        sma50
+        < price
+        < ema200
+    ):
 
-        if not (
-            sma50
-            < price
-            < ema200
-        ):
-
-            return None, "price"
+        # ----------------------------------------------------
+        # Price must remain within allowed distance
+        # from SMA50.
+        # ----------------------------------------------------
 
         maximum_price = (
             sma50
@@ -1424,19 +1106,19 @@ def analyze_timeframe(
             return None, "ema20"
 
         # ----------------------------------------------------
-        # SL = LOW OF BOS CANDLE
+        # SL
+        #
+        # BOS REMOVED.
+        #
+        # LONG SL = LOW OF MOST RECENT COMPLETED
+        # SPOT CANDLE.
         # ----------------------------------------------------
 
         sl = trigger["low"]
 
         if not (
-            sl
-            < ema20
-            <= sma50
-            * (
-                1
-                + EMA20_TOLERANCE
-            )
+            sl > 0
+            and sl < price
         ):
 
             return None, "sl_structure"
@@ -1470,19 +1152,19 @@ def analyze_timeframe(
     # ========================================================
     # SHORT
     #
-    # PRICE:
     # EMA200 < PRICE < SMA50
     # ========================================================
 
-    if direction == "SHORT":
+    if (
+        ema200
+        < price
+        < sma50
+    ):
 
-        if not (
-            ema200
-            < price
-            < sma50
-        ):
-
-            return None, "price"
+        # ----------------------------------------------------
+        # Price must remain within allowed distance
+        # from SMA50.
+        # ----------------------------------------------------
 
         minimum_price = (
             sma50
@@ -1516,20 +1198,18 @@ def analyze_timeframe(
             return None, "ema20"
 
         # ----------------------------------------------------
-        # SL = HIGH OF BOS CANDLE
+        # SL
+        #
+        # BOS REMOVED.
+        #
+        # SHORT SL = HIGH OF MOST RECENT COMPLETED
+        # SPOT CANDLE.
         # ----------------------------------------------------
 
         sl = trigger["high"]
 
         if not (
-            ema200
-            < ema20
-            >= sma50
-            * (
-                1
-                - EMA20_TOLERANCE
-            )
-            and sl > ema20
+            sl > price
         ):
 
             return None, "sl_structure"
@@ -1560,7 +1240,11 @@ def analyze_timeframe(
 
         }, "signal"
 
-    return None, "ema20"
+    # ========================================================
+    # PRICE IS NOT BETWEEN SMA50 AND EMA200
+    # ========================================================
+
+    return None, "price"
 
 
 # ============================================================
@@ -1721,8 +1405,6 @@ def format_no_setup_report(
 
     scanned = stats["scanned"]
 
-    no_bos = stats["no_bos"]
-
     gap = stats["gap"]
 
     price = stats["price"]
@@ -1738,8 +1420,7 @@ def format_no_setup_report(
     ]
 
     rejected = (
-        no_bos
-        + gap
+        gap
         + price
         + ema20
         + sl_structure
@@ -1756,11 +1437,10 @@ def format_no_setup_report(
         f"🪙 Coins scanned: {scanned}\n"
         f"🚫 Rejected: {rejected}\n\n"
 
-        f"🔎 No BOS: {no_bos}\n"
         f"📉 Gap rejected: {gap}\n"
         f"💰 Price rejected: {price}\n"
         f"📏 EMA20 rejected: {ema20}\n"
-        f"🛑 SL/structure rejected: "
+        f"🛑 SL rejected: "
         f"{sl_structure}\n"
         f"⚠️ Data/API errors: "
         f"{data_error}\n\n"
@@ -1788,15 +1468,15 @@ def main():
     )
 
     print(
-        "DAILY REMOVED"
+        "BOS COMPLETELY REMOVED"
+    )
+
+    print(
+        "FUTURES CANDLES COMPLETELY REMOVED"
     )
 
     print(
         "SPOT SMA50 / SPOT EMA20 / SPOT EMA200"
-    )
-
-    print(
-        "FUTURES BOS / STRUCTURE"
     )
 
     print(
@@ -1832,15 +1512,11 @@ def main():
     )
 
     print(
-        "RECENT BOS = LAST 10 COMPLETED FUTURES CANDLES"
+        "LONG SL = MOST RECENT CLOSED SPOT CANDLE LOW"
     )
 
     print(
-        "LESS STRICT / MORE RECENT BOS"
-    )
-
-    print(
-        "MOST RECENT BOS SELECTED"
+        "SHORT SL = MOST RECENT CLOSED SPOT CANDLE HIGH"
     )
 
     print(
@@ -1860,11 +1536,11 @@ def main():
     )
 
     print(
-        "NEW BOS = IMMEDIATE ALERT"
+        "NEW SETUP = IMMEDIATE ALERT"
     )
 
     print(
-        "SAME BOS = REPEAT EVERY 60 MINUTES"
+        "SAME SETUP = REPEAT EVERY 60 MINUTES"
     )
 
     print(
@@ -1876,11 +1552,11 @@ def main():
     )
 
     print(
-        "OPTIMIZED: FUTURES BOS FIRST"
+        "NO BOS FILTER"
     )
 
     print(
-        "OPTIMIZED: SPOT REQUEST ONLY AFTER BOS"
+        "NO FUTURES CANDLE REQUESTS"
     )
 
     print(
@@ -1889,11 +1565,6 @@ def main():
 
     print(
         "RATE LIMIT BACKOFF = ONLY ON HTTP 429"
-    )
-
-    print(
-        f"FUTURES CANDLE LIMIT = "
-        f"{FUTURES_CANDLE_LIMIT}"
     )
 
     print(
@@ -2017,8 +1688,6 @@ def main():
 
         stats[timeframe] = {
             "scanned": 0,
-            "bos_found": 0,
-            "no_bos": 0,
             "gap": 0,
             "price": 0,
             "ema20": 0,
@@ -2078,14 +1747,10 @@ def main():
                 )
 
                 # =================================================
-                # SIGNAL / QUALIFYING SETUP
+                # SIGNAL
                 # =================================================
 
                 if signal:
-
-                    stats[timeframe][
-                        "bos_found"
-                    ] += 1
 
                     status = get_signal_status(
                         signal,
@@ -2094,7 +1759,7 @@ def main():
                     )
 
                     # =============================================
-                    # NEW BOS
+                    # NEW SETUP
                     # =============================================
 
                     if status == "NEW":
@@ -2111,7 +1776,7 @@ def main():
                         )
 
                     # =============================================
-                    # SAME BOS AFTER 60 MINUTES
+                    # SAME SETUP AFTER 60 MINUTES
                     # =============================================
 
                     elif status == "REPEAT":
@@ -2134,13 +1799,7 @@ def main():
                 # NO SIGNAL
                 # =================================================
 
-                if reason == "no_bos":
-
-                    stats[timeframe][
-                        "no_bos"
-                    ] += 1
-
-                elif reason == "gap":
+                if reason == "gap":
 
                     stats[timeframe][
                         "gap"
@@ -2295,10 +1954,7 @@ def main():
         )
 
         # =====================================================
-        # IMPORTANT:
-        #
-        # Determine status ONCE.
-        # Do not call get_signal_status twice.
+        # DETERMINE STATUS
         # =====================================================
 
         if signal in fresh_signals:
@@ -2390,10 +2046,6 @@ def main():
     # ========================================================
     # ZERO FRESH SIGNAL REPORT
     #
-    # IMPORTANT:
-    #
-    # ONLY NEW/FRESH SIGNALS count here.
-    #
     # A repeat does NOT prevent the zero-fresh report.
     # ========================================================
 
@@ -2481,16 +2133,6 @@ def main():
         )
 
         print(
-            f"Qualifying BOS/SETUP: "
-            f"{s['bos_found']}"
-        )
-
-        print(
-            f"No BOS: "
-            f"{s['no_bos']}"
-        )
-
-        print(
             f"Gap rejected: "
             f"{s['gap']}"
         )
@@ -2506,7 +2148,7 @@ def main():
         )
 
         print(
-            f"SL/structure rejected: "
+            f"SL rejected: "
             f"{s['sl_structure']}"
         )
 
@@ -2533,23 +2175,23 @@ def main():
     )
 
     print(
-        "NEW BOS = IMMEDIATE ALERT"
+        "BOS = COMPLETELY REMOVED"
     )
 
     print(
-        "SAME BOS = REPEAT EVERY 60 MINUTES"
+        "FUTURES CANDLES = COMPLETELY REMOVED"
+    )
+
+    print(
+        "NEW SETUP = IMMEDIATE ALERT"
+    )
+
+    print(
+        "SAME SETUP = REPEAT EVERY 60 MINUTES"
     )
 
     print(
         "ZERO FRESH SIGNALS = TELEGRAM REPORT"
-    )
-
-    print(
-        "RECENT BOS = LAST 10 COMPLETED FUTURES CANDLES"
-    )
-
-    print(
-        "MAX WORKERS = 20"
     )
 
     print(
@@ -2558,6 +2200,10 @@ def main():
 
     print(
         "429 ONLY = EXPONENTIAL BACKOFF"
+    )
+
+    print(
+        "MAX WORKERS = 6"
     )
 
     print("=" * 60)
