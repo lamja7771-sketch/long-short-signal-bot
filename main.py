@@ -33,9 +33,9 @@ SPOT_CANDLE_LIMIT = 1000
 # FUTURES HISTORY
 # ============================================================
 
-FUTURES_CANDLE_LIMIT = 20
+FUTURES_CANDLE_LIMIT = 30
 
-STRUCTURE_CANDLES = 10
+STRUCTURE_CANDLES = 20
 
 
 # ============================================================
@@ -66,7 +66,6 @@ GAP_MINIMUM = {
     "15m": 10,
     "1h": 20,
     "4h": 35,
-    "1d": 30,
 }
 
 
@@ -78,13 +77,13 @@ TIMEFRAMES = {
     "15m": 900,
     "1h": 3600,
     "4h": 14400,
-    "1d": 86400,
 }
 
 
 # ============================================================
 # PERFORMANCE
 #
+# IMPORTANT:
 # NO FIXED REQUEST PACER.
 #
 # Gate is allowed to process requests as fast as possible.
@@ -96,7 +95,7 @@ MAX_WORKERS = 12
 REQUEST_TIMEOUT = 20
 
 HEADERS = {
-    "User-Agent": "Long-Short-Signal-Bot/7.0",
+    "User-Agent": "Long-Short-Signal-Bot/6.0",
     "Accept": "application/json",
     "Connection": "keep-alive",
 }
@@ -397,12 +396,15 @@ def send_telegram(message):
 # ============================================================
 # GATE GET
 #
-# NO FIXED SLEEP BETWEEN NORMAL REQUESTS.
+# IMPORTANT OPTIMIZATION:
+#
+# There is NO fixed sleep between normal requests.
 #
 # Sleep happens ONLY on:
 # - HTTP 429
 # - temporary request exception
-# - temporary server errors
+#
+# Retry-After is respected when available.
 # ============================================================
 
 def gate_get(
@@ -997,7 +999,7 @@ def calculate_sma(
 #
 # Proper historical warm-up.
 #
-# Starts from SMA of the first period historical values
+# Starts from SMA of the first 200 historical values
 # and then applies the EMA formula across all remaining
 # values.
 # ============================================================
@@ -1042,7 +1044,7 @@ def calculate_ema(
 # ============================================================
 # FIND RECENT BOS
 #
-# Uses LAST 10 COMPLETED FUTURES CANDLES.
+# Uses LAST 20 COMPLETED FUTURES CANDLES.
 #
 # Most recent valid LONG or SHORT BOS is selected.
 # ============================================================
@@ -1692,7 +1694,6 @@ def timeframe_name(timeframe):
         "15m": "15M",
         "1h": "1H",
         "4h": "4H",
-        "1d": "DAILY",
     }
 
     return names.get(
@@ -1779,7 +1780,11 @@ def main():
     )
 
     print(
-        "15M / 1H / 4H / DAILY"
+        "15M / 1H / 4H"
+    )
+
+    print(
+        "DAILY REMOVED"
     )
 
     print(
@@ -1815,10 +1820,6 @@ def main():
     )
 
     print(
-        "DAILY GAP > 30%"
-    )
-
-    print(
         "PRICE / GAP RATIO = 2:10"
     )
 
@@ -1827,7 +1828,7 @@ def main():
     )
 
     print(
-        "RECENT BOS = LAST 10 COMPLETED FUTURES CANDLES"
+        "RECENT BOS = LAST 20 COMPLETED FUTURES CANDLES"
     )
 
     print(
@@ -2256,21 +2257,18 @@ def main():
         "15m": 0,
         "1h": 0,
         "4h": 0,
-        "1d": 0,
     }
 
     fresh_sent_by_tf = {
         "15m": 0,
         "1h": 0,
         "4h": 0,
-        "1d": 0,
     }
 
     repeat_sent_by_tf = {
         "15m": 0,
         "1h": 0,
         "4h": 0,
-        "1d": 0,
     }
 
 
@@ -2289,7 +2287,10 @@ def main():
         )
 
         # =====================================================
+        # IMPORTANT:
+        #
         # Determine status ONCE.
+        # Do not call get_signal_status twice.
         # =====================================================
 
         if signal in fresh_signals:
@@ -2380,6 +2381,8 @@ def main():
 
     # ========================================================
     # ZERO FRESH SIGNAL REPORT
+    #
+    # IMPORTANT:
     #
     # ONLY NEW/FRESH SIGNALS count here.
     #
@@ -2516,10 +2519,6 @@ def main():
 
 
     print()
-
-    print(
-        "15M / 1H / 4H / DAILY"
-    )
 
     print(
         "FRESH SCAN = EVERY 5 MINUTES"
