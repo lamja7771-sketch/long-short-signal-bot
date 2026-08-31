@@ -16,36 +16,11 @@ CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 GATE_URL = "https://api.gateio.ws/api/v4"
 
-
-# ============================================================
-# TIMEFRAMES
-# ============================================================
-#
-# IMPORTANT:
-# Gate Futures candlesticks expects interval STRINGS.
-#
-# DO NOT use:
-#   900
-#   3600
-#   14400
-#
-# Use:
-#   15m
-#   1h
-#   4h
-#
-# ============================================================
-
 TIMEFRAMES = {
-    "15m": "15m",
-    "1h": "1h",
-    "4h": "4h",
+    "15m": 900,
+    "1h": 3600,
+    "4h": 14400,
 }
-
-
-# ============================================================
-# INDICATORS
-# ============================================================
 
 SMA_PERIOD = 50
 EMA_FAST = 20
@@ -53,7 +28,7 @@ EMA_SLOW = 200
 
 
 # ============================================================
-# MINIMUM SMA50 / EMA200 GAP
+# TIMEFRAME GAP REQUIREMENTS
 # ============================================================
 
 GAP_MINIMUM = {
@@ -64,26 +39,14 @@ GAP_MINIMUM = {
 
 
 # ============================================================
-# PRICE / GAP RATIO
-# ============================================================
-#
-# Price must remain within 20% of the SMA50 -> EMA200 range.
-#
-# LONG:
-#   SMA50 < PRICE < EMA200
-#   distance from SMA50 <= 20% of total gap
-#
-# SHORT:
-#   EMA200 < PRICE < SMA50
-#   distance from SMA50 <= 20% of total gap
-#
+# PRICE / GAP FILTER
 # ============================================================
 
 PRICE_GAP_RATIO = 0.20
 
 
 # ============================================================
-# EMA20 TOLERANCE
+# EMA20 FILTER
 # ============================================================
 
 EMA20_TOLERANCE = 0.02
@@ -98,34 +61,28 @@ TP2_PERCENT = 0.10
 
 
 # ============================================================
-# ALERT REPEAT
+# REPEAT SETTINGS
 # ============================================================
 
 REPEAT_INTERVAL = 60 * 60
 
 
 # ============================================================
-# FUTURES CANDLE SETTINGS
+# CANDLE SETTINGS
 # ============================================================
 
 CANDLE_LIMIT = 1000
 
 
 # ============================================================
-# CONCURRENCY
-# ============================================================
-#
-# Keep this at 6.
-#
-# Higher concurrency can cause Gate HTTP 429 errors.
-#
+# WORKERS
 # ============================================================
 
 MAX_WORKERS = 6
 
 
 # ============================================================
-# RETRY SETTINGS
+# HTTP RETRIES
 # ============================================================
 
 MAX_RETRIES = 3
@@ -150,14 +107,13 @@ HEADERS = {
 
 
 # ============================================================
-# GLOBALS
+# GLOBAL HTTP SESSION
 # ============================================================
 
 session = requests.Session()
 session.headers.update(HEADERS)
 
 file_lock = threading.Lock()
-diagnostic_lock = threading.Lock()
 
 
 # ============================================================
@@ -165,65 +121,88 @@ diagnostic_lock = threading.Lock()
 # ============================================================
 
 diagnostics = {
-    # Overall
-    "total_scans": 0,
 
-    # Symbols / prices
+    # -------------------------------
+    # GENERAL
+    # -------------------------------
+
     "symbols_loaded": 0,
     "prices_loaded": 0,
-    "missing_live_price": 0,
+    "total_scans": 0,
 
-    # HTTP
+    # -------------------------------
+    # CANDLE REQUESTS
+    # -------------------------------
+
     "candle_requests": 0,
     "candle_success": 0,
     "candle_failures": 0,
 
+    # -------------------------------
+    # HTTP ERRORS
+    # -------------------------------
+
     "http_400": 0,
+    "http_401": 0,
+    "http_403": 0,
     "http_404": 0,
+    "http_408": 0,
     "http_429": 0,
+    "http_500": 0,
     "http_other": 0,
 
-    "rate_limit_retries": 0,
-    "request_retries": 0,
+    # -------------------------------
+    # CANDLE VALIDATION
+    # -------------------------------
 
-    # Candle validation
     "invalid_candles": 0,
+    "empty_candles": 0,
     "insufficient_candles": 0,
-    "no_closed_candles": 0,
+    "forming_candle_removed": 0,
 
-    # Indicators
+    # -------------------------------
+    # INDICATORS
+    # -------------------------------
+
     "invalid_indicator": 0,
 
-    # Strategy rejection
+    # -------------------------------
+    # STRATEGY REJECTIONS
+    # -------------------------------
+
     "gap_rejected": 0,
-    "price_rejected": 0,
-    "price_gap_rejected": 0,
+    "price_position_rejected": 0,
+    "price_gap_ratio_rejected": 0,
     "ema20_rejected": 0,
 
-    # TP validation
-    "tp3_rejected": 0,
+    # -------------------------------
+    # VALID SETUPS
+    # -------------------------------
 
-    # Valid setups
     "long_valid": 0,
     "short_valid": 0,
 
-    # Signals
+    # -------------------------------
+    # TP VALIDATION
+    # -------------------------------
+
+    "long_tp3_invalid": 0,
+    "short_tp3_invalid": 0,
+
+    # -------------------------------
+    # FINAL SIGNALS
+    # -------------------------------
+
     "long_signals": 0,
     "short_signals": 0,
 
-    # Alerts
     "fresh_signals": 0,
     "hourly_repeats": 0,
 }
 
 
-def increment_counter(name, amount=1):
-    with diagnostic_lock:
-        diagnostics[name] = diagnostics.get(name, 0) + amount
-
-
 # ============================================================
-# HEADER
+# PRINT HEADER
 # ============================================================
 
 def print_header():
@@ -264,10 +243,6 @@ def print_header():
     print()
     print(f"FUTURES CANDLE LIMIT = {CANDLE_LIMIT}")
     print(f"MAX WORKERS = {MAX_WORKERS}")
-    print()
-    print("GATE INTERVALS = 15m / 1h / 4h")
-    print("HTTP 400 IS NOT RETRIED")
-    print("HTTP 429 USES EXPONENTIAL BACKOFF")
     print("=" * 72)
     print()
 
@@ -283,7 +258,12 @@ def load_json(filename, default):
         if not os.path.exists(filename):
             return default
 
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(
+            filename,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
             data = json.load(f)
 
         return data
@@ -330,7 +310,7 @@ def save_json(filename, data):
 
 
 # ============================================================
-# GATE HTTP GET
+# GATE HTTP REQUEST
 # ============================================================
 
 def gate_get(
@@ -351,67 +331,100 @@ def gate_get(
                 timeout=15
             )
 
-            # ------------------------------------------------
+            status = response.status_code
+
+            # =================================================
             # SUCCESS
-            # ------------------------------------------------
+            # =================================================
 
-            if response.status_code == 200:
+            if status == 200:
 
-                try:
-                    return response.json()
+                return response.json()
 
-                except Exception as e:
 
-                    print(
-                        f"INVALID JSON: "
-                        f"{description} | {e}"
-                    )
-
-                    return None
-
-            # ------------------------------------------------
+            # =================================================
             # HTTP 400
             #
             # IMPORTANT:
-            # 400 is a bad request.
-            # Retrying it does not help.
-            # ------------------------------------------------
-
-            if response.status_code == 400:
-
-                increment_counter("http_400")
-
-                print(
-                    f"Gate HTTP 400: "
-                    f"{description}"
-                )
-
-                return None
-
-            # ------------------------------------------------
-            # HTTP 404
-            # ------------------------------------------------
-
-            if response.status_code == 404:
-
-                increment_counter("http_404")
-
-                print(
-                    f"Gate HTTP 404: "
-                    f"{description}"
-                )
-
-                return None
-
-            # ------------------------------------------------
-            # HTTP 429
+            # 400 is normally a bad/unsupported contract or
+            # invalid candle request.
             #
-            # Retry with exponential backoff.
-            # ------------------------------------------------
+            # DO NOT RETRY 400.
+            # =================================================
 
-            if response.status_code == 429:
+            if status == 400:
 
-                increment_counter("http_429")
+                diagnostics["http_400"] += 1
+                diagnostics["candle_failures"] += 1
+
+                print(
+                    f"Gate HTTP 400: {description}"
+                )
+
+                return None
+
+
+            # =================================================
+            # AUTH
+            # =================================================
+
+            if status == 401:
+
+                diagnostics["http_401"] += 1
+
+                print(
+                    f"Gate HTTP 401: {description}"
+                )
+
+                return None
+
+
+            # =================================================
+            # FORBIDDEN
+            # =================================================
+
+            if status == 403:
+
+                diagnostics["http_403"] += 1
+
+                print(
+                    f"Gate HTTP 403: {description}"
+                )
+
+                return None
+
+
+            # =================================================
+            # NOT FOUND
+            # =================================================
+
+            if status == 404:
+
+                diagnostics["http_404"] += 1
+
+                print(
+                    f"Gate HTTP 404: {description}"
+                )
+
+                return None
+
+
+            # =================================================
+            # TIMEOUT
+            # =================================================
+
+            if status == 408:
+
+                diagnostics["http_408"] += 1
+
+
+            # =================================================
+            # RATE LIMIT
+            # =================================================
+
+            if status == 429:
+
+                diagnostics["http_429"] += 1
 
                 if attempt >= MAX_RETRIES:
 
@@ -420,22 +433,24 @@ def gate_get(
                         f"{description}"
                     )
 
+                    diagnostics["candle_failures"] += 1
+
                     return None
 
-                retry_after = (
-                    response.headers.get(
-                        "Retry-After"
-                    )
+                retry_after = response.headers.get(
+                    "Retry-After"
                 )
 
                 if retry_after:
 
                     try:
+
                         delay = float(
                             retry_after
                         )
 
                     except Exception:
+
                         delay = (
                             BASE_RETRY_DELAY
                             * (2 ** attempt)
@@ -448,15 +463,11 @@ def gate_get(
                         * (2 ** attempt)
                     )
 
-                increment_counter(
-                    "rate_limit_retries"
-                )
-
                 print(
                     f"RATE LIMITED: "
                     f"{description} | "
-                    f"retry "
-                    f"{attempt + 1}/{MAX_RETRIES} | "
+                    f"retry {attempt + 1}/"
+                    f"{MAX_RETRIES} | "
                     f"waiting {delay:.2f}s"
                 )
 
@@ -464,25 +475,57 @@ def gate_get(
 
                 continue
 
-            # ------------------------------------------------
-            # OTHER HTTP ERROR
-            # ------------------------------------------------
 
-            increment_counter(
-                "http_other"
-            )
+            # =================================================
+            # SERVER ERRORS
+            # =================================================
+
+            if status >= 500:
+
+                diagnostics["http_500"] += 1
+
+                if attempt >= MAX_RETRIES:
+
+                    print(
+                        f"Gate HTTP {status}: "
+                        f"{description}"
+                    )
+
+                    diagnostics["candle_failures"] += 1
+
+                    return None
+
+                delay = (
+                    BASE_RETRY_DELAY
+                    * (2 ** attempt)
+                )
+
+                print(
+                    f"Gate HTTP {status}: "
+                    f"{description} | "
+                    f"retry {attempt + 1}/"
+                    f"{MAX_RETRIES} | "
+                    f"waiting {delay:.2f}s"
+                )
+
+                time.sleep(delay)
+
+                continue
+
+
+            # =================================================
+            # OTHER HTTP
+            # =================================================
+
+            diagnostics["http_other"] += 1
 
             print(
-                f"Gate HTTP "
-                f"{response.status_code}: "
+                f"Gate HTTP {status}: "
                 f"{description}"
             )
 
             return None
 
-        # ----------------------------------------------------
-        # REQUEST ERROR
-        # ----------------------------------------------------
 
         except requests.RequestException as e:
 
@@ -493,6 +536,8 @@ def gate_get(
                     f"{description} | {e}"
                 )
 
+                diagnostics["candle_failures"] += 1
+
                 return None
 
             delay = (
@@ -500,19 +545,28 @@ def gate_get(
                 * (2 ** attempt)
             )
 
-            increment_counter(
-                "request_retries"
-            )
-
             print(
                 f"REQUEST ERROR: "
                 f"{description} | "
-                f"retry "
-                f"{attempt + 1}/{MAX_RETRIES} | "
+                f"retry {attempt + 1}/"
+                f"{MAX_RETRIES} | "
                 f"waiting {delay:.2f}s"
             )
 
             time.sleep(delay)
+
+
+        except ValueError as e:
+
+            print(
+                f"INVALID JSON: "
+                f"{description} | {e}"
+            )
+
+            diagnostics["candle_failures"] += 1
+
+            return None
+
 
         except Exception as e:
 
@@ -520,6 +574,8 @@ def gate_get(
                 f"UNEXPECTED REQUEST ERROR: "
                 f"{description} | {e}"
             )
+
+            diagnostics["candle_failures"] += 1
 
             return None
 
@@ -538,7 +594,9 @@ def get_futures_symbols():
     )
 
     if not data:
+
         return []
+
 
     symbols = []
 
@@ -551,45 +609,54 @@ def get_futures_symbols():
             if not name:
                 continue
 
-            name = str(name).strip()
-
             # ------------------------------------------------
-            # Only USDT Futures
+            # Only USDT futures
             # ------------------------------------------------
 
             if not name.endswith("_USDT"):
                 continue
 
+
             # ------------------------------------------------
-            # Trading status
+            # Contract status
             # ------------------------------------------------
 
             status = item.get("status")
 
             if status:
 
-                status = str(
+                status_lower = str(
                     status
                 ).lower()
 
-                if status not in (
+                if status_lower not in (
                     "trading",
                     "open"
                 ):
+
                     continue
+
+
+            # ------------------------------------------------
+            # Basic sanity check
+            # ------------------------------------------------
+
+            if len(name) < 6:
+                continue
 
             symbols.append(name)
 
         except Exception:
+
             continue
+
 
     symbols = sorted(
         set(symbols)
     )
 
-    increment_counter(
-        "symbols_loaded",
-        len(symbols)
+    diagnostics["symbols_loaded"] = len(
+        symbols
     )
 
     return symbols
@@ -611,7 +678,9 @@ def get_futures_prices():
     prices = {}
 
     if not data:
+
         return prices
+
 
     for item in data:
 
@@ -639,16 +708,15 @@ def get_futures_prices():
             prices[contract] = price
 
         except Exception:
+
             continue
 
-    increment_counter(
-        "prices_loaded",
-        len(prices)
+
+    diagnostics["prices_loaded"] = len(
+        prices
     )
 
-    elapsed = (
-        time.time() - start
-    )
+    elapsed = time.time() - start
 
     print(
         f"Loaded {len(prices)} live Futures prices "
@@ -659,7 +727,171 @@ def get_futures_prices():
 
 
 # ============================================================
-# FUTURES CANDLES
+# PARSE FUTURES CANDLE
+# ============================================================
+
+def parse_futures_candle(row):
+
+    try:
+
+        # ----------------------------------------------------
+        # Gate list format:
+        #
+        # [timestamp, volume, close, high, low, open, ...]
+        # ----------------------------------------------------
+
+        if isinstance(row, list):
+
+            if len(row) < 6:
+                return None
+
+            timestamp = float(
+                row[0]
+            )
+
+            volume = float(
+                row[1]
+            )
+
+            close = float(
+                row[2]
+            )
+
+            high = float(
+                row[3]
+            )
+
+            low = float(
+                row[4]
+            )
+
+            open_price = float(
+                row[5]
+            )
+
+
+        # ----------------------------------------------------
+        # Defensive dictionary support
+        # ----------------------------------------------------
+
+        elif isinstance(row, dict):
+
+            timestamp_raw = row.get(
+                "t",
+                row.get("timestamp")
+            )
+
+            volume_raw = row.get(
+                "v",
+                row.get("volume", 0)
+            )
+
+            close_raw = row.get(
+                "c",
+                row.get("close")
+            )
+
+            high_raw = row.get(
+                "h",
+                row.get("high")
+            )
+
+            low_raw = row.get(
+                "l",
+                row.get("low")
+            )
+
+            open_raw = row.get(
+                "o",
+                row.get("open")
+            )
+
+            if (
+                timestamp_raw is None
+                or close_raw is None
+                or high_raw is None
+                or low_raw is None
+                or open_raw is None
+            ):
+
+                return None
+
+            timestamp = float(
+                timestamp_raw
+            )
+
+            volume = float(
+                volume_raw
+            )
+
+            close = float(
+                close_raw
+            )
+
+            high = float(
+                high_raw
+            )
+
+            low = float(
+                low_raw
+            )
+
+            open_price = float(
+                open_raw
+            )
+
+
+        else:
+
+            return None
+
+
+        # ----------------------------------------------------
+        # Validate values
+        # ----------------------------------------------------
+
+        if timestamp <= 0:
+            return None
+
+        if close <= 0:
+            return None
+
+        if high <= 0:
+            return None
+
+        if low <= 0:
+            return None
+
+        if open_price <= 0:
+            return None
+
+
+        return {
+            "timestamp": timestamp,
+            "open": open_price,
+            "high": high,
+            "low": low,
+            "close": close,
+            "volume": volume,
+        }
+
+
+    except (
+        TypeError,
+        ValueError,
+        KeyError,
+        IndexError
+    ):
+
+        return None
+
+    except Exception:
+
+        return None
+
+
+# ============================================================
+# GET FUTURES CANDLES
 # ============================================================
 
 def get_futures_candles(
@@ -667,29 +899,14 @@ def get_futures_candles(
     timeframe
 ):
 
-    # --------------------------------------------------------
-    # IMPORTANT:
-    #
-    # Gate requires:
-    #
-    # 15m
-    # 1h
-    # 4h
-    #
-    # NOT:
-    #
-    # 900
-    # 3600
-    # 14400
-    # --------------------------------------------------------
-
     interval = TIMEFRAMES[
         timeframe
     ]
 
-    increment_counter(
+    diagnostics[
         "candle_requests"
-    )
+    ] += 1
+
 
     data = gate_get(
         "/futures/usdt/candlesticks",
@@ -699,204 +916,106 @@ def get_futures_candles(
             "limit": CANDLE_LIMIT,
         },
         description=(
-            f"Futures "
-            f"{symbol} "
+            f"Futures {symbol} "
             f"{timeframe}"
         )
     )
 
+
     if not data:
 
-        increment_counter(
-            "candle_failures"
-        )
+        diagnostics[
+            "empty_candles"
+        ] += 1
 
         return None
+
 
     candles = []
 
-    try:
 
-        for row in data:
+    # ========================================================
+    # PARSE CANDLES
+    # ========================================================
 
-            # ------------------------------------------------
-            # Gate Futures normally returns:
-            #
-            # [timestamp, volume, close, high, low, open]
-            # ------------------------------------------------
+    for row in data:
 
-            if isinstance(row, list):
-
-                if len(row) < 6:
-                    continue
-
-                timestamp = float(
-                    row[0]
-                )
-
-                volume = float(
-                    row[1]
-                )
-
-                close = float(
-                    row[2]
-                )
-
-                high = float(
-                    row[3]
-                )
-
-                low = float(
-                    row[4]
-                )
-
-                open_price = float(
-                    row[5]
-                )
-
-            elif isinstance(row, dict):
-
-                timestamp = float(
-                    row.get(
-                        "t",
-                        row.get(
-                            "timestamp"
-                        )
-                    )
-                )
-
-                volume = float(
-                    row.get(
-                        "v",
-                        row.get(
-                            "volume",
-                            0
-                        )
-                    )
-                )
-
-                close = float(
-                    row.get(
-                        "c",
-                        row.get(
-                            "close"
-                        )
-                    )
-                )
-
-                high = float(
-                    row.get(
-                        "h",
-                        row.get(
-                            "high"
-                        )
-                    )
-                )
-
-                low = float(
-                    row.get(
-                        "l",
-                        row.get(
-                            "low"
-                        )
-                    )
-
-                open_price = float(
-                    row.get(
-                        "o",
-                        row.get(
-                            "open"
-                        )
-                    )
-
-                )
-
-            else:
-                continue
-
-            # ------------------------------------------------
-            # Validate OHLC
-            # ------------------------------------------------
-
-            if (
-                close <= 0
-                or high <= 0
-                or low <= 0
-                or open_price <= 0
-            ):
-                continue
-
-            candles.append(
-                {
-                    "timestamp": timestamp,
-                    "open": open_price,
-                    "high": high,
-                    "low": low,
-                    "close": close,
-                    "volume": volume,
-                }
-            )
-
-        # ----------------------------------------------------
-        # Sort oldest -> newest
-        # ----------------------------------------------------
-
-        candles.sort(
-            key=lambda x:
-            x["timestamp"]
+        candle = parse_futures_candle(
+            row
         )
 
-    except Exception as e:
+        if candle is None:
 
-        increment_counter(
-            "invalid_candles"
+            diagnostics[
+                "invalid_candles"
+            ] += 1
+
+            continue
+
+        candles.append(
+            candle
         )
 
-        print(
-            f"Invalid candle data: "
-            f"{symbol} "
-            f"{timeframe} | "
-            f"{e}"
-        )
+
+    if not candles:
+
+        diagnostics[
+            "empty_candles"
+        ] += 1
 
         return None
 
-    # --------------------------------------------------------
-    # Need enough raw candles
-    # --------------------------------------------------------
 
-    if len(candles) < (
-        EMA_SLOW + 10
-    ):
+    # ========================================================
+    # SORT OLDEST -> NEWEST
+    # ========================================================
 
-        increment_counter(
-            "insufficient_candles"
+    candles.sort(
+        key=lambda x: x["timestamp"]
+    )
+
+
+    # ========================================================
+    # REMOVE DUPLICATES
+    # ========================================================
+
+    unique = []
+
+    seen_timestamps = set()
+
+    for candle in candles:
+
+        ts = candle[
+            "timestamp"
+        ]
+
+        if ts in seen_timestamps:
+            continue
+
+        seen_timestamps.add(ts)
+
+        unique.append(
+            candle
         )
 
-        return None
+    candles = unique
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # REMOVE CURRENTLY FORMING CANDLE
     #
-    # Indicators use CLOSED Futures candles only.
-    # --------------------------------------------------------
+    # Indicators MUST use CLOSED candles only.
+    # ========================================================
 
     now = time.time()
 
     closed = []
 
-    # Seconds per candle
-    interval_seconds = {
-        "15m": 900,
-        "1h": 3600,
-        "4h": 14400,
-    }[timeframe]
-
     for candle in candles:
 
         candle_close_time = (
             candle["timestamp"]
-            + interval_seconds
+            + interval
         )
 
         if candle_close_time <= now:
@@ -905,19 +1024,33 @@ def get_futures_candles(
                 candle
             )
 
-    if len(closed) < (
-        EMA_SLOW + 5
-    ):
+        else:
 
-        increment_counter(
-            "no_closed_candles"
-        )
+            diagnostics[
+                "forming_candle_removed"
+            ] += 1
+
+
+    # ========================================================
+    # MINIMUM HISTORY
+    # ========================================================
+
+    minimum_required = (
+        EMA_SLOW + 5
+    )
+
+    if len(closed) < minimum_required:
+
+        diagnostics[
+            "insufficient_candles"
+        ] += 1
 
         return None
 
-    increment_counter(
+
+    diagnostics[
         "candle_success"
-    )
+    ] += 1
 
     return closed
 
@@ -934,18 +1067,17 @@ def calculate_ema(
     if len(values) < period:
         return None
 
+
     multiplier = (
-        2.0
-        / (period + 1.0)
+        2.0 / (period + 1.0)
     )
 
+
     # Proper SMA seed
-    ema = (
-        sum(
-            values[:period]
-        )
-        / period
-    )
+    ema = sum(
+        values[:period]
+    ) / period
+
 
     for price in values[period:]:
 
@@ -953,6 +1085,7 @@ def calculate_ema(
             (price - ema)
             * multiplier
         ) + ema
+
 
     return ema
 
@@ -969,10 +1102,9 @@ def calculate_sma(
     if len(values) < period:
         return None
 
+
     return (
-        sum(
-            values[-period:]
-        )
+        sum(values[-period:])
         / period
     )
 
@@ -988,15 +1120,16 @@ def calculate_indicators(
     if not candles:
         return None
 
+
     closes = [
-        float(
-            candle["close"]
-        )
+        float(candle["close"])
         for candle in candles
     ]
 
+
     if len(closes) < EMA_SLOW:
         return None
+
 
     sma50 = calculate_sma(
         closes,
@@ -1013,6 +1146,7 @@ def calculate_indicators(
         EMA_SLOW
     )
 
+
     if (
         sma50 is None
         or ema20 is None
@@ -1021,6 +1155,7 @@ def calculate_indicators(
 
         return None
 
+
     if (
         sma50 <= 0
         or ema20 <= 0
@@ -1028,6 +1163,7 @@ def calculate_indicators(
     ):
 
         return None
+
 
     return {
         "sma50": sma50,
@@ -1049,16 +1185,21 @@ def calculate_gap_percent(
         sma50 <= 0
         or ema200 <= 0
     ):
+
         return 0.0
+
+
+    smaller = min(
+        sma50,
+        ema200
+    )
+
 
     return (
         abs(
             ema200 - sma50
         )
-        / min(
-            sma50,
-            ema200
-        )
+        / smaller
     ) * 100.0
 
 
@@ -1072,13 +1213,14 @@ def analyze_symbol(
     live_price
 ):
 
-    increment_counter(
+    diagnostics[
         "total_scans"
-    )
+    ] += 1
 
-    # --------------------------------------------------------
-    # FUTURES CANDLES ONLY
-    # --------------------------------------------------------
+
+    # ========================================================
+    # GET FUTURES CANDLES
+    # ========================================================
 
     candles = get_futures_candles(
         symbol,
@@ -1088,9 +1230,10 @@ def analyze_symbol(
     if not candles:
         return None
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # INDICATORS
-    # --------------------------------------------------------
+    # ========================================================
 
     indicators = calculate_indicators(
         candles
@@ -1098,11 +1241,12 @@ def analyze_symbol(
 
     if not indicators:
 
-        increment_counter(
+        diagnostics[
             "invalid_indicator"
-        )
+        ] += 1
 
         return None
+
 
     sma50 = indicators[
         "sma50"
@@ -1116,9 +1260,10 @@ def analyze_symbol(
         "ema200"
     ]
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # LIVE FUTURES PRICE
-    # --------------------------------------------------------
+    # ========================================================
 
     try:
 
@@ -1128,19 +1273,21 @@ def analyze_symbol(
 
     except Exception:
 
-        increment_counter(
-            "missing_live_price"
-        )
+        diagnostics[
+            "price_position_rejected"
+        ] += 1
 
         return None
+
 
     if price <= 0:
 
-        increment_counter(
-            "missing_live_price"
-        )
+        diagnostics[
+            "price_position_rejected"
+        ] += 1
 
         return None
+
 
     # ========================================================
     # GAP FILTER
@@ -1151,66 +1298,69 @@ def analyze_symbol(
         ema200
     )
 
+
     minimum_gap = GAP_MINIMUM[
         timeframe
     ]
 
+
     if gap < minimum_gap:
 
-        increment_counter(
+        diagnostics[
             "gap_rejected"
-        )
+        ] += 1
 
         return None
+
 
     # ========================================================
     # PRICE POSITION
-    # ========================================================
     #
     # LONG:
-    #   SMA50 < PRICE < EMA200
+    # SMA50 < PRICE < EMA200
     #
     # SHORT:
-    #   EMA200 < PRICE < SMA50
-    #
+    # EMA200 < PRICE < SMA50
     # ========================================================
 
     long_position = (
-        sma50
-        < price
-        < ema200
+        sma50 < price < ema200
     )
 
     short_position = (
-        ema200
-        < price
-        < sma50
+        ema200 < price < sma50
     )
+
 
     if (
         not long_position
-        and
-        not short_position
+        and not short_position
     ):
 
-        increment_counter(
-            "price_rejected"
-        )
+        diagnostics[
+            "price_position_rejected"
+        ] += 1
 
         return None
 
+
     # ========================================================
     # PRICE / GAP RATIO
+    #
+    # Allowed distance from SMA50:
+    # 20% of total SMA50 -> EMA200 gap
     # ========================================================
 
     total_gap = abs(
         ema200 - sma50
     )
 
+
     allowed_price_distance = (
         total_gap
         * PRICE_GAP_RATIO
     )
+
 
     if long_position:
 
@@ -1223,13 +1373,14 @@ def analyze_symbol(
             > allowed_price_distance
         ):
 
-            increment_counter(
-                "price_gap_rejected"
-            )
+            diagnostics[
+                "price_gap_ratio_rejected"
+            ] += 1
 
             return None
 
-    elif short_position:
+
+    else:
 
         distance_from_sma = (
             sma50 - price
@@ -1240,157 +1391,153 @@ def analyze_symbol(
             > allowed_price_distance
         ):
 
-            increment_counter(
-                "price_gap_rejected"
-            )
+            diagnostics[
+                "price_gap_ratio_rejected"
+            ] += 1
 
             return None
 
+
     # ========================================================
-    # EMA20 FILTER
+    # EMA20 TOLERANCE
+    #
+    # Live Futures price must be within 2%
+    # of Futures EMA20.
     # ========================================================
 
     ema20_distance = (
-        abs(
-            price - ema20
-        )
+        abs(price - ema20)
         / ema20
     )
+
 
     if (
         ema20_distance
         > EMA20_TOLERANCE
     ):
 
-        increment_counter(
+        diagnostics[
             "ema20_rejected"
-        )
+        ] += 1
 
         return None
 
+
     # ========================================================
-    # DIRECTION
+    # LAST CLOSED FUTURES CANDLE
+    # ========================================================
+
+    last_closed = candles[-1]
+
+
+    # ========================================================
+    # DIRECTION + SL
     # ========================================================
 
     if long_position:
 
         direction = "LONG"
 
-    else:
-
-        direction = "SHORT"
-
-    # ========================================================
-    # VALID SETUP COUNT
-    # ========================================================
-
-    if direction == "LONG":
-
-        increment_counter(
-            "long_valid"
-        )
-
-    else:
-
-        increment_counter(
-            "short_valid"
-        )
-
-    # ========================================================
-    # STOP LOSS
-    #
-    # MOST RECENT CLOSED FUTURES CANDLE
-    # ========================================================
-
-    last_closed = candles[-1]
-
-    if direction == "LONG":
-
         sl = float(
             last_closed["low"]
         )
 
+        diagnostics[
+            "long_valid"
+        ] += 1
+
     else:
+
+        direction = "SHORT"
 
         sl = float(
             last_closed["high"]
         )
 
+        diagnostics[
+            "short_valid"
+        ] += 1
+
+
     # ========================================================
-    # TAKE PROFITS
+    # TP1 / TP2 / TP3
     # ========================================================
 
     if direction == "LONG":
 
-        tp1 = (
-            price
-            * (1 + TP1_PERCENT)
+        tp1 = price * (
+            1 + TP1_PERCENT
         )
 
-        tp2 = (
-            price
-            * (1 + TP2_PERCENT)
+        tp2 = price * (
+            1 + TP2_PERCENT
         )
 
         tp3 = ema200
 
-        # TP3 must be above entry
+
         if tp3 <= price:
 
-            increment_counter(
-                "tp3_rejected"
-            )
+            diagnostics[
+                "long_tp3_invalid"
+            ] += 1
 
             return None
 
+
     else:
 
-        tp1 = (
-            price
-            * (1 - TP1_PERCENT)
+        tp1 = price * (
+            1 - TP1_PERCENT
         )
 
-        tp2 = (
-            price
-            * (1 - TP2_PERCENT)
+        tp2 = price * (
+            1 - TP2_PERCENT
         )
 
         tp3 = ema200
 
-        # TP3 must be below entry
+
         if tp3 >= price:
 
-            increment_counter(
-                "tp3_rejected"
-            )
+            diagnostics[
+                "short_tp3_invalid"
+            ] += 1
 
             return None
 
+
     # ========================================================
-    # SIGNAL
+    # FINAL SIGNAL
     # ========================================================
 
     if direction == "LONG":
 
-        increment_counter(
+        diagnostics[
             "long_signals"
-        )
+        ] += 1
 
     else:
 
-        increment_counter(
+        diagnostics[
             "short_signals"
-        )
+        ] += 1
+
 
     return {
+
         "symbol": symbol,
+
         "timeframe": timeframe,
+
         "direction": direction,
 
         "entry": price,
 
         "sma50": sma50,
+
         "ema20": ema20,
+
         "ema200": ema200,
 
         "gap": gap,
@@ -1398,7 +1545,9 @@ def analyze_symbol(
         "sl": sl,
 
         "tp1": tp1,
+
         "tp2": tp2,
+
         "tp3": tp3,
 
         "last_candle_timestamp":
@@ -1416,14 +1565,21 @@ def format_price(value):
 
     value = float(value)
 
+
     if value >= 1000:
+
         return f"{value:.2f}"
 
+
     if value >= 1:
+
         return f"{value:.6f}"
 
+
     if value >= 0.01:
+
         return f"{value:.8f}"
+
 
     return f"{value:.10f}"
 
@@ -1432,9 +1588,7 @@ def format_price(value):
 # SIGNAL KEY
 # ============================================================
 
-def signal_key(
-    signal
-):
+def signal_key(signal):
 
     return (
         f"{signal['symbol']}_"
@@ -1447,9 +1601,7 @@ def signal_key(
 # TELEGRAM
 # ============================================================
 
-def send_telegram(
-    message
-):
+def send_telegram(message):
 
     if (
         not BOT_TOKEN
@@ -1462,16 +1614,23 @@ def send_telegram(
 
         return False
 
+
     url = (
         "https://api.telegram.org/"
         f"bot{BOT_TOKEN}/sendMessage"
     )
 
+
     payload = {
+
         "chat_id": CHAT_ID,
+
         "text": message,
-        "disable_web_page_preview": True,
+
+        "disable_web_page_preview":
+            True,
     }
+
 
     try:
 
@@ -1481,8 +1640,11 @@ def send_telegram(
             timeout=15
         )
 
+
         if response.status_code == 200:
+
             return True
+
 
         print(
             f"Telegram error "
@@ -1490,31 +1652,32 @@ def send_telegram(
             f"{response.text}"
         )
 
+
     except Exception as e:
 
         print(
             f"Telegram error: {e}"
         )
 
+
     return False
 
 
 # ============================================================
-# SIGNAL MESSAGE
+# FORMAT SIGNAL
 # ============================================================
 
-def format_signal(
-    signal
-):
+def format_signal(signal):
 
     emoji = (
         "🟢"
-        if signal["direction"]
-        == "LONG"
+        if signal["direction"] == "LONG"
         else "🔴"
     )
 
+
     return (
+
         f"{emoji} "
         f"#{signal['symbol'].replace('_USDT', '')} "
         f"{signal['direction']} "
@@ -1555,192 +1718,225 @@ def format_signal(
 
 def print_diagnostics():
 
-    d = diagnostics
-
     print()
     print("=" * 72)
-    print("DIAGNOSTIC REJECTION SUMMARY")
+    print("DETAILED DIAGNOSTIC REJECTION SUMMARY")
     print("=" * 72)
 
+
     print()
+    print("UNIVERSE")
+    print("-" * 72)
+
     print(
-        f"SYMBOLS LOADED           : "
-        f"{d['symbols_loaded']}"
+        f"FUTURES SYMBOLS LOADED   : "
+        f"{diagnostics['symbols_loaded']}"
     )
 
     print(
-        f"LIVE PRICES LOADED       : "
-        f"{d['prices_loaded']}"
+        f"LIVE FUTURES PRICES      : "
+        f"{diagnostics['prices_loaded']}"
     )
 
     print(
         f"TOTAL SCANS              : "
-        f"{d['total_scans']}"
+        f"{diagnostics['total_scans']}"
     )
 
+
     print()
-    print("-" * 72)
-    print("HTTP / API")
+    print("CANDLE REQUESTS")
     print("-" * 72)
 
     print(
         f"CANDLE REQUESTS          : "
-        f"{d['candle_requests']}"
+        f"{diagnostics['candle_requests']}"
     )
 
     print(
         f"CANDLE SUCCESS           : "
-        f"{d['candle_success']}"
+        f"{diagnostics['candle_success']}"
     )
 
     print(
         f"CANDLE FAILURES          : "
-        f"{d['candle_failures']}"
+        f"{diagnostics['candle_failures']}"
     )
 
     print(
-        f"HTTP 400 BAD REQUEST     : "
-        f"{d['http_400']}"
+        f"EMPTY CANDLE RESPONSES   : "
+        f"{diagnostics['empty_candles']}"
     )
-
-    print(
-        f"HTTP 404 NOT FOUND       : "
-        f"{d['http_404']}"
-    )
-
-    print(
-        f"HTTP 429 RATE LIMITED    : "
-        f"{d['http_429']}"
-    )
-
-    print(
-        f"HTTP OTHER ERRORS        : "
-        f"{d['http_other']}"
-    )
-
-    print(
-        f"RATE-LIMIT RETRIES       : "
-        f"{d['rate_limit_retries']}"
-    )
-
-    print(
-        f"REQUEST RETRIES          : "
-        f"{d['request_retries']}"
-    )
-
-    print()
-    print("-" * 72)
-    print("CANDLE VALIDATION")
-    print("-" * 72)
 
     print(
         f"INVALID CANDLES          : "
-        f"{d['invalid_candles']}"
+        f"{diagnostics['invalid_candles']}"
     )
 
     print(
         f"INSUFFICIENT CANDLES     : "
-        f"{d['insufficient_candles']}"
+        f"{diagnostics['insufficient_candles']}"
     )
 
     print(
-        f"NO CLOSED CANDLES        : "
-        f"{d['no_closed_candles']}"
+        f"FORMING CANDLES REMOVED  : "
+        f"{diagnostics['forming_candle_removed']}"
     )
 
+
     print()
+    print("HTTP ERRORS")
     print("-" * 72)
+
+    print(
+        f"HTTP 400                 : "
+        f"{diagnostics['http_400']}"
+    )
+
+    print(
+        f"HTTP 401                 : "
+        f"{diagnostics['http_401']}"
+    )
+
+    print(
+        f"HTTP 403                 : "
+        f"{diagnostics['http_403']}"
+    )
+
+    print(
+        f"HTTP 404                 : "
+        f"{diagnostics['http_404']}"
+    )
+
+    print(
+        f"HTTP 408                 : "
+        f"{diagnostics['http_408']}"
+    )
+
+    print(
+        f"HTTP 429 RATE LIMITED    : "
+        f"{diagnostics['http_429']}"
+    )
+
+    print(
+        f"HTTP 5XX                 : "
+        f"{diagnostics['http_500']}"
+    )
+
+    print(
+        f"OTHER HTTP ERRORS        : "
+        f"{diagnostics['http_other']}"
+    )
+
+
+    print()
+    print("INDICATOR REJECTIONS")
+    print("-" * 72)
+
+    print(
+        f"INVALID INDICATORS       : "
+        f"{diagnostics['invalid_indicator']}"
+    )
+
+
+    print()
     print("STRATEGY REJECTIONS")
     print("-" * 72)
 
     print(
         f"REJECTED BY GAP          : "
-        f"{d['gap_rejected']}"
+        f"{diagnostics['gap_rejected']}"
     )
 
     print(
         f"REJECTED BY PRICE        : "
-        f"{d['price_rejected']}"
+        f"{diagnostics['price_position_rejected']}"
     )
 
     print(
         f"REJECTED BY PRICE/GAP    : "
-        f"{d['price_gap_rejected']}"
+        f"{diagnostics['price_gap_ratio_rejected']}"
     )
 
     print(
         f"REJECTED BY EMA20        : "
-        f"{d['ema20_rejected']}"
+        f"{diagnostics['ema20_rejected']}"
     )
 
-    print(
-        f"REJECTED BY TP3          : "
-        f"{d['tp3_rejected']}"
-    )
 
     print()
-    print("-" * 72)
     print("VALID SETUPS")
     print("-" * 72)
 
     print(
         f"VALID LONG SETUPS        : "
-        f"{d['long_valid']}"
+        f"{diagnostics['long_valid']}"
     )
 
     print(
         f"VALID SHORT SETUPS       : "
-        f"{d['short_valid']}"
+        f"{diagnostics['short_valid']}"
     )
 
+
     print()
+    print("TP VALIDATION")
     print("-" * 72)
-    print("SIGNALS")
+
+    print(
+        f"LONG TP3 INVALID         : "
+        f"{diagnostics['long_tp3_invalid']}"
+    )
+
+    print(
+        f"SHORT TP3 INVALID        : "
+        f"{diagnostics['short_tp3_invalid']}"
+    )
+
+
+    print()
+    print("FINAL SIGNALS")
     print("-" * 72)
 
     print(
         f"LONG SIGNALS             : "
-        f"{d['long_signals']}"
+        f"{diagnostics['long_signals']}"
     )
 
     print(
         f"SHORT SIGNALS            : "
-        f"{d['short_signals']}"
+        f"{diagnostics['short_signals']}"
     )
-
-    print()
-    print("-" * 72)
-    print("ALERTS")
-    print("-" * 72)
 
     print(
         f"FRESH SIGNALS            : "
-        f"{d['fresh_signals']}"
+        f"{diagnostics['fresh_signals']}"
     )
 
     print(
         f"HOURLY REPEATS           : "
-        f"{d['hourly_repeats']}"
+        f"{diagnostics['hourly_repeats']}"
     )
 
     print(
         f"TOTAL SIGNAL ALERTS      : "
-        f"{d['fresh_signals'] + d['hourly_repeats']}"
+        f"{diagnostics['fresh_signals'] + diagnostics['hourly_repeats']}"
     )
 
+
+    print()
     print("=" * 72)
     print()
 
 
 # ============================================================
-# TELEGRAM ZERO-SIGNAL REPORT
+# ZERO SIGNAL TELEGRAM REPORT
 # ============================================================
 
 def zero_signal_report():
 
-    d = diagnostics
-
     return (
+
         "━━━━━━━━━━━━━━━━━━━━\n"
         "📊 LONG + SHORT SIGNAL BOT\n"
         "━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -1754,49 +1950,40 @@ def zero_signal_report():
         "in this scan.\n\n"
 
         f"Futures symbols: "
-        f"{d['symbols_loaded']}\n"
+        f"{diagnostics['symbols_loaded']}\n"
 
         f"Scans: "
-        f"{d['total_scans']}\n\n"
-
-        f"HTTP 400: "
-        f"{d['http_400']}\n"
-
-        f"HTTP 429: "
-        f"{d['http_429']}\n"
-
-        f"Candle failures: "
-        f"{d['candle_failures']}\n"
-
-        f"Insufficient candles: "
-        f"{d['insufficient_candles']}\n\n"
+        f"{diagnostics['total_scans']}\n\n"
 
         f"Gap rejected: "
-        f"{d['gap_rejected']}\n"
+        f"{diagnostics['gap_rejected']}\n"
 
         f"Price rejected: "
-        f"{d['price_rejected']}\n"
+        f"{diagnostics['price_position_rejected']}\n"
 
         f"Price/Gap rejected: "
-        f"{d['price_gap_rejected']}\n"
+        f"{diagnostics['price_gap_ratio_rejected']}\n"
 
         f"EMA20 rejected: "
-        f"{d['ema20_rejected']}\n"
+        f"{diagnostics['ema20_rejected']}\n\n"
 
-        f"TP3 rejected: "
-        f"{d['tp3_rejected']}\n\n"
+        f"HTTP 400: "
+        f"{diagnostics['http_400']}\n"
 
-        f"Valid LONG: "
-        f"{d['long_valid']}\n"
+        f"HTTP 429: "
+        f"{diagnostics['http_429']}\n"
 
-        f"Valid SHORT: "
-        f"{d['short_valid']}\n\n"
+        f"Candle failures: "
+        f"{diagnostics['candle_failures']}\n"
+
+        f"Insufficient candles: "
+        f"{diagnostics['insufficient_candles']}\n\n"
 
         f"Fresh signals: "
-        f"{d['fresh_signals']}\n"
+        f"{diagnostics['fresh_signals']}\n"
 
         f"Hourly repeats: "
-        f"{d['hourly_repeats']}\n"
+        f"{diagnostics['hourly_repeats']}\n"
 
         "━━━━━━━━━━━━━━━━━━━━"
     )
@@ -1810,34 +1997,38 @@ def run_scan():
 
     print_header()
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # RESET DIAGNOSTICS
-    # --------------------------------------------------------
+    # ========================================================
 
-    with diagnostic_lock:
+    for key in diagnostics:
 
-        for key in diagnostics:
-            diagnostics[key] = 0
+        diagnostics[key] = 0
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # LOAD HISTORY
-    # --------------------------------------------------------
+    # ========================================================
 
     alerts = load_json(
         ALERTS_FILE,
         {}
     )
 
+
     signals_history = load_json(
         SIGNALS_FILE,
         []
     )
 
-    # --------------------------------------------------------
-    # GET FUTURES SYMBOLS
-    # --------------------------------------------------------
+
+    # ========================================================
+    # GET FUTURES UNIVERSE
+    # ========================================================
 
     symbols = get_futures_symbols()
+
 
     if not symbols:
 
@@ -1847,18 +2038,21 @@ def run_scan():
 
         return
 
+
     print(
-        f"Scanning "
-        f"{len(symbols)} Futures symbols..."
+        f"Scanning {len(symbols)} "
+        f"Futures symbols..."
     )
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # GET LIVE FUTURES PRICES
-    # --------------------------------------------------------
+    # ========================================================
 
     futures_prices = (
         get_futures_prices()
     )
+
 
     if not futures_prices:
 
@@ -1868,11 +2062,13 @@ def run_scan():
 
         return
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # CREATE SCAN JOBS
-    # --------------------------------------------------------
+    # ========================================================
 
     jobs = []
+
 
     for symbol in symbols:
 
@@ -1882,13 +2078,14 @@ def run_scan():
             )
         )
 
+
+        # ----------------------------------------------------
+        # If ticker does not exist, don't request candles.
+        # ----------------------------------------------------
+
         if live_price is None:
-
-            increment_counter(
-                "missing_live_price"
-            )
-
             continue
+
 
         for timeframe in TIMEFRAMES:
 
@@ -1900,14 +2097,15 @@ def run_scan():
                 )
             )
 
+
     print(
-        f"Total scans: "
-        f"{len(jobs)}"
+        f"Total scans: {len(jobs)}"
     )
 
-    # --------------------------------------------------------
-    # PARALLEL SCAN
-    # --------------------------------------------------------
+
+    # ========================================================
+    # SCAN
+    # ========================================================
 
     results = []
 
@@ -1915,26 +2113,35 @@ def run_scan():
 
     start_time = time.time()
 
+
     with ThreadPoolExecutor(
         max_workers=MAX_WORKERS
     ) as executor:
 
-        future_map = {
-            executor.submit(
+
+        future_map = {}
+
+
+        for (
+            symbol,
+            timeframe,
+            price
+        ) in jobs:
+
+            future = executor.submit(
                 analyze_symbol,
                 symbol,
                 timeframe,
                 price
-            ): (
+            )
+
+            future_map[
+                future
+            ] = (
                 symbol,
                 timeframe
             )
-            for (
-                symbol,
-                timeframe,
-                price
-            ) in jobs
-        }
+
 
         for future in as_completed(
             future_map
@@ -1942,11 +2149,13 @@ def run_scan():
 
             completed += 1
 
+
             try:
 
                 result = (
                     future.result()
                 )
+
 
                 if result:
 
@@ -1954,13 +2163,13 @@ def run_scan():
                         result
                     )
 
+
             except Exception as e:
 
                 symbol, timeframe = (
-                    future_map[
-                        future
-                    ]
+                    future_map[future]
                 )
+
 
                 print(
                     f"ERROR: "
@@ -1969,20 +2178,21 @@ def run_scan():
                     f"{e}"
                 )
 
+
             # ------------------------------------------------
-            # PROGRESS
+            # Progress
             # ------------------------------------------------
 
             if (
                 completed % 300 == 0
-                or
-                completed == len(jobs)
+                or completed == len(jobs)
             ):
 
                 elapsed = (
                     time.time()
                     - start_time
                 )
+
 
                 print(
                     f"Progress: "
@@ -1991,30 +2201,27 @@ def run_scan():
                     f"{elapsed:.1f}s"
                 )
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # SORT BY GAP
-    # --------------------------------------------------------
+    # ========================================================
 
     results.sort(
-        key=lambda x:
-        x["gap"],
+        key=lambda x: x["gap"],
         reverse=True
     )
 
-    print()
-    print(
-        f"Valid strategy results: "
-        f"{len(results)}"
-    )
 
-    # --------------------------------------------------------
+    # ========================================================
     # PROCESS ALERT HISTORY
-    # --------------------------------------------------------
+    # ========================================================
 
     now = time.time()
 
     fresh_signals = []
+
     hourly_repeats = []
+
 
     for signal in results:
 
@@ -2022,9 +2229,11 @@ def run_scan():
             signal
         )
 
+
         previous = alerts.get(
             key
         )
+
 
         # ====================================================
         # NEW SETUP
@@ -2035,6 +2244,7 @@ def run_scan():
             fresh_signals.append(
                 signal
             )
+
 
             alerts[key] = {
 
@@ -2061,15 +2271,19 @@ def run_scan():
                     ],
             }
 
-            signals_history.append(
-                {
-                    "timestamp": now,
-                    "type": "fresh",
-                    **signal,
-                }
-            )
+
+            signals_history.append({
+
+                "timestamp": now,
+
+                "type": "fresh",
+
+                **signal,
+            })
+
 
             continue
+
 
         # ====================================================
         # SAME SETUP
@@ -2082,11 +2296,13 @@ def run_scan():
             )
         )
 
+
         previous_direction = (
             previous.get(
                 "direction"
             )
         )
+
 
         previous_timeframe = (
             previous.get(
@@ -2094,41 +2310,43 @@ def run_scan():
             )
         )
 
+
         same_setup = (
+
             previous_direction
             == signal["direction"]
+
             and
+
             previous_timeframe
             == signal["timeframe"]
         )
 
-        # ====================================================
-        # HOURLY REPEAT
-        # ====================================================
 
         if (
             same_setup
             and
-            (
-                now
-                - last_alert
-                >= REPEAT_INTERVAL
-            )
+            now - last_alert
+            >= REPEAT_INTERVAL
         ):
+
 
             hourly_repeats.append(
                 signal
             )
 
+
             alerts[key][
                 "last_alert"
             ] = now
 
+
             alerts[key][
                 "entry"
             ] = signal[
                 "entry"
             ]
+
 
             alerts[key][
                 "gap"
@@ -2136,18 +2354,21 @@ def run_scan():
                 "gap"
             ]
 
-            signals_history.append(
-                {
-                    "timestamp": now,
-                    "type":
-                        "hourly_repeat",
-                    **signal,
-                }
-            )
 
-    # --------------------------------------------------------
-    # UPDATE DIAGNOSTICS
-    # --------------------------------------------------------
+            signals_history.append({
+
+                "timestamp": now,
+
+                "type":
+                    "hourly_repeat",
+
+                **signal,
+            })
+
+
+    # ========================================================
+    # FINAL COUNTERS
+    # ========================================================
 
     diagnostics[
         "fresh_signals"
@@ -2155,24 +2376,27 @@ def run_scan():
         fresh_signals
     )
 
+
     diagnostics[
         "hourly_repeats"
     ] = len(
         hourly_repeats
     )
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # SAVE ALERT HISTORY
-    # --------------------------------------------------------
+    # ========================================================
 
     save_json(
         ALERTS_FILE,
         alerts
     )
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # LIMIT SIGNAL HISTORY
-    # --------------------------------------------------------
+    # ========================================================
 
     if len(
         signals_history
@@ -2182,10 +2406,12 @@ def run_scan():
             signals_history[-5000:]
         )
 
+
     save_json(
         SIGNALS_FILE,
         signals_history
     )
+
 
     # ========================================================
     # SEND FRESH SIGNALS
@@ -2194,17 +2420,23 @@ def run_scan():
     for signal in fresh_signals:
 
         message = (
+
             "🚨 NEW SIGNAL\n\n"
             + format_signal(
                 signal
             )
         )
 
+
         send_telegram(
             message
         )
 
-        time.sleep(0.2)
+
+        time.sleep(
+            0.2
+        )
+
 
     # ========================================================
     # SEND HOURLY REPEATS
@@ -2213,17 +2445,23 @@ def run_scan():
     for signal in hourly_repeats:
 
         message = (
+
             "🔄 HOURLY REPEAT\n\n"
             + format_signal(
                 signal
             )
         )
 
+
         send_telegram(
             message
         )
 
-        time.sleep(0.2)
+
+        time.sleep(
+            0.2
+        )
+
 
     # ========================================================
     # ALWAYS SEND ZERO-SIGNAL REPORT
@@ -2239,6 +2477,7 @@ def run_scan():
             zero_signal_report()
         )
 
+
     # ========================================================
     # PRINT RESULTS
     # ========================================================
@@ -2250,21 +2489,25 @@ def run_scan():
         f"{len(fresh_signals)}"
     )
 
+
     print(
         f"HOURLY REPEATS: "
         f"{len(hourly_repeats)}"
     )
+
 
     print(
         f"TOTAL SIGNAL ALERTS: "
         f"{len(fresh_signals) + len(hourly_repeats)}"
     )
 
+
     # ========================================================
-    # DIAGNOSTICS
+    # PRINT DIAGNOSTICS
     # ========================================================
 
     print_diagnostics()
+
 
     # ========================================================
     # PRINT FRESH SIGNALS
@@ -2277,17 +2520,24 @@ def run_scan():
         print("FRESH SIGNALS")
         print("=" * 72)
 
+
         for signal in fresh_signals:
 
             print(
+
                 f"{signal['direction']} "
+
                 f"{signal['symbol']} "
+
                 f"{signal['timeframe']} "
+
                 f"Gap="
                 f"{signal['gap']:.2f}% "
+
                 f"Entry="
                 f"{format_price(signal['entry'])}"
             )
+
 
     # ========================================================
     # PRINT HOURLY REPEATS
@@ -2300,14 +2550,20 @@ def run_scan():
         print("HOURLY REPEATS")
         print("=" * 72)
 
+
         for signal in hourly_repeats:
 
             print(
+
                 f"{signal['direction']} "
+
                 f"{signal['symbol']} "
+
                 f"{signal['timeframe']} "
+
                 f"Gap="
                 f"{signal['gap']:.2f}% "
+
                 f"Entry="
                 f"{format_price(signal['entry'])}"
             )
@@ -2323,11 +2579,13 @@ if __name__ == "__main__":
 
         run_scan()
 
+
     except KeyboardInterrupt:
 
         print(
             "Stopped."
         )
+
 
     except Exception as e:
 
