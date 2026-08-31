@@ -133,25 +133,25 @@
     "sent_at": 1788159108
   },
   "BANK_USDT_4h_LONG": {
-    "last_alert": 1788165963.2700305,
+    "last_alert": 1788194625.308663,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.03592,
-    "gap": 52.92057250420864
+    "entry": 0.03585,
+    "gap": 51.82416887692087
   },
   "VRTX_USDT_4h_SHORT": {
-    "last_alert": 1788165963.2700305,
+    "last_alert": 1788194625.308663,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 539.9,
-    "gap": 52.69442387327238
+    "entry": 540.8,
+    "gap": 51.11038115904489
   },
   "GUA_USDT_4h_LONG": {
-    "last_alert": 1788165963.2700305,
+    "last_alert": 1788194625.308663,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.04207,
-    "gap": 46.40871929763237
+    "entry": 0.04062,
+    "gap": 45.26674811275006
   },
   "\u9f99\u867e_USDT_1h_SHORT": {
     "last_alert": 1788165963.2700305,
@@ -166,5 +166,33 @@
     "timeframe": "15m",
     "entry": 3.58e-05,
     "gap": 15.664780294993925
+  },
+  "ZORA_USDT_15m_SHORT": {
+    "last_alert": 1788194625.308663,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.0095,
+    "gap": 21.610168068300265
+  },
+  "HEMI_USDT_15m_SHORT": {
+    "last_alert": 1788194625.308663,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.015114,
+    "gap": 13.711327359204653
+  },
+  "FLOCK_USDT_15m_SHORT": {
+    "last_alert": 1788194625.308663,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.04024,
+    "gap": 12.566387512605814
+  },
+  "CLO_USDT_15m_SHORT": {
+    "last_alert": 1788194625.308663,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.14064,
+    "gap": 10.23954636220806
   }
 }
