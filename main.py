@@ -23,10 +23,11 @@ EMA_SLOW = 200
 
 
 # ============================================================
-# SPOT HISTORY
+# CANDLE HISTORY
 # ============================================================
 
 SPOT_CANDLE_LIMIT = 1000
+FUTURES_CANDLE_LIMIT = 200
 
 
 # ============================================================
@@ -74,7 +75,9 @@ TIMEFRAMES = {
 # ============================================================
 # PERFORMANCE
 #
-# BOS/FUTURES REQUESTS HAVE BEEN COMPLETELY REMOVED.
+# BOS IS COMPLETELY REMOVED.
+#
+# FUTURES CANDLES ARE STILL USED.
 #
 # Lower concurrency helps reduce Gate HTTP 429 errors.
 # ============================================================
@@ -84,7 +87,7 @@ MAX_WORKERS = 6
 REQUEST_TIMEOUT = 20
 
 HEADERS = {
-    "User-Agent": "Long-Short-Signal-Bot/7.0",
+    "User-Agent": "Long-Short-Signal-Bot/8.0",
     "Accept": "application/json",
     "Connection": "keep-alive",
 }
@@ -236,9 +239,6 @@ def save_alert_history(history):
 #
 # Same:
 # symbol + direction + timeframe + trigger candle
-#
-# The trigger candle is the most recent completed candle
-# used for the signal.
 # ============================================================
 
 def get_signal_id(signal):
@@ -253,15 +253,6 @@ def get_signal_id(signal):
 
 # ============================================================
 # CHECK SIGNAL STATUS
-#
-# NEW
-#     Never alerted before.
-#
-# REPEAT
-#     Same setup and 60 minutes passed.
-#
-# BLOCKED
-#     Same setup and less than 60 minutes.
 # ============================================================
 
 def get_signal_status(
@@ -615,9 +606,7 @@ def gate_get(
 # ============================================================
 # GET FUTURES SYMBOLS
 #
-# Futures are used ONLY to obtain the list of contracts.
-#
-# No Futures candles are requested anymore.
+# Futures are used to obtain the trading universe.
 # ============================================================
 
 def get_symbols():
@@ -672,6 +661,8 @@ def get_symbols():
 
 # ============================================================
 # ALL LIVE SPOT PRICES
+#
+# Entry price comes from Spot.
 # ============================================================
 
 def get_all_spot_prices():
@@ -730,9 +721,13 @@ def get_all_spot_prices():
 # ============================================================
 # SPOT CANDLES
 #
-# SPOT = SMA50 / EMA20 / EMA200
+# SPOT candles are used for:
 #
-# BOS HAS BEEN COMPLETELY REMOVED.
+# SMA50
+# EMA20
+# EMA200
+#
+# These remain completely independent from Futures candles.
 # ============================================================
 
 def get_spot_candles(
@@ -755,6 +750,56 @@ def get_spot_candles(
         params=params,
         label=(
             f"Spot "
+            f"{symbol} "
+            f"{timeframe}"
+        ),
+    )
+
+    if isinstance(
+        data,
+        list,
+    ):
+
+        return data
+
+    return []
+
+
+# ============================================================
+# FUTURES CANDLES
+#
+# IMPORTANT:
+#
+# BOS IS REMOVED.
+#
+# Futures candles are STILL REQUESTED and USED.
+#
+# They are used for the latest closed candle SL:
+#
+# LONG  = Futures candle LOW
+# SHORT = Futures candle HIGH
+# ============================================================
+
+def get_futures_candles(
+    symbol,
+    timeframe,
+):
+
+    url = (
+        f"{GATE_URL}/futures/usdt/candlesticks"
+    )
+
+    params = {
+        "contract": symbol,
+        "interval": timeframe,
+        "limit": FUTURES_CANDLE_LIMIT,
+    }
+
+    data = gate_get(
+        url,
+        params=params,
+        label=(
+            f"Futures "
             f"{symbol} "
             f"{timeframe}"
         ),
@@ -817,9 +862,57 @@ def parse_spot_candles(data):
 
 
 # ============================================================
-# REMOVE CURRENT OPEN CANDLE
+# PARSE FUTURES CANDLES
 #
-# Indicators and SL use CLOSED candles only.
+# Gate Futures candle format:
+#
+# [timestamp, volume, close, high, low, open]
+# ============================================================
+
+def parse_futures_candles(data):
+
+    candles = []
+
+    for item in data:
+
+        try:
+
+            candle = {
+                "time": int(
+                    item[0]
+                ),
+                "open": float(
+                    item[5]
+                ),
+                "high": float(
+                    item[3]
+                ),
+                "low": float(
+                    item[4]
+                ),
+                "close": float(
+                    item[2]
+                ),
+            }
+
+            candles.append(
+                candle
+            )
+
+        except Exception:
+
+            continue
+
+    candles.sort(
+        key=lambda x:
+            x["time"]
+    )
+
+    return candles
+
+
+# ============================================================
+# REMOVE CURRENT OPEN CANDLE
 # ============================================================
 
 def remove_open_candle(
@@ -867,9 +960,6 @@ def calculate_sma(
 # EMA
 #
 # Proper historical warm-up.
-#
-# Starts from SMA of the first period values
-# and then applies EMA across the remaining history.
 # ============================================================
 
 def calculate_ema(
@@ -912,19 +1002,22 @@ def calculate_ema(
 # ============================================================
 # ANALYZE ONE SYMBOL / ONE TIMEFRAME
 #
-# BOS HAS BEEN COMPLETELY REMOVED.
+# IMPORTANT:
 #
-# New flow:
+# BOS = REMOVED
 #
-# 1. Spot candles
-# 2. Remove open candle
-# 3. Calculate SMA50 / EMA20 / EMA200
-# 4. Get live Spot price
-# 5. Gap
-# 6. Price position
-# 7. EMA20
-# 8. Recent candle SL
-# 9. Signal
+# FUTURES CANDLES = RETAINED
+#
+# Spot candles:
+#   SMA50
+#   EMA20
+#   EMA200
+#
+# Live Spot:
+#   Entry
+#
+# Futures closed candle:
+#   SL
 # ============================================================
 
 def analyze_timeframe(
@@ -959,7 +1052,34 @@ def analyze_timeframe(
         return None, "data_error"
 
     # ========================================================
-    # CLOSED CANDLE DATA
+    # FUTURES CANDLES
+    #
+    # BOS IS NOT CALCULATED.
+    #
+    # We only need the latest completed Futures candle
+    # for the SL.
+    # ========================================================
+
+    futures_raw = get_futures_candles(
+        symbol,
+        timeframe,
+    )
+
+    futures_candles = parse_futures_candles(
+        futures_raw
+    )
+
+    futures_candles = remove_open_candle(
+        futures_candles,
+        TIMEFRAMES[timeframe],
+    )
+
+    if not futures_candles:
+
+        return None, "data_error"
+
+    # ========================================================
+    # CLOSED SPOT DATA
     # ========================================================
 
     closes = [
@@ -967,8 +1087,11 @@ def analyze_timeframe(
         for candle in spot_candles
     ]
 
-    # Most recent completed candle.
-    trigger = spot_candles[-1]
+    # Most recent completed Spot candle.
+    spot_trigger = spot_candles[-1]
+
+    # Most recent completed Futures candle.
+    futures_trigger = futures_candles[-1]
 
     # ========================================================
     # INDICATORS
@@ -1043,8 +1166,6 @@ def analyze_timeframe(
 
     # ========================================================
     # PRICE / GAP ALLOWANCE
-    #
-    # 20% of calculated gap.
     # ========================================================
 
     price_tolerance = (
@@ -1106,15 +1227,15 @@ def analyze_timeframe(
             return None, "ema20"
 
         # ----------------------------------------------------
-        # SL
+        # FUTURES SL
         #
-        # BOS REMOVED.
+        # NO BOS.
         #
-        # LONG SL = LOW OF MOST RECENT COMPLETED
-        # SPOT CANDLE.
+        # Simply use the low of the latest completed
+        # Futures candle.
         # ----------------------------------------------------
 
-        sl = trigger["low"]
+        sl = futures_trigger["low"]
 
         if not (
             sl > 0
@@ -1145,7 +1266,10 @@ def analyze_timeframe(
                 price_tolerance,
 
             "trigger_time":
-                trigger["time"],
+                futures_trigger["time"],
+
+            "spot_trigger_time":
+                spot_trigger["time"],
 
         }, "signal"
 
@@ -1198,15 +1322,15 @@ def analyze_timeframe(
             return None, "ema20"
 
         # ----------------------------------------------------
-        # SL
+        # FUTURES SL
         #
-        # BOS REMOVED.
+        # NO BOS.
         #
-        # SHORT SL = HIGH OF MOST RECENT COMPLETED
-        # SPOT CANDLE.
+        # Simply use the high of the latest completed
+        # Futures candle.
         # ----------------------------------------------------
 
-        sl = trigger["high"]
+        sl = futures_trigger["high"]
 
         if not (
             sl > price
@@ -1236,7 +1360,10 @@ def analyze_timeframe(
                 price_tolerance,
 
             "trigger_time":
-                trigger["time"],
+                futures_trigger["time"],
+
+            "spot_trigger_time":
+                spot_trigger["time"],
 
         }, "signal"
 
@@ -1434,13 +1561,14 @@ def format_no_setup_report(
 
         f"❌ *ZERO FRESH SIGNALS FOUND*\n\n"
 
-        f"🪙 Coins scanned: {scanned}\n"
+        f"🪙 Futures symbols scanned: "
+        f"{scanned}\n"
         f"🚫 Rejected: {rejected}\n\n"
 
         f"📉 Gap rejected: {gap}\n"
         f"💰 Price rejected: {price}\n"
         f"📏 EMA20 rejected: {ema20}\n"
-        f"🛑 SL rejected: "
+        f"🛑 Futures SL rejected: "
         f"{sl_structure}\n"
         f"⚠️ Data/API errors: "
         f"{data_error}\n\n"
@@ -1472,7 +1600,11 @@ def main():
     )
 
     print(
-        "FUTURES CANDLES COMPLETELY REMOVED"
+        "FUTURES CANDLES RETAINED"
+    )
+
+    print(
+        "FUTURES SYMBOLS = TRADING UNIVERSE"
     )
 
     print(
@@ -1485,6 +1617,10 @@ def main():
 
     print(
         "PROPER EMA200 WARM-UP"
+    )
+
+    print(
+        "FUTURES CLOSED CANDLE = SL"
     )
 
     print(
@@ -1512,11 +1648,11 @@ def main():
     )
 
     print(
-        "LONG SL = MOST RECENT CLOSED SPOT CANDLE LOW"
+        "LONG SL = MOST RECENT CLOSED FUTURES CANDLE LOW"
     )
 
     print(
-        "SHORT SL = MOST RECENT CLOSED SPOT CANDLE HIGH"
+        "SHORT SL = MOST RECENT CLOSED FUTURES CANDLE HIGH"
     )
 
     print(
@@ -1556,7 +1692,7 @@ def main():
     )
 
     print(
-        "NO FUTURES CANDLE REQUESTS"
+        "FUTURES CANDLES = ENABLED"
     )
 
     print(
@@ -1570,6 +1706,11 @@ def main():
     print(
         f"SPOT CANDLE LIMIT = "
         f"{SPOT_CANDLE_LIMIT}"
+    )
+
+    print(
+        f"FUTURES CANDLE LIMIT = "
+        f"{FUTURES_CANDLE_LIMIT}"
     )
 
     print(
@@ -1593,7 +1734,7 @@ def main():
 
 
     # ========================================================
-    # SYMBOLS
+    # FUTURES SYMBOLS
     # ========================================================
 
     symbols = get_symbols()
@@ -1601,11 +1742,11 @@ def main():
     if not symbols:
 
         print(
-            "No symbols found."
+            "No Futures symbols found."
         )
 
         send_telegram(
-            "⚠️ *No symbols found.*\n\n"
+            "⚠️ *No Futures symbols found.*\n\n"
             "Bot scan failed."
         )
 
@@ -1613,7 +1754,7 @@ def main():
 
     print(
         f"Scanning "
-        f"{len(symbols)} symbols..."
+        f"{len(symbols)} Futures symbols..."
     )
 
 
@@ -1653,6 +1794,8 @@ def main():
 
     # ========================================================
     # JOBS
+    #
+    # Only Futures symbols that also have a Spot price.
     # ========================================================
 
     jobs = []
@@ -2148,7 +2291,7 @@ def main():
         )
 
         print(
-            f"SL rejected: "
+            f"Futures SL rejected: "
             f"{s['sl_structure']}"
         )
 
@@ -2179,7 +2322,19 @@ def main():
     )
 
     print(
-        "FUTURES CANDLES = COMPLETELY REMOVED"
+        "FUTURES CANDLES = ENABLED"
+    )
+
+    print(
+        "FUTURES CANDLES USED FOR SL"
+    )
+
+    print(
+        "SPOT CANDLES USED FOR INDICATORS"
+    )
+
+    print(
+        "LIVE SPOT PRICE = ENTRY"
     )
 
     print(
