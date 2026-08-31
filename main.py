@@ -35,7 +35,8 @@ SPOT_CANDLE_LIMIT = 1000
 
 FUTURES_CANDLE_LIMIT = 30
 
-STRUCTURE_CANDLES = 20
+# LESS STRICT / MORE RECENT BOS
+STRUCTURE_CANDLES = 10
 
 
 # ============================================================
@@ -90,7 +91,8 @@ TIMEFRAMES = {
 # Backoff happens ONLY when Gate actually returns 429.
 # ============================================================
 
-MAX_WORKERS = 12
+# INCREASED CONCURRENCY
+MAX_WORKERS = 20
 
 REQUEST_TIMEOUT = 20
 
@@ -1044,7 +1046,9 @@ def calculate_ema(
 # ============================================================
 # FIND RECENT BOS
 #
-# Uses LAST 20 COMPLETED FUTURES CANDLES.
+# Uses LAST 10 COMPLETED FUTURES CANDLES.
+#
+# More recent / less strict BOS window.
 #
 # Most recent valid LONG or SHORT BOS is selected.
 # ============================================================
@@ -1828,7 +1832,11 @@ def main():
     )
 
     print(
-        "RECENT BOS = LAST 20 COMPLETED FUTURES CANDLES"
+        "RECENT BOS = LAST 10 COMPLETED FUTURES CANDLES"
+    )
+
+    print(
+        "LESS STRICT / MORE RECENT BOS"
     )
 
     print(
@@ -2534,6 +2542,14 @@ def main():
 
     print(
         "ZERO FRESH SIGNALS = TELEGRAM REPORT"
+    )
+
+    print(
+        "RECENT BOS = LAST 10 COMPLETED FUTURES CANDLES"
+    )
+
+    print(
+        "MAX WORKERS = 20"
     )
 
     print(
