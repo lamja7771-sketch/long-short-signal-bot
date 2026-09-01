@@ -236,5 +236,19 @@
     "timeframe": "15m",
     "entry": 0.14096,
     "gap": 10.451031429501993
+  },
+  "VELVET_USDT_1h_LONG": {
+    "last_alert": 1788305218.2244287,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.09427,
+    "gap": 93.74840010726125
+  },
+  "TRIA_USDT_15m_LONG": {
+    "last_alert": 1788305218.2244287,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.00397,
+    "gap": 16.07487467455779
   }
 }
