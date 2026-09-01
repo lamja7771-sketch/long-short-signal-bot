@@ -140,11 +140,11 @@
     "gap": 51.28189298812732
   },
   "VRTX_USDT_4h_SHORT": {
-    "last_alert": 1788241748.6608138,
+    "last_alert": 1788258898.6212628,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 545.8,
-    "gap": 48.89318189260356
+    "entry": 542.6,
+    "gap": 48.188892331471855
   },
   "GUA_USDT_4h_LONG": {
     "last_alert": 1788194625.308663,
@@ -208,5 +208,19 @@
     "timeframe": "1h",
     "entry": 0.678,
     "gap": 67.17430532773099
+  },
+  "MUU_USDT_4h_LONG": {
+    "last_alert": 1788258898.6212628,
+    "direction": "LONG",
+    "timeframe": "4h",
+    "entry": 29.68,
+    "gap": 181.05219214587135
+  },
+  "ARB_USDT_15m_SHORT": {
+    "last_alert": 1788258898.6212628,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.11116,
+    "gap": 13.939884970217026
   }
 }
