@@ -140,11 +140,11 @@
     "gap": 51.28189298812732
   },
   "VRTX_USDT_4h_SHORT": {
-    "last_alert": 1788212527.84161,
+    "last_alert": 1788223884.11134,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 544.1,
-    "gap": 50.34737977187751
+    "entry": 545.8,
+    "gap": 49.61142002741577
   },
   "GUA_USDT_4h_LONG": {
     "last_alert": 1788194625.308663,
