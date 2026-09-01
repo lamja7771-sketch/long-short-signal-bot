@@ -154,11 +154,11 @@
     "gap": 45.26674811275006
   },
   "\u9f99\u867e_USDT_1h_SHORT": {
-    "last_alert": 1788165963.2700305,
+    "last_alert": 1788275514.6542592,
     "direction": "SHORT",
     "timeframe": "1h",
-    "entry": 0.068512,
-    "gap": 44.77918864584494
+    "entry": 0.064143,
+    "gap": 24.43726980259066
   },
   "ASTEROID_USDT_15m_LONG": {
     "last_alert": 1788165963.2700305,
