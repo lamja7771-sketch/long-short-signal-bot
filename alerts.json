@@ -229,5 +229,12 @@
     "timeframe": "4h",
     "entry": 0.1295,
     "gap": 650.4601465063053
+  },
+  "STAR_USDT_15m_SHORT": {
+    "last_alert": 1788297623.5940757,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.14096,
+    "gap": 10.451031429501993
   }
 }
