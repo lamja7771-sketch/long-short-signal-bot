@@ -222,5 +222,12 @@
     "timeframe": "15m",
     "entry": 0.11116,
     "gap": 13.939884970217026
+  },
+  "BEAT_USDT_4h_LONG": {
+    "last_alert": 1788287700.6237984,
+    "direction": "LONG",
+    "timeframe": "4h",
+    "entry": 0.1295,
+    "gap": 650.4601465063053
   }
 }
