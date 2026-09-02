@@ -250,5 +250,12 @@
     "timeframe": "15m",
     "entry": 0.00397,
     "gap": 16.07487467455779
+  },
+  "ONG_USDT_4h_SHORT": {
+    "last_alert": 1788311822.5496805,
+    "direction": "SHORT",
+    "timeframe": "4h",
+    "entry": 0.10588,
+    "gap": 45.25358598906945
   }
 }
