@@ -224,11 +224,11 @@
     "gap": 13.939884970217026
   },
   "BEAT_USDT_4h_LONG": {
-    "last_alert": 1788373911.0421543,
+    "last_alert": 1788383751.2185712,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.1293,
-    "gap": 611.7200936443307
+    "entry": 0.1286,
+    "gap": 605.6779518655798
   },
   "STAR_USDT_15m_SHORT": {
     "last_alert": 1788297623.5940757,
