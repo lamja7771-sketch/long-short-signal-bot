@@ -238,11 +238,11 @@
     "gap": 10.451031429501993
   },
   "VELVET_USDT_1h_LONG": {
-    "last_alert": 1788305218.2244287,
+    "last_alert": 1788328638.6276326,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.09427,
-    "gap": 93.74840010726125
+    "entry": 0.09387,
+    "gap": 88.9323740188141
   },
   "TRIA_USDT_15m_LONG": {
     "last_alert": 1788305218.2244287,
@@ -257,5 +257,26 @@
     "timeframe": "4h",
     "entry": 0.10588,
     "gap": 45.25358598906945
+  },
+  "HEMI_USDT_1h_SHORT": {
+    "last_alert": 1788328638.6276326,
+    "direction": "SHORT",
+    "timeframe": "1h",
+    "entry": 0.01509,
+    "gap": 26.035323838484313
+  },
+  "BEAT_USDT_1h_LONG": {
+    "last_alert": 1788328638.6276326,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.1318,
+    "gap": 21.464293281675907
+  },
+  "USELESS_USDT_15m_SHORT": {
+    "last_alert": 1788328638.6276326,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.11067,
+    "gap": 16.862627089746855
   }
 }
