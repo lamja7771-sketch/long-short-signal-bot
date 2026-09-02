@@ -266,11 +266,11 @@
     "gap": 26.035323838484313
   },
   "BEAT_USDT_1h_LONG": {
-    "last_alert": 1788328638.6276326,
+    "last_alert": 1788346540.9945395,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.1318,
-    "gap": 21.464293281675907
+    "entry": 0.1316,
+    "gap": 20.211580282635556
   },
   "USELESS_USDT_15m_SHORT": {
     "last_alert": 1788328638.6276326,
@@ -278,5 +278,19 @@
     "timeframe": "15m",
     "entry": 0.11067,
     "gap": 16.862627089746855
+  },
+  "CRDO_USDT_15m_LONG": {
+    "last_alert": 1788346540.9945395,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 188.86,
+    "gap": 11.29815782011086
+  },
+  "MDB_USDT_15m_LONG": {
+    "last_alert": 1788346540.9945395,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 376.4,
+    "gap": 10.382571829024052
   }
 }
