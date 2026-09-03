@@ -238,11 +238,11 @@
     "gap": 10.451031429501993
   },
   "VELVET_USDT_1h_LONG": {
-    "last_alert": 1788391464.922558,
+    "last_alert": 1788398322.7821796,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.09585,
-    "gap": 74.14715484184904
+    "entry": 0.09571,
+    "gap": 72.6541797559816
   },
   "TRIA_USDT_15m_LONG": {
     "last_alert": 1788373911.0421543,
@@ -294,10 +294,17 @@
     "gap": 10.382571829024052
   },
   "SKR_USDT_1h_SHORT": {
-    "last_alert": 1788391464.922558,
+    "last_alert": 1788398322.7821796,
     "direction": "SHORT",
     "timeframe": "1h",
-    "entry": 0.023208,
-    "gap": 37.42478671642816
+    "entry": 0.023475,
+    "gap": 35.38441083430166
+  },
+  "BULLA_USDT_15m_SHORT": {
+    "last_alert": 1788398322.7821796,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.02239,
+    "gap": 14.978438140416333
   }
 }
