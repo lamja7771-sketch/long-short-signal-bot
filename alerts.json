@@ -217,11 +217,11 @@
     "gap": 158.62480778591916
   },
   "ARB_USDT_15m_SHORT": {
-    "last_alert": 1788258898.6212628,
+    "last_alert": 1788447487.16517,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 0.11116,
-    "gap": 13.939884970217026
+    "entry": 0.13365,
+    "gap": 10.536990201769996
   },
   "BEAT_USDT_4h_LONG": {
     "last_alert": 1788383751.2185712,
@@ -320,5 +320,12 @@
     "timeframe": "15m",
     "entry": 0.01127,
     "gap": 10.841847117331298
+  },
+  "BTR_USDT_15m_LONG": {
+    "last_alert": 1788447487.16517,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.0482,
+    "gap": 39.70196337761344
   }
 }
