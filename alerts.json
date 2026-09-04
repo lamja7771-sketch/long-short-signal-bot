@@ -273,11 +273,11 @@
     "gap": 20.211580282635556
   },
   "USELESS_USDT_15m_SHORT": {
-    "last_alert": 1788328638.6276326,
+    "last_alert": 1788544112.3488314,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 0.11067,
-    "gap": 16.862627089746855
+    "entry": 0.2376,
+    "gap": 28.2632636006935
   },
   "CRDO_USDT_15m_LONG": {
     "last_alert": 1788346540.9945395,
@@ -350,18 +350,18 @@
     "gap": 21.756411767388872
   },
   "APH_USDT_15m_LONG": {
-    "last_alert": 1788532455.035196,
+    "last_alert": 1788544112.3488314,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 82.99,
-    "gap": 26.701979081419523
+    "entry": 82.75,
+    "gap": 23.25878044637244
   },
   "PROM_USDT_4h_SHORT": {
-    "last_alert": 1788532455.035196,
+    "last_alert": 1788544112.3488314,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 5.034,
-    "gap": 51.377805596523565
+    "entry": 5.18,
+    "gap": 51.02543873184048
   },
   "MARSCOIN_USDT_15m_SHORT": {
     "last_alert": 1788470240.9008832,
@@ -413,11 +413,11 @@
     "gap": 80.16780814596767
   },
   "CRDO_USDT_1h_LONG": {
-    "last_alert": 1788517983.9031954,
+    "last_alert": 1788544112.3488314,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 168.75,
-    "gap": 20.535970938893808
+    "entry": 169.94,
+    "gap": 20.606235650831458
   },
   "PONS_USDT_15m_SHORT": {
     "last_alert": 1788517983.9031954,
@@ -434,10 +434,10 @@
     "gap": 18.04131989611026
   },
   "NES_USDT_4h_LONG": {
-    "last_alert": 1788532455.035196,
+    "last_alert": 1788544112.3488314,
     "direction": "LONG",
     "timeframe": "4h",
     "entry": 0.1228,
-    "gap": 40.92025629127596
+    "gap": 40.68253531785261
   }
 }
