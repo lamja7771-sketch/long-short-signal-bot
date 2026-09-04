@@ -350,17 +350,17 @@
     "gap": 21.756411767388872
   },
   "APH_USDT_15m_LONG": {
-    "last_alert": 1788544112.3488314,
+    "last_alert": 1788551927.6261168,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 82.75,
-    "gap": 23.25878044637244
+    "entry": 83.11,
+    "gap": 21.319266343943205
   },
   "PROM_USDT_4h_SHORT": {
-    "last_alert": 1788544112.3488314,
+    "last_alert": 1788551927.6261168,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 5.18,
+    "entry": 5.125,
     "gap": 51.02543873184048
   },
   "MARSCOIN_USDT_15m_SHORT": {
@@ -413,18 +413,18 @@
     "gap": 80.16780814596767
   },
   "CRDO_USDT_1h_LONG": {
-    "last_alert": 1788544112.3488314,
+    "last_alert": 1788551927.6261168,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 169.94,
-    "gap": 20.606235650831458
+    "entry": 170.28,
+    "gap": 20.1729610712007
   },
   "PONS_USDT_15m_SHORT": {
-    "last_alert": 1788517983.9031954,
+    "last_alert": 1788551927.6261168,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 0.6693,
-    "gap": 19.816798383920375
+    "entry": 0.699,
+    "gap": 15.677008691953759
   },
   "CAP_USDT_15m_LONG": {
     "last_alert": 1788517983.9031954,
@@ -434,10 +434,31 @@
     "gap": 18.04131989611026
   },
   "NES_USDT_4h_LONG": {
-    "last_alert": 1788544112.3488314,
+    "last_alert": 1788551927.6261168,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.1228,
+    "entry": 0.1254,
     "gap": 40.68253531785261
+  },
+  "SCRT_USDT_1h_LONG": {
+    "last_alert": 1788551927.6261168,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.00773,
+    "gap": 35.426197463326545
+  },
+  "MITO_USDT_1h_LONG": {
+    "last_alert": 1788551927.6261168,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.01781,
+    "gap": 20.035198725746767
+  },
+  "TRIA_USDT_15m_SHORT": {
+    "last_alert": 1788551927.6261168,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.00493,
+    "gap": 13.211939190399896
   }
 }
