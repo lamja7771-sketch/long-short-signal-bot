@@ -350,11 +350,11 @@
     "gap": 21.756411767388872
   },
   "APH_USDT_15m_LONG": {
-    "last_alert": 1788477765.1944463,
+    "last_alert": 1788484159.7282295,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 82.31,
-    "gap": 51.86942398558452
+    "entry": 82.25,
+    "gap": 47.8490847442784
   },
   "PROM_USDT_4h_SHORT": {
     "last_alert": 1788470240.9008832,
@@ -369,5 +369,19 @@
     "timeframe": "15m",
     "entry": 0.10606,
     "gap": 29.508969633863693
+  },
+  "US_USDT_4h_LONG": {
+    "last_alert": 1788484159.7282295,
+    "direction": "LONG",
+    "timeframe": "4h",
+    "entry": 0.017077,
+    "gap": 40.542228850491504
+  },
+  "MUBARAK_USDT_15m_SHORT": {
+    "last_alert": 1788484159.7282295,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.02982,
+    "gap": 11.53511831916118
   }
 }
