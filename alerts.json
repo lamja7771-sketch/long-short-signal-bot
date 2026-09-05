@@ -357,11 +357,11 @@
     "gap": 21.319266343943205
   },
   "PROM_USDT_4h_SHORT": {
-    "last_alert": 1788597400.689406,
+    "last_alert": 1788635647.032175,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 5.096,
-    "gap": 49.33336263886716
+    "entry": 5.215,
+    "gap": 48.56865498782109
   },
   "MARSCOIN_USDT_15m_SHORT": {
     "last_alert": 1788470240.9008832,
@@ -490,10 +490,10 @@
     "gap": 11.994801500637875
   },
   "KAITO_USDT_4h_LONG": {
-    "last_alert": 1788628995.9059212,
+    "last_alert": 1788635647.032175,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.3087,
+    "entry": 0.3083,
     "gap": 47.00217572350968
   },
   "APH_USDT_1h_LONG": {
@@ -511,11 +511,11 @@
     "gap": 12.5531990153087
   },
   "PRL_USDT_1h_LONG": {
-    "last_alert": 1788628995.9059212,
+    "last_alert": 1788635647.032175,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.12523,
-    "gap": 23.463487520118044
+    "entry": 0.12517,
+    "gap": 23.19940527093417
   },
   "NOM_USDT_15m_SHORT": {
     "last_alert": 1788621021.2213547,
@@ -532,10 +532,24 @@
     "gap": 495.17015265491057
   },
   "DASH_USDT_15m_SHORT": {
-    "last_alert": 1788628995.9059212,
+    "last_alert": 1788635647.032175,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 68.55,
-    "gap": 16.470818025251045
+    "entry": 67.53,
+    "gap": 14.470112829914056
+  },
+  "EDGEX_USDT_1h_SHORT": {
+    "last_alert": 1788635647.032175,
+    "direction": "SHORT",
+    "timeframe": "1h",
+    "entry": 0.6173,
+    "gap": 27.421544697400606
+  },
+  "B_USDT_15m_SHORT": {
+    "last_alert": 1788635647.032175,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.1776,
+    "gap": 19.69605670787451
   }
 }
