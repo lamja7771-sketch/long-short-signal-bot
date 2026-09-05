@@ -357,11 +357,11 @@
     "gap": 21.319266343943205
   },
   "PROM_USDT_4h_SHORT": {
-    "last_alert": 1788582842.0136707,
+    "last_alert": 1788597400.689406,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 5.127,
-    "gap": 49.78994976877416
+    "entry": 5.096,
+    "gap": 49.33336263886716
   },
   "MARSCOIN_USDT_15m_SHORT": {
     "last_alert": 1788470240.9008832,
@@ -406,11 +406,11 @@
     "gap": 11.381188783952984
   },
   "BTR_USDT_1h_LONG": {
-    "last_alert": 1788582842.0136707,
+    "last_alert": 1788597400.689406,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.0517,
-    "gap": 67.34630488778717
+    "entry": 0.05088,
+    "gap": 62.99143261906194
   },
   "CRDO_USDT_1h_LONG": {
     "last_alert": 1788551927.6261168,
@@ -488,5 +488,12 @@
     "timeframe": "15m",
     "entry": 0.12121,
     "gap": 11.994801500637875
+  },
+  "KAITO_USDT_4h_LONG": {
+    "last_alert": 1788597400.689406,
+    "direction": "LONG",
+    "timeframe": "4h",
+    "entry": 0.3083,
+    "gap": 47.787889631659624
   }
 }
