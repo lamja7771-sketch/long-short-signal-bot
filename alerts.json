@@ -469,10 +469,10 @@
     "gap": 28.307617443465077
   },
   "TAC_USDT_4h_LONG": {
-    "last_alert": 1788609858.008656,
+    "last_alert": 1788621021.2213547,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.002444,
+    "entry": 0.002478,
     "gap": 42.39826352387763
   },
   "SPACEHOOD_USDT_15m_LONG": {
@@ -509,5 +509,19 @@
     "timeframe": "15m",
     "entry": 0.03099,
     "gap": 12.5531990153087
+  },
+  "PRL_USDT_1h_LONG": {
+    "last_alert": 1788621021.2213547,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.12688,
+    "gap": 23.744403248326847
+  },
+  "NOM_USDT_15m_SHORT": {
+    "last_alert": 1788621021.2213547,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.001858,
+    "gap": 10.350918145297143
   }
 }
