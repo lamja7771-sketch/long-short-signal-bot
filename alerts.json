@@ -511,11 +511,11 @@
     "gap": 12.5531990153087
   },
   "PRL_USDT_1h_LONG": {
-    "last_alert": 1788643199.5288277,
+    "last_alert": 1788649381.2418413,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.12537,
-    "gap": 22.80754221645364
+    "entry": 0.12531,
+    "gap": 22.457181662440593
   },
   "NOM_USDT_15m_SHORT": {
     "last_alert": 1788621021.2213547,
@@ -532,11 +532,11 @@
     "gap": 495.17015265491057
   },
   "DASH_USDT_15m_SHORT": {
-    "last_alert": 1788643199.5288277,
+    "last_alert": 1788649381.2418413,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 67.49,
-    "gap": 12.888799640818371
+    "entry": 67.36,
+    "gap": 12.056878233482285
   },
   "EDGEX_USDT_1h_SHORT": {
     "last_alert": 1788643199.5288277,
@@ -553,10 +553,31 @@
     "gap": 19.69605670787451
   },
   "AKE_USDT_15m_SHORT": {
-    "last_alert": 1788643199.5288277,
+    "last_alert": 1788649381.2418413,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 0.0189181,
-    "gap": 17.17259023512185
+    "entry": 0.0187949,
+    "gap": 15.90086896878396
+  },
+  "PROLOGUE_USDT_15m_LONG": {
+    "last_alert": 1788649381.2418413,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.009946,
+    "gap": 13.980989918618786
+  },
+  "NAORIS_USDT_15m_SHORT": {
+    "last_alert": 1788649381.2418413,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.03082,
+    "gap": 11.082581575547682
+  },
+  "STAR_USDT_15m_LONG": {
+    "last_alert": 1788649381.2418413,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.09444,
+    "gap": 10.966145170153455
   }
 }
