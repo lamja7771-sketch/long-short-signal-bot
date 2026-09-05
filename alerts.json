@@ -357,11 +357,11 @@
     "gap": 21.319266343943205
   },
   "PROM_USDT_4h_SHORT": {
-    "last_alert": 1788635647.032175,
+    "last_alert": 1788643199.5288277,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 5.215,
-    "gap": 48.56865498782109
+    "entry": 5.141,
+    "gap": 48.049401487008424
   },
   "MARSCOIN_USDT_15m_SHORT": {
     "last_alert": 1788470240.9008832,
@@ -490,11 +490,11 @@
     "gap": 11.994801500637875
   },
   "KAITO_USDT_4h_LONG": {
-    "last_alert": 1788635647.032175,
+    "last_alert": 1788643199.5288277,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.3083,
-    "gap": 47.00217572350968
+    "entry": 0.3096,
+    "gap": 46.59865239083034
   },
   "APH_USDT_1h_LONG": {
     "last_alert": 1788628995.9059212,
@@ -511,11 +511,11 @@
     "gap": 12.5531990153087
   },
   "PRL_USDT_1h_LONG": {
-    "last_alert": 1788635647.032175,
+    "last_alert": 1788643199.5288277,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.12517,
-    "gap": 23.19940527093417
+    "entry": 0.12537,
+    "gap": 22.80754221645364
   },
   "NOM_USDT_15m_SHORT": {
     "last_alert": 1788621021.2213547,
@@ -532,18 +532,18 @@
     "gap": 495.17015265491057
   },
   "DASH_USDT_15m_SHORT": {
-    "last_alert": 1788635647.032175,
+    "last_alert": 1788643199.5288277,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 67.53,
-    "gap": 14.470112829914056
+    "entry": 67.49,
+    "gap": 12.888799640818371
   },
   "EDGEX_USDT_1h_SHORT": {
-    "last_alert": 1788635647.032175,
+    "last_alert": 1788643199.5288277,
     "direction": "SHORT",
     "timeframe": "1h",
-    "entry": 0.6173,
-    "gap": 27.421544697400606
+    "entry": 0.6183,
+    "gap": 26.68845595695969
   },
   "B_USDT_15m_SHORT": {
     "last_alert": 1788635647.032175,
@@ -551,5 +551,12 @@
     "timeframe": "15m",
     "entry": 0.1776,
     "gap": 19.69605670787451
+  },
+  "AKE_USDT_15m_SHORT": {
+    "last_alert": 1788643199.5288277,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.0189181,
+    "gap": 17.17259023512185
   }
 }
