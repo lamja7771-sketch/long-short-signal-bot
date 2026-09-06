@@ -182,11 +182,11 @@
     "gap": 13.711327359204653
   },
   "FLOCK_USDT_15m_SHORT": {
-    "last_alert": 1788711365.8038306,
+    "last_alert": 1788719133.955328,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 0.07292,
-    "gap": 20.213872646460448
+    "entry": 0.07348,
+    "gap": 18.77923132842107
   },
   "CLO_USDT_15m_SHORT": {
     "last_alert": 1788194625.308663,
@@ -434,10 +434,10 @@
     "gap": 18.04131989611026
   },
   "NES_USDT_4h_LONG": {
-    "last_alert": 1788711365.8038306,
+    "last_alert": 1788719133.955328,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.1278,
+    "entry": 0.1279,
     "gap": 35.61532917532054
   },
   "SCRT_USDT_1h_LONG": {
@@ -469,10 +469,10 @@
     "gap": 28.307617443465077
   },
   "TAC_USDT_4h_LONG": {
-    "last_alert": 1788711365.8038306,
+    "last_alert": 1788719133.955328,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.00242,
+    "entry": 0.002411,
     "gap": 39.841145667227586
   },
   "SPACEHOOD_USDT_15m_LONG": {
@@ -616,10 +616,10 @@
     "gap": 22.77251721299866
   },
   "4_USDT_1h_SHORT": {
-    "last_alert": 1788711365.8038306,
+    "last_alert": 1788719133.955328,
     "direction": "SHORT",
     "timeframe": "1h",
-    "entry": 0.025384,
-    "gap": 35.48823453601376
+    "entry": 0.025713,
+    "gap": 36.624062399924924
   }
 }
