@@ -182,11 +182,11 @@
     "gap": 13.711327359204653
   },
   "FLOCK_USDT_15m_SHORT": {
-    "last_alert": 1788194625.308663,
+    "last_alert": 1788711365.8038306,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 0.04024,
-    "gap": 12.566387512605814
+    "entry": 0.07292,
+    "gap": 20.213872646460448
   },
   "CLO_USDT_15m_SHORT": {
     "last_alert": 1788194625.308663,
@@ -301,11 +301,11 @@
     "gap": 35.38441083430166
   },
   "BULLA_USDT_15m_SHORT": {
-    "last_alert": 1788672088.548251,
+    "last_alert": 1788711365.8038306,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 0.08305,
-    "gap": 38.05396539426229
+    "entry": 0.075398,
+    "gap": 16.311594028938345
   },
   "SCRT_USDT_15m_LONG": {
     "last_alert": 1788415077.612094,
@@ -434,11 +434,11 @@
     "gap": 18.04131989611026
   },
   "NES_USDT_4h_LONG": {
-    "last_alert": 1788700076.3379683,
+    "last_alert": 1788711365.8038306,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.1295,
-    "gap": 36.07351684944815
+    "entry": 0.1278,
+    "gap": 35.61532917532054
   },
   "SCRT_USDT_1h_LONG": {
     "last_alert": 1788700076.3379683,
@@ -469,11 +469,11 @@
     "gap": 28.307617443465077
   },
   "TAC_USDT_4h_LONG": {
-    "last_alert": 1788672088.548251,
+    "last_alert": 1788711365.8038306,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.00247,
-    "gap": 41.219069906958275
+    "entry": 0.00242,
+    "gap": 39.841145667227586
   },
   "SPACEHOOD_USDT_15m_LONG": {
     "last_alert": 1788582842.0136707,
@@ -490,11 +490,11 @@
     "gap": 11.994801500637875
   },
   "KAITO_USDT_4h_LONG": {
-    "last_alert": 1788700076.3379683,
+    "last_alert": 1788711365.8038306,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.311,
-    "gap": 44.85834146965368
+    "entry": 0.3123,
+    "gap": 44.49092260300272
   },
   "APH_USDT_1h_LONG": {
     "last_alert": 1788687235.6268237,
@@ -614,5 +614,12 @@
     "timeframe": "15m",
     "entry": 0.0121,
     "gap": 22.77251721299866
+  },
+  "4_USDT_1h_SHORT": {
+    "last_alert": 1788711365.8038306,
+    "direction": "SHORT",
+    "timeframe": "1h",
+    "entry": 0.025384,
+    "gap": 35.48823453601376
   }
 }
