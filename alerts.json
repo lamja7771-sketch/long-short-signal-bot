@@ -469,11 +469,11 @@
     "gap": 28.307617443465077
   },
   "TAC_USDT_4h_LONG": {
-    "last_alert": 1788739978.290134,
+    "last_alert": 1788756380.1438136,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.002436,
-    "gap": 39.73677736734232
+    "entry": 0.002493,
+    "gap": 39.28834699793516
   },
   "SPACEHOOD_USDT_15m_LONG": {
     "last_alert": 1788582842.0136707,
@@ -490,11 +490,11 @@
     "gap": 11.994801500637875
   },
   "KAITO_USDT_4h_LONG": {
-    "last_alert": 1788739978.290134,
+    "last_alert": 1788756380.1438136,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.3144,
-    "gap": 43.71551640474395
+    "entry": 0.3138,
+    "gap": 43.33294629661085
   },
   "APH_USDT_1h_LONG": {
     "last_alert": 1788687235.6268237,
@@ -567,11 +567,11 @@
     "gap": 13.980989918618786
   },
   "NAORIS_USDT_15m_SHORT": {
-    "last_alert": 1788655977.4271894,
+    "last_alert": 1788756380.1438136,
     "direction": "SHORT",
     "timeframe": "15m",
-    "entry": 0.03066,
-    "gap": 10.32906268765956
+    "entry": 0.03831,
+    "gap": 14.634995407578996
   },
   "STAR_USDT_15m_LONG": {
     "last_alert": 1788655977.4271894,
@@ -588,11 +588,11 @@
     "gap": 16.226489392738372
   },
   "MAGMA_USDT_1h_LONG": {
-    "last_alert": 1788672088.548251,
+    "last_alert": 1788756380.1438136,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.269,
-    "gap": 31.676624543877846
+    "entry": 0.25534,
+    "gap": 26.152479173243908
   },
   "XAN_USDT_15m_SHORT": {
     "last_alert": 1788672088.548251,
@@ -656,5 +656,12 @@
     "timeframe": "15m",
     "entry": 1.2704,
     "gap": 21.24712346269175
+  },
+  "ASTEROID_USDT_1h_LONG": {
+    "last_alert": 1788756380.1438136,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 2.12e-05,
+    "gap": 37.71369290842681
   }
 }
