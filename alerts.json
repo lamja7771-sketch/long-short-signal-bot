@@ -469,11 +469,11 @@
     "gap": 28.307617443465077
   },
   "TAC_USDT_4h_LONG": {
-    "last_alert": 1788756380.1438136,
+    "last_alert": 1788774525.969721,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.002493,
-    "gap": 39.28834699793516
+    "entry": 0.00251,
+    "gap": 38.80082931293013
   },
   "SPACEHOOD_USDT_15m_LONG": {
     "last_alert": 1788582842.0136707,
