@@ -210,11 +210,11 @@
     "gap": 67.17430532773099
   },
   "MUU_USDT_4h_LONG": {
-    "last_alert": 1788477765.1944463,
+    "last_alert": 1788860184.4163005,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 30.43,
-    "gap": 153.40348013782295
+    "entry": 35.42,
+    "gap": 102.51356321864822
   },
   "ARB_USDT_15m_SHORT": {
     "last_alert": 1788700076.3379683,
@@ -238,11 +238,11 @@
     "gap": 10.451031429501993
   },
   "VELVET_USDT_1h_LONG": {
-    "last_alert": 1788672088.548251,
+    "last_alert": 1788860184.4163005,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.08684,
-    "gap": 47.43255540837607
+    "entry": 0.08018,
+    "gap": 31.637856876094304
   },
   "TRIA_USDT_15m_LONG": {
     "last_alert": 1788373911.0421543,
@@ -497,11 +497,11 @@
     "gap": 42.16394720484949
   },
   "APH_USDT_1h_LONG": {
-    "last_alert": 1788843825.633588,
+    "last_alert": 1788860184.4163005,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 82.56,
-    "gap": 28.564382394517857
+    "entry": 82.9,
+    "gap": 27.47778753526071
   },
   "CP_USDT_15m_LONG": {
     "last_alert": 1788827227.9307892,
@@ -733,5 +733,33 @@
     "timeframe": "15m",
     "entry": 1.2502,
     "gap": 10.24091966793295
+  },
+  "ARB_USDT_1h_SHORT": {
+    "last_alert": 1788860184.4163005,
+    "direction": "SHORT",
+    "timeframe": "1h",
+    "entry": 0.17324,
+    "gap": 22.769094014463228
+  },
+  "\u9f99\u867e_USDT_15m_LONG": {
+    "last_alert": 1788860184.4163005,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.057766,
+    "gap": 13.783702447742238
+  },
+  "IOST_USDT_15m_SHORT": {
+    "last_alert": 1788860184.4163005,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.000991,
+    "gap": 13.476823095544196
+  },
+  "UAI_USDT_15m_SHORT": {
+    "last_alert": 1788860184.4163005,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.71324,
+    "gap": 10.853743649511195
   }
 }
