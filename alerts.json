@@ -490,11 +490,11 @@
     "gap": 11.994801500637875
   },
   "KAITO_USDT_4h_LONG": {
-    "last_alert": 1788808796.5996685,
+    "last_alert": 1788948016.081169,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.3156,
-    "gap": 42.16394720484949
+    "entry": 0.3263,
+    "gap": 36.587502774315524
   },
   "APH_USDT_1h_LONG": {
     "last_alert": 1788889322.4075022,
@@ -623,11 +623,11 @@
     "gap": 36.21824841507538
   },
   "GRVT_USDT_4h_LONG": {
-    "last_alert": 1788931473.331401,
+    "last_alert": 1788948016.081169,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.1687,
-    "gap": 41.18112250270644
+    "entry": 0.168,
+    "gap": 40.71379371719643
   },
   "JUP_USDT_15m_SHORT": {
     "last_alert": 1788733487.9467983,
@@ -644,11 +644,11 @@
     "gap": 10.152102365509972
   },
   "HNT_USDT_4h_SHORT": {
-    "last_alert": 1788914764.2229486,
+    "last_alert": 1788948016.081169,
     "direction": "SHORT",
     "timeframe": "4h",
-    "entry": 0.5547,
-    "gap": 51.40712515526855
+    "entry": 0.5567,
+    "gap": 49.12551245073439
   },
   "RAY_USDT_15m_SHORT": {
     "last_alert": 1788739978.290134,
@@ -693,11 +693,11 @@
     "gap": 26.414387790537162
   },
   "HEMI_USDT_15m_LONG": {
-    "last_alert": 1788827227.9307892,
+    "last_alert": 1788948016.081169,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.008888,
-    "gap": 17.318117059273693
+    "entry": 0.007626,
+    "gap": 12.198766634004683
   },
   "SOPH_USDT_15m_SHORT": {
     "last_alert": 1788808796.5996685,
@@ -817,5 +817,26 @@
     "timeframe": "15m",
     "entry": 1.204,
     "gap": 10.103788389556938
+  },
+  "GIGGLEMAX_USDT_15m_LONG": {
+    "last_alert": 1788948016.081169,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.0111,
+    "gap": 42.50244920748762
+  },
+  "BONER_USDT_15m_LONG": {
+    "last_alert": 1788948016.081169,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.04596,
+    "gap": 13.431723522432968
+  },
+  "SOPH_USDT_15m_LONG": {
+    "last_alert": 1788948016.081169,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.005542,
+    "gap": 10.908357797901838
   }
 }
