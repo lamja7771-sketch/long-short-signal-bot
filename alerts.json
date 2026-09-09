@@ -693,11 +693,11 @@
     "gap": 26.414387790537162
   },
   "HEMI_USDT_15m_LONG": {
-    "last_alert": 1788948016.081169,
+    "last_alert": 1788964061.942417,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.007626,
-    "gap": 12.198766634004683
+    "entry": 0.00764,
+    "gap": 10.44164737567944
   },
   "SOPH_USDT_15m_SHORT": {
     "last_alert": 1788808796.5996685,
@@ -777,11 +777,11 @@
     "gap": 21.50677933558958
   },
   "\u54c8\u57fa\u7c73_USDT_15m_LONG": {
-    "last_alert": 1788907733.3623843,
+    "last_alert": 1788964061.942417,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.04262,
-    "gap": 20.087684435849887
+    "entry": 0.04277,
+    "gap": 11.170563176164682
   },
   "NAORIS_USDT_1h_SHORT": {
     "last_alert": 1788907733.3623843,
@@ -838,5 +838,26 @@
     "timeframe": "15m",
     "entry": 0.005542,
     "gap": 10.908357797901838
+  },
+  "PAIR_USDT_15m_LONG": {
+    "last_alert": 1788964061.942417,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.00953,
+    "gap": 51.800744181870286
+  },
+  "BEN_USDT_15m_LONG": {
+    "last_alert": 1788964061.942417,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.003891,
+    "gap": 45.10180669934366
+  },
+  "KAT_USDT_15m_SHORT": {
+    "last_alert": 1788964061.942417,
+    "direction": "SHORT",
+    "timeframe": "15m",
+    "entry": 0.00559,
+    "gap": 10.261421778709463
   }
 }
