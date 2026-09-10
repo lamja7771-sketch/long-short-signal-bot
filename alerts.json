@@ -210,11 +210,11 @@
     "gap": 67.17430532773099
   },
   "MUU_USDT_4h_LONG": {
-    "last_alert": 1789017761.0576994,
+    "last_alert": 1789034222.1248064,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 34.94,
-    "gap": 86.8960027464692
+    "entry": 34.22,
+    "gap": 85.43330701166727
   },
   "ARB_USDT_15m_SHORT": {
     "last_alert": 1788700076.3379683,
@@ -476,11 +476,11 @@
     "gap": 38.199526553991284
   },
   "SPACEHOOD_USDT_15m_LONG": {
-    "last_alert": 1788582842.0136707,
+    "last_alert": 1789034222.1248064,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.006459,
-    "gap": 39.08899138121189
+    "entry": 0.005192,
+    "gap": 23.305931558789727
   },
   "CLO_USDT_15m_LONG": {
     "last_alert": 1788582842.0136707,
@@ -560,11 +560,11 @@
     "gap": 10.251384889779795
   },
   "PROLOGUE_USDT_15m_LONG": {
-    "last_alert": 1788649381.2418413,
+    "last_alert": 1789034222.1248064,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.009946,
-    "gap": 13.980989918618786
+    "entry": 0.007082,
+    "gap": 12.943831281475735
   },
   "NAORIS_USDT_15m_SHORT": {
     "last_alert": 1788756380.1438136,
@@ -791,11 +791,11 @@
     "gap": 20.001442429955897
   },
   "XAN_USDT_15m_LONG": {
-    "last_alert": 1788931473.331401,
+    "last_alert": 1789034222.1248064,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.012017,
-    "gap": 25.423594440500274
+    "entry": 0.010914,
+    "gap": 13.227589176058066
   },
   "SOLV_USDT_1h_SHORT": {
     "last_alert": 1788931473.331401,
@@ -819,11 +819,11 @@
     "gap": 10.103788389556938
   },
   "GIGGLEMAX_USDT_15m_LONG": {
-    "last_alert": 1788948016.081169,
+    "last_alert": 1789034222.1248064,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.0111,
-    "gap": 42.50244920748762
+    "entry": 0.00792,
+    "gap": 50.90551257132665
   },
   "BONER_USDT_15m_LONG": {
     "last_alert": 1788948016.081169,
@@ -859,5 +859,33 @@
     "timeframe": "15m",
     "entry": 0.00559,
     "gap": 10.261421778709463
+  },
+  "TAC_USDT_15m_LONG": {
+    "last_alert": 1789034222.1248064,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.001655,
+    "gap": 15.51839180221071
+  },
+  "AIA_USDT_15m_LONG": {
+    "last_alert": 1789034222.1248064,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.07511,
+    "gap": 11.600631972304143
+  },
+  "TUT_USDT_15m_LONG": {
+    "last_alert": 1789034222.1248064,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.020573,
+    "gap": 10.553577474289664
+  },
+  "INX_USDT_15m_LONG": {
+    "last_alert": 1789034222.1248064,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.0057,
+    "gap": 10.419955294803605
   }
 }
