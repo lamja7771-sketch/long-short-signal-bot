@@ -210,11 +210,11 @@
     "gap": 67.17430532773099
   },
   "MUU_USDT_4h_LONG": {
-    "last_alert": 1788994155.0913463,
+    "last_alert": 1789000945.786991,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 34.81,
-    "gap": 89.63794127527174
+    "entry": 34.69,
+    "gap": 88.3583415383978
   },
   "ARB_USDT_15m_SHORT": {
     "last_alert": 1788700076.3379683,
