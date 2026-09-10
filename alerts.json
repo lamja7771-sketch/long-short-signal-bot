@@ -896,11 +896,11 @@
     "gap": 115.38714179377531
   },
   "VVV_USDT_1h_SHORT": {
-    "last_alert": 1789049264.2379541,
+    "last_alert": 1789070814.243086,
     "direction": "SHORT",
     "timeframe": "1h",
-    "entry": 23.55,
-    "gap": 21.638102270261534
+    "entry": 24.538,
+    "gap": 21.454158323533616
   },
   "4_USDT_15m_LONG": {
     "last_alert": 1789049264.2379541,
@@ -915,5 +915,12 @@
     "timeframe": "15m",
     "entry": 0.11421,
     "gap": 11.736239870569742
+  },
+  "JCT_USDT_15m_LONG": {
+    "last_alert": 1789070814.243086,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.001447,
+    "gap": 10.319456762143503
   }
 }
