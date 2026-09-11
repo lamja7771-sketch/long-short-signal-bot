@@ -1057,5 +1057,15 @@
     "bos_type": "BULLISH BOS",
     "bos_price": 0.1303,
     "bos_timestamp": 1789130700.0
+  },
+  "APR_USDT_1h_LONG_1789128000.0": {
+    "last_alert": 1789143014.5263941,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.14986,
+    "gap": 21.393101055254572,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.15214,
+    "bos_timestamp": 1789128000.0
   }
 }

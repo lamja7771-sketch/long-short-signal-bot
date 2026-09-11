@@ -6181,5 +6181,31 @@
     "bos_candle_low": 0.1297,
     "bos_candle_close": 0.1325,
     "last_candle_timestamp": 1789141500.0
+  },
+  {
+    "timestamp": 1789143014.5263941,
+    "type": "fresh",
+    "symbol": "APR_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 0.14986,
+    "sma50": 0.1492978,
+    "ema20": 0.14978488275469426,
+    "ema200": 0.18123722922727187,
+    "gap": 21.393101055254572,
+    "sl": 0.14964,
+    "tp1": 0.157353,
+    "tp2": 0.164846,
+    "tp3": 0.18123722922727187,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.15214,
+    "bos_timestamp": 1789128000.0,
+    "bos_candle_timestamp": 1789128000.0,
+    "swing_timestamp": 1789095600.0,
+    "bos_candle_open": 0.15125,
+    "bos_candle_high": 0.15401,
+    "bos_candle_low": 0.14964,
+    "bos_candle_close": 0.15343,
+    "last_candle_timestamp": 1789138800.0
   }
 ]
