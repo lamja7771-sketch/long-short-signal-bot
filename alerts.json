@@ -971,5 +971,33 @@
     "timeframe": "15m",
     "entry": 0.2283,
     "gap": 10.526058925154972
+  },
+  "ZZZ_USDT_15m_LONG": {
+    "last_alert": 1789119907.554647,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.03818,
+    "gap": 21.954110239782437
+  },
+  "XAN_USDT_1h_LONG": {
+    "last_alert": 1789119907.554647,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.011418,
+    "gap": 21.07903700271049
+  },
+  "VELVET_USDT_15m_LONG": {
+    "last_alert": 1789119907.554647,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.05217,
+    "gap": 14.406113120051444
+  },
+  "RVN_USDT_15m_LONG": {
+    "last_alert": 1789119907.554647,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.002283,
+    "gap": 14.235745364349123
   }
 }
