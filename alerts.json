@@ -385,11 +385,11 @@
     "gap": 11.53511831916118
   },
   "CYS_USDT_15m_LONG": {
-    "last_alert": 1788609858.008656,
+    "last_alert": 1789086772.4277596,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.2433,
-    "gap": 12.125148615959022
+    "entry": 0.1404,
+    "gap": 10.165774387930302
   },
   "EDGEX_USDT_15m_SHORT": {
     "last_alert": 1788501363.4480002,
@@ -574,11 +574,11 @@
     "gap": 14.634995407578996
   },
   "STAR_USDT_15m_LONG": {
-    "last_alert": 1788655977.4271894,
+    "last_alert": 1789086772.4277596,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.0942,
-    "gap": 10.670073905324076
+    "entry": 0.05625,
+    "gap": 13.945777472214637
   },
   "\u725b\u6765_USDT_15m_SHORT": {
     "last_alert": 1788655977.4271894,
@@ -623,11 +623,11 @@
     "gap": 36.21824841507538
   },
   "GRVT_USDT_4h_LONG": {
-    "last_alert": 1789049264.2379541,
+    "last_alert": 1789086772.4277596,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.1668,
-    "gap": 36.80270107038294
+    "entry": 0.1692,
+    "gap": 35.19403287753468
   },
   "JUP_USDT_15m_SHORT": {
     "last_alert": 1788733487.9467983,
@@ -889,18 +889,18 @@
     "gap": 10.419955294803605
   },
   "SCRT_USDT_4h_LONG": {
-    "last_alert": 1789079652.6078286,
+    "last_alert": 1789086772.4277596,
     "direction": "LONG",
     "timeframe": "4h",
-    "entry": 0.00857,
-    "gap": 114.65172093870424
+    "entry": 0.00838,
+    "gap": 113.36359694047644
   },
   "VVV_USDT_1h_SHORT": {
-    "last_alert": 1789070814.243086,
+    "last_alert": 1789086772.4277596,
     "direction": "SHORT",
     "timeframe": "1h",
-    "entry": 24.538,
-    "gap": 21.454158323533616
+    "entry": 23.828,
+    "gap": 20.741695587952172
   },
   "4_USDT_15m_LONG": {
     "last_alert": 1789049264.2379541,
@@ -943,5 +943,12 @@
     "timeframe": "15m",
     "entry": 0.03446,
     "gap": 12.817294430752177
+  },
+  "AKE_USDT_4h_SHORT": {
+    "last_alert": 1789086772.4277596,
+    "direction": "SHORT",
+    "timeframe": "4h",
+    "entry": 0.015495,
+    "gap": 50.72267504210631
   }
 }
