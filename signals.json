@@ -6207,5 +6207,31 @@
     "bos_candle_low": 0.14964,
     "bos_candle_close": 0.15343,
     "last_candle_timestamp": 1789138800.0
+  },
+  {
+    "timestamp": 1789156863.8262916,
+    "type": "fresh",
+    "symbol": "MOO_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "entry": 0.03086,
+    "sma50": 0.0313634,
+    "ema20": 0.03060110774380836,
+    "ema200": 0.02464453962169775,
+    "gap": 27.263079292366964,
+    "sl": 0.0312,
+    "tp1": 0.029316999999999996,
+    "tp2": 0.027774,
+    "tp3": 0.02464453962169775,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.028,
+    "bos_timestamp": 1789088400.0,
+    "bos_candle_timestamp": 1789088400.0,
+    "swing_timestamp": 1789066800.0,
+    "bos_candle_open": 0.03006,
+    "bos_candle_high": 0.0312,
+    "bos_candle_low": 0.02667,
+    "bos_candle_close": 0.02745,
+    "last_candle_timestamp": 1789149600.0
   }
 ]
