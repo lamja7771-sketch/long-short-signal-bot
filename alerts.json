@@ -994,10 +994,38 @@
     "gap": 14.406113120051444
   },
   "RVN_USDT_15m_LONG": {
-    "last_alert": 1789119907.554647,
+    "last_alert": 1789134875.046942,
     "direction": "LONG",
     "timeframe": "15m",
-    "entry": 0.002283,
-    "gap": 14.235745364349123
+    "entry": 0.002265,
+    "gap": 12.482631330387562
+  },
+  "APH_USDT_4h_LONG": {
+    "last_alert": 1789134875.046942,
+    "direction": "LONG",
+    "timeframe": "4h",
+    "entry": 82.8,
+    "gap": 58.3369571557254
+  },
+  "APR_USDT_1h_LONG": {
+    "last_alert": 1789134875.046942,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.15012,
+    "gap": 21.45684703330838
+  },
+  "TAC_USDT_1h_LONG": {
+    "last_alert": 1789134875.046942,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.001803,
+    "gap": 20.844934334506878
+  },
+  "IOST_USDT_15m_LONG": {
+    "last_alert": 1789134875.046942,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.000947,
+    "gap": 13.04893422449772
   }
 }
