@@ -20,13 +20,6 @@ GATE_URL = "https://api.gateio.ws/api/v4"
 # ============================================================
 # TIMEFRAMES
 # ============================================================
-#
-# IMPORTANT:
-# Gate Futures API expects interval strings:
-# "15m", "1h", "4h"
-#
-# Do NOT send 900 / 3600 / 14400 to Gate.
-#
 
 TIMEFRAMES = {
     "15m": {
@@ -57,13 +50,29 @@ EMA_SLOW = 200
 
 
 # ============================================================
+# MARKET STRUCTURE / BOS
+# ============================================================
+
+# TradingView screenshot shows:
+# BOS & CHoCH (5)
+#
+# We therefore use 5 candles on each side to confirm
+# a structural swing high / swing low.
+
+SWING_LENGTH = 5
+
+
+# ============================================================
 # PRICE / GAP SETTINGS
 # ============================================================
 
-# Price must be within 20% of the SMA50 -> EMA200 range.
+# Price must remain within 20% of the total SMA50 -> EMA200
+# distance measured from SMA50.
+
 PRICE_GAP_RATIO = 0.20
 
 # Live price must be within 2% of EMA20.
+
 EMA20_TOLERANCE = 0.02
 
 
@@ -79,7 +88,8 @@ TP2_PERCENT = 0.10
 # ALERT SETTINGS
 # ============================================================
 
-# Same setup can repeat every 60 minutes.
+# Same BOS can repeat every 60 minutes.
+
 REPEAT_INTERVAL = 60 * 60
 
 
@@ -118,7 +128,7 @@ SIGNALS_FILE = "signals.json"
 # ============================================================
 
 HEADERS = {
-    "User-Agent": "Long-Short-Signal-Bot/4.0"
+    "User-Agent": "Long-Short-Signal-Bot/5.0"
 }
 
 
@@ -137,6 +147,7 @@ file_lock = threading.Lock()
 # ============================================================
 
 diagnostics = {
+
     # Universe
     "symbols_loaded": 0,
     "symbols_with_live_price": 0,
@@ -173,6 +184,12 @@ diagnostics = {
     "price_position_rejected": 0,
     "price_gap_ratio_rejected": 0,
     "ema20_rejected": 0,
+
+    # BOS
+    "no_bos": 0,
+    "bullish_bos_found": 0,
+    "bearish_bos_found": 0,
+    "bos_direction_rejected": 0,
 
     # Direction
     "long_position_found": 0,
@@ -222,14 +239,19 @@ def print_header():
 
     print("FUTURES ONLY")
     print("NO SPOT")
-    print("NO BOS")
+
+    print()
+
+    print("REAL MARKET-STRUCTURE BOS")
+    print(f"SWING CONFIRMATION = {SWING_LENGTH}")
+    print("BULLISH BOS = CLOSE ABOVE STRUCTURAL SWING HIGH")
+    print("BEARISH BOS = CLOSE BELOW STRUCTURAL SWING LOW")
 
     print()
 
     print("FUTURES SMA50 / FUTURES EMA20 / FUTURES EMA200")
     print("LIVE FUTURES ENTRY PRICE")
-    print("FUTURES CLOSED CANDLES FOR INDICATORS")
-    print("FUTURES CLOSED CANDLE = SL")
+    print("FUTURES CLOSED CANDLES ONLY")
 
     print()
 
@@ -250,13 +272,13 @@ def print_header():
 
     print()
 
-    print("NO BOS FILTER")
-    print("NO SPOT API")
+    print("BOS CANDLE LOW = LONG SL")
+    print("BOS CANDLE HIGH = SHORT SL")
 
     print()
 
-    print("NEW SETUP = IMMEDIATE ALERT")
-    print("SAME SETUP = REPEAT EVERY 60 MINUTES")
+    print("NEW BOS = IMMEDIATE ALERT")
+    print("SAME BOS = REPEAT EVERY 60 MINUTES")
     print("FRESH SCAN = EVERY 5 MINUTES")
 
     print()
@@ -392,6 +414,7 @@ def gate_get(
                 increment_counter("http_400")
 
                 if timeframe:
+
                     increment_counter(
                         f"http_400_{timeframe}"
                     )
@@ -407,11 +430,8 @@ def gate_get(
                             timeframe
                         ].add(symbol)
 
-                # ------------------------------------------------
-                # IMPORTANT:
                 # 400 is normally a permanent request problem.
-                # Do NOT retry it.
-                # ------------------------------------------------
+                # Do not retry.
 
                 return None
 
@@ -442,6 +462,7 @@ def gate_get(
                 if retry_after:
 
                     try:
+
                         delay = float(
                             retry_after
                         )
@@ -586,6 +607,7 @@ def get_futures_symbols():
 
     symbols = []
 
+
     for item in data:
 
         try:
@@ -595,17 +617,13 @@ def get_futures_symbols():
             if not name:
                 continue
 
-            # ------------------------------------------------
             # Only USDT Futures
-            # ------------------------------------------------
 
             if not name.endswith("_USDT"):
                 continue
 
 
-            # ------------------------------------------------
             # Trading status
-            # ------------------------------------------------
 
             status = item.get("status")
 
@@ -630,9 +648,11 @@ def get_futures_symbols():
         set(symbols)
     )
 
+
     diagnostics[
         "symbols_loaded"
     ] = len(symbols)
+
 
     return symbols
 
@@ -651,6 +671,7 @@ def get_futures_prices():
     )
 
     prices = {}
+
 
     if not data:
 
@@ -692,10 +713,12 @@ def get_futures_prices():
         - start
     )
 
+
     print(
         f"Loaded {len(prices)} live Futures prices "
         f"in {elapsed:.2f}s"
     )
+
 
     return prices
 
@@ -844,12 +867,19 @@ def parse_candle(row):
 
 
         return {
+
             "timestamp": timestamp,
+
             "open": open_price,
+
             "high": high,
+
             "low": low,
+
             "close": close,
+
             "volume": volume,
+
         }
 
 
@@ -883,6 +913,7 @@ def get_futures_candles(
         "seconds"
     ]
 
+
     increment_counter(
         "candle_requests"
     )
@@ -902,6 +933,7 @@ def get_futures_candles(
         ),
 
         timeframe=timeframe,
+
         symbol=symbol
     )
 
@@ -970,6 +1002,7 @@ def get_futures_candles(
 
     unique = {}
 
+
     for candle in candles:
 
         unique[
@@ -981,38 +1014,20 @@ def get_futures_candles(
         unique.values()
     )
 
+
     candles.sort(
         key=lambda x: x["timestamp"]
     )
 
 
     # --------------------------------------------------------
-    # Basic candle count
-    # --------------------------------------------------------
-
-    if len(candles) < EMA_SLOW:
-
-        increment_counter(
-            "insufficient_candles"
-        )
-
-        return None
-
-
-    # --------------------------------------------------------
     # Remove currently-forming candle
-    #
-    # We only use CLOSED Futures candles for:
-    #
-    # SMA50
-    # EMA20
-    # EMA200
-    # SL
     # --------------------------------------------------------
 
     now = time.time()
 
     closed = []
+
 
     for candle in candles:
 
@@ -1038,7 +1053,7 @@ def get_futures_candles(
 
 
     # --------------------------------------------------------
-    # Proper EMA warm-up
+    # EMA warm-up
     # --------------------------------------------------------
 
     if len(closed) < EMA_SLOW:
@@ -1053,6 +1068,7 @@ def get_futures_candles(
     increment_counter(
         "candle_success"
     )
+
 
     return closed
 
@@ -1071,9 +1087,7 @@ def calculate_ema(
         return None
 
 
-    # --------------------------------------------------------
     # Proper SMA seed
-    # --------------------------------------------------------
 
     ema = sum(
         values[:period]
@@ -1131,10 +1145,13 @@ def calculate_indicators(
 
 
     closes = [
+
         float(
             candle["close"]
         )
+
         for candle in candles
+
     ]
 
 
@@ -1148,10 +1165,12 @@ def calculate_indicators(
         SMA_PERIOD
     )
 
+
     ema20 = calculate_ema(
         closes,
         EMA_FAST
     )
+
 
     ema200 = calculate_ema(
         closes,
@@ -1169,9 +1188,13 @@ def calculate_indicators(
 
 
     return {
+
         "sma50": sma50,
+
         "ema20": ema20,
+
         "ema200": ema200,
+
     }
 
 
@@ -1193,14 +1216,456 @@ def calculate_gap_percent(
 
 
     return (
+
         abs(
             ema200 - sma50
         )
-        / min(
+
+        /
+
+        min(
             sma50,
             ema200
         )
+
     ) * 100.0
+
+
+# ============================================================
+# CONFIRMED SWING HIGH
+# ============================================================
+
+def is_swing_high(
+    candles,
+    index
+):
+
+    left = SWING_LENGTH
+    right = SWING_LENGTH
+
+    if index < left:
+
+        return False
+
+    if index + right >= len(candles):
+
+        return False
+
+
+    candidate_high = float(
+        candles[index]["high"]
+    )
+
+
+    # --------------------------------------------------------
+    # Left side
+    # --------------------------------------------------------
+
+    for i in range(
+        index - left,
+        index
+    ):
+
+        if float(
+            candles[i]["high"]
+        ) >= candidate_high:
+
+            return False
+
+
+    # --------------------------------------------------------
+    # Right side
+    # --------------------------------------------------------
+
+    for i in range(
+        index + 1,
+        index + right + 1
+    ):
+
+        if float(
+            candles[i]["high"]
+        ) >= candidate_high:
+
+            return False
+
+
+    return True
+
+
+# ============================================================
+# CONFIRMED SWING LOW
+# ============================================================
+
+def is_swing_low(
+    candles,
+    index
+):
+
+    left = SWING_LENGTH
+    right = SWING_LENGTH
+
+    if index < left:
+
+        return False
+
+    if index + right >= len(candles):
+
+        return False
+
+
+    candidate_low = float(
+        candles[index]["low"]
+    )
+
+
+    # --------------------------------------------------------
+    # Left side
+    # --------------------------------------------------------
+
+    for i in range(
+        index - left,
+        index
+    ):
+
+        if float(
+            candles[i]["low"]
+        ) <= candidate_low:
+
+            return False
+
+
+    # --------------------------------------------------------
+    # Right side
+    # --------------------------------------------------------
+
+    for i in range(
+        index + 1,
+        index + right + 1
+    ):
+
+        if float(
+            candles[i]["low"]
+        ) <= candidate_low:
+
+            return False
+
+
+    return True
+
+
+# ============================================================
+# FIND MOST RECENT BULLISH BOS
+# ============================================================
+
+def find_bullish_bos(
+    candles
+):
+
+    if len(candles) < (
+        SWING_LENGTH * 2 + 2
+    ):
+
+        return None
+
+
+    # --------------------------------------------------------
+    # We search from newest to oldest.
+    #
+    # A swing high must already be CONFIRMED.
+    #
+    # Then a later CLOSED candle must CLOSE above it.
+    # --------------------------------------------------------
+
+    latest_bos = None
+
+
+    last_possible_swing = (
+        len(candles)
+        - SWING_LENGTH
+        - 1
+    )
+
+
+    for swing_index in range(
+        last_possible_swing,
+        SWING_LENGTH - 1,
+        -1
+    ):
+
+        if not is_swing_high(
+            candles,
+            swing_index
+        ):
+
+            continue
+
+
+        structural_high = float(
+            candles[swing_index]["high"]
+        )
+
+
+        # ----------------------------------------------------
+        # Search candles AFTER the confirmed swing.
+        # ----------------------------------------------------
+
+        for break_index in range(
+            swing_index + SWING_LENGTH + 1,
+            len(candles)
+        ):
+
+            break_close = float(
+                candles[break_index]["close"]
+            )
+
+
+            # Bullish BOS:
+            # candle CLOSES above structural swing high.
+
+            if break_close > structural_high:
+
+                latest_bos = {
+
+                    "type": "BULLISH BOS",
+
+                    "direction": "LONG",
+
+                    "swing_index":
+                        swing_index,
+
+                    "swing_timestamp":
+                        candles[
+                            swing_index
+                        ]["timestamp"],
+
+                    "swing_price":
+                        structural_high,
+
+                    "bos_index":
+                        break_index,
+
+                    "bos_timestamp":
+                        candles[
+                            break_index
+                        ]["timestamp"],
+
+                    "bos_open":
+                        float(
+                            candles[
+                                break_index
+                            ]["open"]
+                        ),
+
+                    "bos_high":
+                        float(
+                            candles[
+                                break_index
+                            ]["high"]
+                        ),
+
+                    "bos_low":
+                        float(
+                            candles[
+                                break_index
+                            ]["low"]
+                        ),
+
+                    "bos_close":
+                        break_close,
+
+                }
+
+                # Since we're scanning newest confirmed
+                # swing first, return immediately.
+
+                return latest_bos
+
+
+    return None
+
+
+# ============================================================
+# FIND MOST RECENT BEARISH BOS
+# ============================================================
+
+def find_bearish_bos(
+    candles
+):
+
+    if len(candles) < (
+        SWING_LENGTH * 2 + 2
+    ):
+
+        return None
+
+
+    # --------------------------------------------------------
+    # Search newest confirmed swing low first.
+    # --------------------------------------------------------
+
+    last_possible_swing = (
+        len(candles)
+        - SWING_LENGTH
+        - 1
+    )
+
+
+    for swing_index in range(
+        last_possible_swing,
+        SWING_LENGTH - 1,
+        -1
+    ):
+
+        if not is_swing_low(
+            candles,
+            swing_index
+        ):
+
+            continue
+
+
+        structural_low = float(
+            candles[swing_index]["low"]
+        )
+
+
+        # ----------------------------------------------------
+        # Search candles AFTER the confirmed swing.
+        # ----------------------------------------------------
+
+        for break_index in range(
+            swing_index + SWING_LENGTH + 1,
+            len(candles)
+        ):
+
+            break_close = float(
+                candles[break_index]["close"]
+            )
+
+
+            # Bearish BOS:
+            # candle CLOSES below structural swing low.
+
+            if break_close < structural_low:
+
+                return {
+
+                    "type": "BEARISH BOS",
+
+                    "direction": "SHORT",
+
+                    "swing_index":
+                        swing_index,
+
+                    "swing_timestamp":
+                        candles[
+                            swing_index
+                        ]["timestamp"],
+
+                    "swing_price":
+                        structural_low,
+
+                    "bos_index":
+                        break_index,
+
+                    "bos_timestamp":
+                        candles[
+                            break_index
+                        ]["timestamp"],
+
+                    "bos_open":
+                        float(
+                            candles[
+                                break_index
+                            ]["open"]
+                        ),
+
+                    "bos_high":
+                        float(
+                            candles[
+                                break_index
+                            ]["high"]
+                        ),
+
+                    "bos_low":
+                        float(
+                            candles[
+                                break_index
+                            ]["low"]
+                        ),
+
+                    "bos_close":
+                        break_close,
+
+                }
+
+
+    return None
+
+
+# ============================================================
+# FIND MOST RECENT STRUCTURAL BOS
+# ============================================================
+
+def find_latest_bos(
+    candles
+):
+
+    bullish = find_bullish_bos(
+        candles
+    )
+
+    bearish = find_bearish_bos(
+        candles
+    )
+
+
+    if bullish is None and bearish is None:
+
+        increment_counter(
+            "no_bos"
+        )
+
+        return None
+
+
+    if bullish is not None:
+
+        increment_counter(
+            "bullish_bos_found"
+        )
+
+
+    if bearish is not None:
+
+        increment_counter(
+            "bearish_bos_found"
+        )
+
+
+    # --------------------------------------------------------
+    # If both exist, choose the BOS that happened most recently.
+    # --------------------------------------------------------
+
+    if bullish is not None and bearish is not None:
+
+        if (
+            bullish["bos_timestamp"]
+            >
+            bearish["bos_timestamp"]
+        ):
+
+            return bullish
+
+        return bearish
+
+
+    if bullish is not None:
+
+        return bullish
+
+
+    return bearish
 
 
 # ============================================================
@@ -1326,6 +1791,7 @@ def analyze_symbol(
         < ema200
     )
 
+
     short_position = (
         ema200
         < price
@@ -1438,28 +1904,105 @@ def analyze_symbol(
 
 
     # ========================================================
-    # MOST RECENT CLOSED FUTURES CANDLE
+    # REAL MARKET-STRUCTURE BOS
     # ========================================================
 
-    last_closed = candles[-1]
+    bos = find_latest_bos(
+        candles
+    )
 
+
+    if bos is None:
+
+        return None
+
+
+    # ========================================================
+    # BOS MUST MATCH TRADE DIRECTION
+    # ========================================================
 
     if long_position:
 
-        direction = "LONG"
+        if bos["direction"] != "LONG":
 
-        sl = float(
-            last_closed["low"]
-        )
+            increment_counter(
+                "bos_direction_rejected"
+            )
+
+            return None
+
+        direction = "LONG"
 
 
     else:
 
+        if bos["direction"] != "SHORT":
+
+            increment_counter(
+                "bos_direction_rejected"
+            )
+
+            return None
+
         direction = "SHORT"
 
+
+    # ========================================================
+    # BOS STRUCTURE
+    # ========================================================
+
+    bos_price = float(
+        bos["swing_price"]
+    )
+
+
+    bos_timestamp = float(
+        bos["bos_timestamp"]
+    )
+
+
+    bos_candle_timestamp = float(
+        bos["bos_timestamp"]
+    )
+
+
+    # ========================================================
+    # STOP LOSS
+    # ========================================================
+    #
+    # LONG  = BOS candle LOW
+    # SHORT = BOS candle HIGH
+    #
+    # ========================================================
+
+    if direction == "LONG":
+
         sl = float(
-            last_closed["high"]
+            bos["bos_low"]
         )
+
+    else:
+
+        sl = float(
+            bos["bos_high"]
+        )
+
+
+    # ========================================================
+    # BASIC SL VALIDATION
+    # ========================================================
+
+    if direction == "LONG":
+
+        if sl >= price:
+
+            return None
+
+    else:
+
+        if sl <= price:
+
+            return None
 
 
     # ========================================================
@@ -1540,14 +2083,19 @@ def analyze_symbol(
 
 
     return {
+
         "symbol": symbol,
+
         "timeframe": timeframe,
+
         "direction": direction,
 
         "entry": price,
 
         "sma50": sma50,
+
         "ema20": ema20,
+
         "ema200": ema200,
 
         "gap": gap,
@@ -1555,13 +2103,44 @@ def analyze_symbol(
         "sl": sl,
 
         "tp1": tp1,
+
         "tp2": tp2,
+
         "tp3": tp3,
 
+        # ----------------------------------------------------
+        # BOS information
+        # ----------------------------------------------------
+
+        "bos_type": bos["type"],
+
+        "bos_price": bos_price,
+
+        "bos_timestamp": bos_timestamp,
+
+        "bos_candle_timestamp":
+            bos_candle_timestamp,
+
+        "swing_timestamp":
+            bos["swing_timestamp"],
+
+        "bos_candle_open":
+            bos["bos_open"],
+
+        "bos_candle_high":
+            bos["bos_high"],
+
+        "bos_candle_low":
+            bos["bos_low"],
+
+        "bos_candle_close":
+            bos["bos_close"],
+
+        # Last closed candle is retained for history/debugging.
+
         "last_candle_timestamp":
-            last_closed[
-                "timestamp"
-            ],
+            candles[-1]["timestamp"],
+
     }
 
 
@@ -1595,6 +2174,28 @@ def format_price(
 
 
 # ============================================================
+# FORMAT TIMESTAMP
+# ============================================================
+
+def format_timestamp(
+    timestamp
+):
+
+    try:
+
+        return time.strftime(
+            "%Y-%m-%d %H:%M UTC",
+            time.gmtime(
+                float(timestamp)
+            )
+        )
+
+    except Exception:
+
+        return "N/A"
+
+
+# ============================================================
 # SIGNAL KEY
 # ============================================================
 
@@ -1602,10 +2203,32 @@ def signal_key(
     signal
 ):
 
+    # --------------------------------------------------------
+    # IMPORTANT:
+    # Same BOS = same alert key.
+    #
+    # New BOS = new key.
+    # --------------------------------------------------------
+
+    bos_timestamp = signal.get(
+        "bos_timestamp",
+        signal.get(
+            "last_candle_timestamp",
+            0
+        )
+    )
+
+
     return (
+
         f"{signal['symbol']}_"
+
         f"{signal['timeframe']}_"
-        f"{signal['direction']}"
+
+        f"{signal['direction']}_"
+
+        f"{bos_timestamp}"
+
     )
 
 
@@ -1636,9 +2259,13 @@ def send_telegram(
 
 
     payload = {
+
         "chat_id": CHAT_ID,
+
         "text": message,
+
         "disable_web_page_preview": True,
+
     }
 
 
@@ -1682,9 +2309,15 @@ def format_signal(
 ):
 
     emoji = (
+
         "🟢"
+
         if signal["direction"] == "LONG"
-        else "🔴"
+
+        else
+
+        "🔴"
+
     )
 
 
@@ -1710,6 +2343,15 @@ def format_signal(
         f"TP3: "
         f"${format_price(signal['tp3'])}\n\n"
 
+        f"BOS: "
+        f"{signal['bos_type']}\n"
+
+        f"BOS Level: "
+        f"${format_price(signal['bos_price'])}\n"
+
+        f"BOS Candle: "
+        f"{format_timestamp(signal['bos_timestamp'])}\n\n"
+
         f"SMA50: "
         f"${format_price(signal['sma50'])}\n"
 
@@ -1721,6 +2363,7 @@ def format_signal(
 
         f"Gap: "
         f"{signal['gap']:.2f}%"
+
     )
 
 
@@ -1883,6 +2526,36 @@ def print_diagnostics():
 
 
     print()
+    print("MARKET STRUCTURE BOS")
+    print("-" * 72)
+
+    print(
+        f"SWING LENGTH                 : "
+        f"{SWING_LENGTH}"
+    )
+
+    print(
+        f"NO BOS                       : "
+        f"{diagnostics['no_bos']}"
+    )
+
+    print(
+        f"BULLISH BOS FOUND            : "
+        f"{diagnostics['bullish_bos_found']}"
+    )
+
+    print(
+        f"BEARISH BOS FOUND            : "
+        f"{diagnostics['bearish_bos_found']}"
+    )
+
+    print(
+        f"BOS DIRECTION REJECTED       : "
+        f"{diagnostics['bos_direction_rejected']}"
+    )
+
+
+    print()
     print("PRICE POSITIONS")
     print("-" * 72)
 
@@ -1955,6 +2628,7 @@ def print_diagnostics():
     print("HTTP 400 SYMBOL DETAILS")
     print("-" * 72)
 
+
     for timeframe in (
         "15m",
         "1h",
@@ -1967,22 +2641,24 @@ def print_diagnostics():
             ]
         )
 
+
         print(
             f"{timeframe.upper()} "
             f"HTTP 400 SYMBOLS          : "
             f"{len(symbols)}"
         )
 
+
         if symbols:
 
-            # Don't flood GitHub Actions.
-            # Show maximum 30.
             shown = symbols[:30]
+
 
             print(
                 "  "
                 + ", ".join(shown)
             )
+
 
             if len(symbols) > 30:
 
@@ -2005,13 +2681,18 @@ def zero_signal_report():
     return (
 
         "━━━━━━━━━━━━━━━━━━━━\n"
+
         "📊 LONG + SHORT SIGNAL BOT\n"
+
         "━━━━━━━━━━━━━━━━━━━━\n\n"
 
         "15M / 1H / 4H\n"
-        "FUTURES ONLY\n"
-        "NO SPOT\n"
-        "NO BOS\n\n"
+
+        "FUTURES ONLY\n\n"
+
+        "REAL MARKET-STRUCTURE BOS\n"
+
+        f"SWING = {SWING_LENGTH}\n\n"
 
         "No fresh signals found in this scan.\n\n"
 
@@ -2040,7 +2721,13 @@ def zero_signal_report():
         f"{diagnostics['price_gap_ratio_rejected']}\n"
 
         f"EMA20 rejected: "
-        f"{diagnostics['ema20_rejected']}\n\n"
+        f"{diagnostics['ema20_rejected']}\n"
+
+        f"BOS not found: "
+        f"{diagnostics['no_bos']}\n"
+
+        f"BOS direction rejected: "
+        f"{diagnostics['bos_direction_rejected']}\n\n"
 
         f"Fresh signals: "
         f"{diagnostics['fresh_signals']}\n"
@@ -2049,6 +2736,7 @@ def zero_signal_report():
         f"{diagnostics['hourly_repeats']}\n"
 
         "━━━━━━━━━━━━━━━━━━━━"
+
     )
 
 
@@ -2084,6 +2772,7 @@ def run_scan():
         ALERTS_FILE,
         {}
     )
+
 
     signals_history = load_json(
         SIGNALS_FILE,
@@ -2133,19 +2822,28 @@ def run_scan():
     diagnostics[
         "symbols_with_live_price"
     ] = sum(
+
         1
+
         for symbol in symbols
+
         if symbol in futures_prices
+
     )
 
 
     diagnostics[
         "symbols_without_live_price"
     ] = (
+
         len(symbols)
-        - diagnostics[
+
+        -
+
+        diagnostics[
             "symbols_with_live_price"
         ]
+
     )
 
 
@@ -2173,11 +2871,13 @@ def run_scan():
         for timeframe in TIMEFRAMES:
 
             jobs.append(
+
                 (
                     symbol,
                     timeframe,
                     live_price
                 )
+
             )
 
 
@@ -2202,7 +2902,6 @@ def run_scan():
         max_workers=MAX_WORKERS
     ) as executor:
 
-
         future_map = {
 
             executor.submit(
@@ -2220,6 +2919,7 @@ def run_scan():
                 timeframe,
                 price
             ) in jobs
+
         }
 
 
@@ -2299,6 +2999,7 @@ def run_scan():
 
 
     fresh_signals = []
+
     hourly_repeats = []
 
 
@@ -2315,7 +3016,7 @@ def run_scan():
 
 
         # ====================================================
-        # NEW SETUP
+        # NEW BOS / NEW SETUP
         # ====================================================
 
         if previous is None:
@@ -2341,6 +3042,15 @@ def run_scan():
                 "gap":
                     signal["gap"],
 
+                "bos_type":
+                    signal["bos_type"],
+
+                "bos_price":
+                    signal["bos_price"],
+
+                "bos_timestamp":
+                    signal["bos_timestamp"],
+
             }
 
 
@@ -2359,7 +3069,7 @@ def run_scan():
 
 
         # ====================================================
-        # SAME SETUP
+        # SAME BOS
         # ====================================================
 
         last_alert = float(
@@ -2498,10 +3208,13 @@ def run_scan():
     for signal in fresh_signals:
 
         message = (
-            "🚨 NEW SIGNAL\n\n"
+
+            "🚨 NEW BOS SIGNAL\n\n"
+
             + format_signal(
                 signal
             )
+
         )
 
 
@@ -2522,10 +3235,13 @@ def run_scan():
     for signal in hourly_repeats:
 
         message = (
-            "🔄 HOURLY REPEAT\n\n"
+
+            "🔄 HOURLY BOS REPEAT\n\n"
+
             + format_signal(
                 signal
             )
+
         )
 
 
@@ -2563,6 +3279,7 @@ def run_scan():
     # ========================================================
 
     print()
+
 
     print(
         f"FRESH SIGNALS: "
@@ -2611,10 +3328,20 @@ def run_scan():
 
                 f"{signal['timeframe']} "
 
+                f"BOS="
+
+                f"{signal['bos_type']} "
+
+                f"BOS_LEVEL="
+
+                f"{format_price(signal['bos_price'])} "
+
                 f"Gap="
+
                 f"{signal['gap']:.2f}% "
 
                 f"Entry="
+
                 f"{format_price(signal['entry'])}"
 
             )
@@ -2638,10 +3365,20 @@ def run_scan():
 
                 f"{signal['timeframe']} "
 
+                f"BOS="
+
+                f"{signal['bos_type']} "
+
+                f"BOS_LEVEL="
+
+                f"{format_price(signal['bos_price'])} "
+
                 f"Gap="
+
                 f"{signal['gap']:.2f}% "
 
                 f"Entry="
+
                 f"{format_price(signal['entry'])}"
 
             )
