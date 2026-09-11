@@ -1059,23 +1059,43 @@
     "bos_timestamp": 1789130700.0
   },
   "APR_USDT_1h_LONG_1789128000.0": {
-    "last_alert": 1789143014.5263941,
+    "last_alert": 1789165873.5346763,
     "direction": "LONG",
     "timeframe": "1h",
-    "entry": 0.14986,
-    "gap": 21.393101055254572,
+    "entry": 0.15389,
+    "gap": 20.172766860839076,
     "bos_type": "BULLISH BOS",
     "bos_price": 0.15214,
     "bos_timestamp": 1789128000.0
   },
   "MOO_USDT_1h_SHORT_1789088400.0": {
-    "last_alert": 1789156863.8262916,
+    "last_alert": 1789165873.5346763,
     "direction": "SHORT",
     "timeframe": "1h",
-    "entry": 0.03086,
-    "gap": 27.263079292366964,
+    "entry": 0.03074,
+    "gap": 26.484649182204397,
     "bos_type": "BEARISH BOS",
     "bos_price": 0.028,
     "bos_timestamp": 1789088400.0
+  },
+  "CP_USDT_1h_LONG_1789113600.0": {
+    "last_alert": 1789165873.5346763,
+    "direction": "LONG",
+    "timeframe": "1h",
+    "entry": 0.01409,
+    "gap": 68.99033695378972,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.01382,
+    "bos_timestamp": 1789113600.0
+  },
+  "MEMECOIN_USDT_15m_LONG_1789133400.0": {
+    "last_alert": 1789165873.5346763,
+    "direction": "LONG",
+    "timeframe": "15m",
+    "entry": 0.05203,
+    "gap": 12.868954447992536,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.05328,
+    "bos_timestamp": 1789133400.0
   }
 }
