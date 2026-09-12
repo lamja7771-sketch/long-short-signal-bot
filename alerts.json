@@ -1124,7 +1124,7 @@
     "timeframe": "4h",
     "direction": "SHORT",
     "bos_timestamp": 1788955200,
-    "last_sent": 1789237268
+    "last_sent": 1789252748
   },
   "VTHO_USDT_15m_SHORT_1789224300": {
     "symbol": "VTHO_USDT",
@@ -1132,5 +1132,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1789224300,
     "last_sent": 1789237268
+  },
+  "ZZZ_USDT_15m_SHORT_1789244100": {
+    "symbol": "ZZZ_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789244100,
+    "last_sent": 1789252748
   }
 }
