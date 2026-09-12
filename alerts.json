@@ -27,8 +27,8 @@
     "trigger_time": 1787983200,
     "sent_at": 1787989377
   },
-  "\u9f99\u867e_SHORT_15m_1787987700": {
-    "symbol": "\u9f99\u867e",
+  "龙虾_SHORT_15m_1787987700": {
+    "symbol": "龙虾",
     "direction": "SHORT",
     "timeframe": "15m",
     "trigger_time": 1787987700,
@@ -97,8 +97,8 @@
     "trigger_time": 1788040800,
     "sent_at": 1788053863
   },
-  "\u9f99\u867e_SHORT_15m_1788052500": {
-    "symbol": "\u9f99\u867e",
+  "龙虾_SHORT_15m_1788052500": {
+    "symbol": "龙虾",
     "direction": "SHORT",
     "timeframe": "15m",
     "trigger_time": 1788052500,
@@ -118,8 +118,8 @@
     "trigger_time": 1788134400,
     "sent_at": 1788159107
   },
-  "\u9f99\u867e_SHORT_1h_1788152400": {
-    "symbol": "\u9f99\u867e",
+  "龙虾_SHORT_1h_1788152400": {
+    "symbol": "龙虾",
     "direction": "SHORT",
     "timeframe": "1h",
     "trigger_time": 1788152400,
@@ -153,7 +153,7 @@
     "entry": 0.04062,
     "gap": 45.26674811275006
   },
-  "\u9f99\u867e_USDT_1h_SHORT": {
+  "龙虾_USDT_1h_SHORT": {
     "last_alert": 1788275514.6542592,
     "direction": "SHORT",
     "timeframe": "1h",
@@ -580,7 +580,7 @@
     "entry": 0.05625,
     "gap": 13.945777472214637
   },
-  "\u725b\u6765_USDT_15m_SHORT": {
+  "牛来_USDT_15m_SHORT": {
     "last_alert": 1788655977.4271894,
     "direction": "SHORT",
     "timeframe": "15m",
@@ -741,7 +741,7 @@
     "entry": 0.17324,
     "gap": 22.769094014463228
   },
-  "\u9f99\u867e_USDT_15m_LONG": {
+  "龙虾_USDT_15m_LONG": {
     "last_alert": 1788860184.4163005,
     "direction": "LONG",
     "timeframe": "15m",
@@ -776,7 +776,7 @@
     "entry": 0.06495,
     "gap": 21.50677933558958
   },
-  "\u54c8\u57fa\u7c73_USDT_15m_LONG": {
+  "哈基米_USDT_15m_LONG": {
     "last_alert": 1788964061.942417,
     "direction": "LONG",
     "timeframe": "15m",
@@ -1097,5 +1097,12 @@
     "bos_type": "BULLISH BOS",
     "bos_price": 0.05328,
     "bos_timestamp": 1789133400.0
+  },
+  "GIGGLEMAX_USDT_15m_LONG_1789167600": {
+    "symbol": "GIGGLEMAX_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789167600,
+    "last_sent": 1789183276
   }
 }

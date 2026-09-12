@@ -170,7 +170,7 @@
   "ZK|LONG|4h|1787140800",
   "ZORA|LONG|4h|1787140800",
   "ZRX|LONG|1d|1787184000",
-  "\u5e01\u5b89\u4eba\u751f|LONG|4h|1787212800",
+  "币安人生|LONG|4h|1787212800",
   {
     "timestamp": 1788165963.2700305,
     "type": "fresh",
@@ -225,7 +225,7 @@
   {
     "timestamp": 1788165963.2700305,
     "type": "fresh",
-    "symbol": "\u9f99\u867e_USDT",
+    "symbol": "龙虾_USDT",
     "timeframe": "1h",
     "direction": "SHORT",
     "entry": 0.068512,
@@ -548,7 +548,7 @@
   {
     "timestamp": 1788275514.6542592,
     "type": "hourly_repeat",
-    "symbol": "\u9f99\u867e_USDT",
+    "symbol": "龙虾_USDT",
     "timeframe": "1h",
     "direction": "SHORT",
     "entry": 0.064143,
@@ -2792,7 +2792,7 @@
   {
     "timestamp": 1788655977.4271894,
     "type": "fresh",
-    "symbol": "\u725b\u6765_USDT",
+    "symbol": "牛来_USDT",
     "timeframe": "15m",
     "direction": "SHORT",
     "entry": 0.11816,
@@ -4356,7 +4356,7 @@
   {
     "timestamp": 1788860184.4163005,
     "type": "fresh",
-    "symbol": "\u9f99\u867e_USDT",
+    "symbol": "龙虾_USDT",
     "timeframe": "15m",
     "direction": "LONG",
     "entry": 0.057766,
@@ -4679,7 +4679,7 @@
   {
     "timestamp": 1788898844.7008622,
     "type": "fresh",
-    "symbol": "\u54c8\u57fa\u7c73_USDT",
+    "symbol": "哈基米_USDT",
     "timeframe": "15m",
     "direction": "LONG",
     "entry": 0.0435,
@@ -4764,7 +4764,7 @@
   {
     "timestamp": 1788907733.3623843,
     "type": "hourly_repeat",
-    "symbol": "\u54c8\u57fa\u7c73_USDT",
+    "symbol": "哈基米_USDT",
     "timeframe": "15m",
     "direction": "LONG",
     "entry": 0.04262,
@@ -5121,7 +5121,7 @@
   {
     "timestamp": 1788964061.942417,
     "type": "hourly_repeat",
-    "symbol": "\u54c8\u57fa\u7c73_USDT",
+    "symbol": "哈基米_USDT",
     "timeframe": "15m",
     "direction": "LONG",
     "entry": 0.04277,
@@ -6337,5 +6337,33 @@
     "bos_candle_low": 0.05127,
     "bos_candle_close": 0.05663,
     "last_candle_timestamp": 1789164000.0
+  },
+  {
+    "symbol": "GIGGLEMAX_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "entry": 0.00712,
+    "stop_loss": 0.00628,
+    "tp1": 0.007476,
+    "tp2": 0.007832,
+    "tp3": 0.008019614073915738,
+    "sma50": 0.0068606,
+    "ema20": 0.006984551612343626,
+    "ema200": 0.008019614073915738,
+    "gap_percent": 16.893771301573306,
+    "price_gap_ratio": 0.22381091467130768,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.00782,
+    "bos_timestamp": 1789167600,
+    "bos_candle_timestamp": 1789167600,
+    "bos_open": 0.00665,
+    "bos_high": 0.00883,
+    "bos_low": 0.00628,
+    "bos_close": 0.00807,
+    "swing_timestamp": 1789136100,
+    "last_candle_timestamp": 1789182000,
+    "last_candle_close": 0.00712,
+    "alert_type": "NEW BOS",
+    "sent_at": 1789183276
   }
 ]
