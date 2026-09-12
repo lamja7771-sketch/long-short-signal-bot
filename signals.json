@@ -6393,5 +6393,33 @@
     "last_candle_close": 0.004403,
     "alert_type": "NEW BOS",
     "sent_at": 1789189331
+  },
+  {
+    "symbol": "GIGGLEMAX_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "entry": 0.00674,
+    "stop_loss": 0.0061,
+    "tp1": 0.007077000000000001,
+    "tp2": 0.007414000000000001,
+    "tp3": 0.007510081715309579,
+    "sma50": 0.0065352,
+    "ema20": 0.006691565480295769,
+    "ema200": 0.007510081715309579,
+    "gap_percent": 14.917396794429846,
+    "price_gap_ratio": 0.21007676806715492,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.00627,
+    "bos_timestamp": 1789206300,
+    "bos_candle_timestamp": 1789206300,
+    "bos_open": 0.00619,
+    "bos_high": 0.00638,
+    "bos_low": 0.0061,
+    "bos_close": 0.00638,
+    "swing_timestamp": 1789199100,
+    "last_candle_timestamp": 1789216200,
+    "last_candle_close": 0.00674,
+    "alert_type": "NEW BOS",
+    "sent_at": 1789217755
   }
 ]

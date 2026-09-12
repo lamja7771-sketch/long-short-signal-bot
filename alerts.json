@@ -1111,5 +1111,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1789177500,
     "last_sent": 1789189331
+  },
+  "GIGGLEMAX_USDT_15m_LONG_1789206300": {
+    "symbol": "GIGGLEMAX_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789206300,
+    "last_sent": 1789217755
   }
 }
