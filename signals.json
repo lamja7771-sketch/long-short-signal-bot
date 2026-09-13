@@ -6645,5 +6645,33 @@
     "last_candle_close": 0.107,
     "alert_type": "NEW BOS",
     "sent_at": 1789309740
+  },
+  {
+    "symbol": "VTHO_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "entry": 0.0008057,
+    "stop_loss": 0.0008982,
+    "tp1": 0.000765415,
+    "tp2": 0.00072513,
+    "tp3": 0.0007307690294459503,
+    "sma50": 0.000873578,
+    "ema20": 0.0008187313203858483,
+    "ema200": 0.0007307690294459503,
+    "gap_percent": 19.542285564882746,
+    "price_gap_ratio": 0.47530627618598925,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.0008736,
+    "bos_timestamp": 1789300800,
+    "bos_candle_timestamp": 1789300800,
+    "bos_open": 0.0008936,
+    "bos_high": 0.0008982,
+    "bos_low": 0.0008511,
+    "bos_close": 0.0008643,
+    "swing_timestamp": 1789293600,
+    "last_candle_timestamp": 1789319700,
+    "last_candle_close": 0.0008071,
+    "alert_type": "NEW BOS",
+    "sent_at": 1789320974
   }
 ]
