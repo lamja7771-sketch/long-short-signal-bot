@@ -1139,5 +1139,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1789244100,
     "last_sent": 1789258961
+  },
+  "RAY_USDT_1h_SHORT_1789264800": {
+    "symbol": "RAY_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789264800,
+    "last_sent": 1789275908
   }
 }
