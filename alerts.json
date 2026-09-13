@@ -1159,6 +1159,13 @@
     "timeframe": "15m",
     "direction": "SHORT",
     "bos_timestamp": 1789300800,
-    "last_sent": 1789320974
+    "last_sent": 1789328835
+  },
+  "STEEM_USDT_15m_SHORT_1789308900": {
+    "symbol": "STEEM_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789308900,
+    "last_sent": 1789328835
   }
 }
