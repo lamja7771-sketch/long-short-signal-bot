@@ -1195,5 +1195,19 @@
     "direction": "LONG",
     "bos_timestamp": 1789353900,
     "last_sent": 1789370005
+  },
+  "GAIB_USDT_1h_SHORT_1789300800": {
+    "symbol": "GAIB_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789300800,
+    "last_sent": 1789394909
+  },
+  "BTW_USDT_15m_SHORT_1789381800": {
+    "symbol": "BTW_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789381800,
+    "last_sent": 1789394909
   }
 }
