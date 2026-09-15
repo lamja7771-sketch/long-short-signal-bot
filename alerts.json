@@ -1223,5 +1223,12 @@
     "direction": "LONG",
     "bos_timestamp": 1789336800,
     "last_sent": 1789451910
+  },
+  "PAIR_USDT_15m_LONG_1789474500": {
+    "symbol": "PAIR_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789474500,
+    "last_sent": 1789486955
   }
 }
