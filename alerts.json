@@ -1216,5 +1216,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1789388100,
     "last_sent": 1789413802
+  },
+  "INDEX_USDT_1h_LONG_1789336800": {
+    "symbol": "INDEX_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1789336800,
+    "last_sent": 1789451910
   }
 }
