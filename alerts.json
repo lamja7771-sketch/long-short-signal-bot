@@ -1257,6 +1257,27 @@
     "timeframe": "15m",
     "direction": "LONG",
     "bos_timestamp": 1789566300,
-    "last_sent": 1789583642
+    "last_sent": 1789594959
+  },
+  "POWER_USDT_1h_SHORT_1789563600": {
+    "symbol": "POWER_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789563600,
+    "last_sent": 1789594959
+  },
+  "4STOCK_USDT_15m_LONG_1789582500": {
+    "symbol": "4STOCK_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789582500,
+    "last_sent": 1789594959
+  },
+  "SPACEHOOD_USDT_15m_LONG_1789566300": {
+    "symbol": "SPACEHOOD_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789566300,
+    "last_sent": 1789594959
   }
 }
