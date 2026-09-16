@@ -1244,5 +1244,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1789561800,
     "last_sent": 1789570326
+  },
+  "ZZZ_USDT_15m_LONG_1789568100": {
+    "symbol": "ZZZ_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789568100,
+    "last_sent": 1789583642
+  },
+  "UAI_USDT_15m_LONG_1789566300": {
+    "symbol": "UAI_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789566300,
+    "last_sent": 1789583642
   }
 }
