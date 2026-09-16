@@ -7037,5 +7037,33 @@
     "last_candle_close": 0.00419,
     "alert_type": "NEW BOS",
     "sent_at": 1789486955
+  },
+  {
+    "symbol": "CNPY_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "entry": 0.3517,
+    "stop_loss": 0.36,
+    "tp1": 0.334115,
+    "tp2": 0.31653000000000003,
+    "tp3": 0.32285816714012017,
+    "sma50": 0.36497799999999997,
+    "ema20": 0.35417381557729266,
+    "ema200": 0.32285816714012017,
+    "gap_percent": 13.045924541100373,
+    "price_gap_ratio": 0.31524341618761703,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.3542,
+    "bos_timestamp": 1789543800,
+    "bos_candle_timestamp": 1789543800,
+    "bos_open": 0.36,
+    "bos_high": 0.36,
+    "bos_low": 0.3472,
+    "bos_close": 0.3506,
+    "swing_timestamp": 1789536600,
+    "last_candle_timestamp": 1789551000,
+    "last_candle_close": 0.3506,
+    "alert_type": "NEW BOS",
+    "sent_at": 1789552896
   }
 ]

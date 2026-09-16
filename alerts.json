@@ -1230,5 +1230,12 @@
     "direction": "LONG",
     "bos_timestamp": 1789474500,
     "last_sent": 1789486955
+  },
+  "CNPY_USDT_15m_SHORT_1789543800": {
+    "symbol": "CNPY_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789543800,
+    "last_sent": 1789552896
   }
 }
