@@ -1299,7 +1299,7 @@
     "timeframe": "1h",
     "direction": "SHORT",
     "bos_timestamp": 1789574400,
-    "last_sent": 1789634951
+    "last_sent": 1789653091
   },
   "FATCOIN_USDT_15m_LONG_1789612200": {
     "symbol": "FATCOIN_USDT",
@@ -1307,5 +1307,12 @@
     "direction": "LONG",
     "bos_timestamp": 1789612200,
     "last_sent": 1789634951
+  },
+  "FLORK_USDT_1h_LONG_1789588800": {
+    "symbol": "FLORK_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1789588800,
+    "last_sent": 1789653091
   }
 }
