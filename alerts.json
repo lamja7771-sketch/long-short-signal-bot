@@ -1293,5 +1293,19 @@
     "direction": "LONG",
     "bos_timestamp": 1789599600,
     "last_sent": 1789615294
+  },
+  "AKE_USDT_1h_SHORT_1789574400": {
+    "symbol": "AKE_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789574400,
+    "last_sent": 1789634951
+  },
+  "FATCOIN_USDT_15m_LONG_1789612200": {
+    "symbol": "FATCOIN_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789612200,
+    "last_sent": 1789634951
   }
 }
