@@ -1279,5 +1279,19 @@
     "direction": "LONG",
     "bos_timestamp": 1789566300,
     "last_sent": 1789602922
+  },
+  "EMBER_USDT_15m_LONG_1789609500": {
+    "symbol": "EMBER_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789609500,
+    "last_sent": 1789615294
+  },
+  "FRONG_USDT_15m_LONG_1789599600": {
+    "symbol": "FRONG_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789599600,
+    "last_sent": 1789615294
   }
 }
