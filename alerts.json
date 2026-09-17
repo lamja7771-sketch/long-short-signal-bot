@@ -1299,7 +1299,7 @@
     "timeframe": "1h",
     "direction": "SHORT",
     "bos_timestamp": 1789574400,
-    "last_sent": 1789667370
+    "last_sent": 1789677480
   },
   "FATCOIN_USDT_15m_LONG_1789612200": {
     "symbol": "FATCOIN_USDT",
@@ -1320,13 +1320,20 @@
     "timeframe": "1h",
     "direction": "LONG",
     "bos_timestamp": 1789603200,
-    "last_sent": 1789667370
+    "last_sent": 1789677480
   },
   "FLNC_USDT_15m_LONG_1789659000": {
     "symbol": "FLNC_USDT",
     "timeframe": "15m",
     "direction": "LONG",
     "bos_timestamp": 1789659000,
-    "last_sent": 1789667370
+    "last_sent": 1789677480
+  },
+  "SUE_USDT_15m_SHORT_1789650000": {
+    "symbol": "SUE_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789650000,
+    "last_sent": 1789677480
   }
 }
