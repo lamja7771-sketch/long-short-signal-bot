@@ -1398,5 +1398,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1789671600,
     "last_sent": 1789729741
+  },
+  "BULLA_USDT_1h_SHORT_1789657200": {
+    "symbol": "BULLA_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789657200,
+    "last_sent": 1789755743
   }
 }
