@@ -8213,5 +8213,33 @@
     "last_candle_close": 0.01565,
     "alert_type": "NEW BOS",
     "sent_at": 1789765526
+  },
+  {
+    "symbol": "ANSEM_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "entry": 0.1642,
+    "stop_loss": 0.1723,
+    "tp1": 0.15599000000000002,
+    "tp2": 0.14778000000000002,
+    "tp3": 0.15206132877544992,
+    "sma50": 0.16799399999999998,
+    "ema20": 0.1675237183230084,
+    "ema200": 0.15206132877544992,
+    "gap_percent": 10.477792975279037,
+    "price_gap_ratio": 0.23812705016808053,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.1681,
+    "bos_timestamp": 1789750800,
+    "bos_candle_timestamp": 1789750800,
+    "bos_open": 0.1723,
+    "bos_high": 0.1723,
+    "bos_low": 0.1642,
+    "bos_close": 0.1666,
+    "swing_timestamp": 1789742700,
+    "last_candle_timestamp": 1789771500,
+    "last_candle_close": 0.167,
+    "alert_type": "NEW BOS",
+    "sent_at": 1789773427
   }
 ]
