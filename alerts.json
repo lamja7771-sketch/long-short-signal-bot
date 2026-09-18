@@ -1349,5 +1349,40 @@
     "direction": "LONG",
     "bos_timestamp": 1789635600,
     "last_sent": 1789694375
+  },
+  "MEMECOIN_USDT_1h_LONG_1789635600": {
+    "symbol": "MEMECOIN_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1789635600,
+    "last_sent": 1789711522
+  },
+  "SPACEHOOD_USDT_1h_LONG_1789650000": {
+    "symbol": "SPACEHOOD_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1789650000,
+    "last_sent": 1789711522
+  },
+  "BR_USDT_15m_SHORT_1789697700": {
+    "symbol": "BR_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789697700,
+    "last_sent": 1789711522
+  },
+  "MAGMA_USDT_15m_LONG_1789693200": {
+    "symbol": "MAGMA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789693200,
+    "last_sent": 1789711522
+  },
+  "GAIB_USDT_15m_SHORT_1789699500": {
+    "symbol": "GAIB_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789699500,
+    "last_sent": 1789711522
   }
 }
