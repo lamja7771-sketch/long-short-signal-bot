@@ -1355,7 +1355,7 @@
     "timeframe": "1h",
     "direction": "LONG",
     "bos_timestamp": 1789635600,
-    "last_sent": 1789711522
+    "last_sent": 1789729741
   },
   "SPACEHOOD_USDT_1h_LONG_1789650000": {
     "symbol": "SPACEHOOD_USDT",
@@ -1384,5 +1384,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1789699500,
     "last_sent": 1789711522
+  },
+  "UAI_USDT_1h_LONG_1789689600": {
+    "symbol": "UAI_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1789689600,
+    "last_sent": 1789729741
+  },
+  "LSK_USDT_1h_SHORT_1789671600": {
+    "symbol": "LSK_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789671600,
+    "last_sent": 1789729741
   }
 }
