@@ -1405,5 +1405,33 @@
     "direction": "SHORT",
     "bos_timestamp": 1789657200,
     "last_sent": 1789755743
+  },
+  "FONE_USDT_1h_LONG_1789696800": {
+    "symbol": "FONE_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1789696800,
+    "last_sent": 1789765526
+  },
+  "FATCOIN_USDT_15m_SHORT_1789753500": {
+    "symbol": "FATCOIN_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789753500,
+    "last_sent": 1789765526
+  },
+  "4STOCK_USDT_15m_LONG_1789760700": {
+    "symbol": "4STOCK_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789760700,
+    "last_sent": 1789765526
+  },
+  "ARGUS_USDT_15m_LONG_1789740000": {
+    "symbol": "ARGUS_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789740000,
+    "last_sent": 1789765526
   }
 }
