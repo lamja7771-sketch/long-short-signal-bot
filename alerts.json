@@ -1461,5 +1461,47 @@
     "direction": "SHORT",
     "bos_timestamp": 1789771500,
     "last_sent": 1789780756
+  },
+  "TOLLY_USDT_15m_LONG_1789804800": {
+    "symbol": "TOLLY_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789804800,
+    "last_sent": 1789815184
+  },
+  "龙虾_USDT_1h_SHORT_1789801200": {
+    "symbol": "龙虾_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789801200,
+    "last_sent": 1789815184
+  },
+  "AVA_USDT_1h_SHORT_1789747200": {
+    "symbol": "AVA_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789747200,
+    "last_sent": 1789815184
+  },
+  "GAIB_USDT_1h_SHORT_1789801200": {
+    "symbol": "GAIB_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789801200,
+    "last_sent": 1789815184
+  },
+  "PAIR_USDT_15m_SHORT_1789791300": {
+    "symbol": "PAIR_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789791300,
+    "last_sent": 1789815184
+  },
+  "F_USDT_15m_SHORT_1789797600": {
+    "symbol": "F_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789797600,
+    "last_sent": 1789815184
   }
 }
