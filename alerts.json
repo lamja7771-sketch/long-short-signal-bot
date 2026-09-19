@@ -1467,7 +1467,7 @@
     "timeframe": "15m",
     "direction": "LONG",
     "bos_timestamp": 1789804800,
-    "last_sent": 1789815184
+    "last_sent": 1789838217
   },
   "龙虾_USDT_1h_SHORT_1789801200": {
     "symbol": "龙虾_USDT",
@@ -1503,5 +1503,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1789797600,
     "last_sent": 1789815184
+  },
+  "AIN_USDT_15m_LONG_1789826400": {
+    "symbol": "AIN_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789826400,
+    "last_sent": 1789838217
   }
 }
