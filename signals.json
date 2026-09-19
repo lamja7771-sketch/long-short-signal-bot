@@ -8493,5 +8493,33 @@
     "last_candle_close": 0.004199,
     "alert_type": "NEW BOS",
     "sent_at": 1789815184
+  },
+  {
+    "symbol": "AVA_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "entry": 0.2327,
+    "stop_loss": 0.2511,
+    "tp1": 0.22106499999999998,
+    "tp2": 0.20943,
+    "tp3": 0.20211794520935422,
+    "sma50": 0.252278,
+    "ema20": 0.23265598841488297,
+    "ema200": 0.20211794520935422,
+    "gap_percent": 24.817219836016978,
+    "price_gap_ratio": 0.3903105784416141,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.2458,
+    "bos_timestamp": 1789747200,
+    "bos_candle_timestamp": 1789747200,
+    "bos_open": 0.2485,
+    "bos_high": 0.2511,
+    "bos_low": 0.2327,
+    "bos_close": 0.2344,
+    "swing_timestamp": 1789718400,
+    "last_candle_timestamp": 1789822800,
+    "last_candle_close": 0.2335,
+    "alert_type": "HOURLY BOS REPEAT",
+    "sent_at": 1789826725
   }
 ]
