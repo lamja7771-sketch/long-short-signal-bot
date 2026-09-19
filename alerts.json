@@ -1440,5 +1440,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1789750800,
     "last_sent": 1789773427
+  },
+  "PAID_USDT_15m_SHORT_1789769700": {
+    "symbol": "PAID_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789769700,
+    "last_sent": 1789780756
+  },
+  "MYX_USDT_15m_SHORT_1789767900": {
+    "symbol": "MYX_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789767900,
+    "last_sent": 1789780756
+  },
+  "SHROOM_USDT_15m_SHORT_1789771500": {
+    "symbol": "SHROOM_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789771500,
+    "last_sent": 1789780756
   }
 }
