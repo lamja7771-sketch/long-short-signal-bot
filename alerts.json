@@ -1467,7 +1467,7 @@
     "timeframe": "15m",
     "direction": "LONG",
     "bos_timestamp": 1789804800,
-    "last_sent": 1789838217
+    "last_sent": 1789845948
   },
   "龙虾_USDT_1h_SHORT_1789801200": {
     "symbol": "龙虾_USDT",
@@ -1510,5 +1510,19 @@
     "direction": "LONG",
     "bos_timestamp": 1789826400,
     "last_sent": 1789838217
+  },
+  "EDGE_USDT_15m_SHORT_1789826400": {
+    "symbol": "EDGE_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789826400,
+    "last_sent": 1789845948
+  },
+  "HEI_USDT_15m_SHORT_1789832700": {
+    "symbol": "HEI_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789832700,
+    "last_sent": 1789845948
   }
 }
