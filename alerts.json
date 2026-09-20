@@ -1538,5 +1538,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1789841700,
     "last_sent": 1789853867
+  },
+  "TRIA_USDT_4h_LONG_1789646400": {
+    "symbol": "TRIA_USDT",
+    "timeframe": "4h",
+    "direction": "LONG",
+    "bos_timestamp": 1789646400,
+    "last_sent": 1789921093
+  },
+  "CNPY_USDT_1h_SHORT_1789808400": {
+    "symbol": "CNPY_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789808400,
+    "last_sent": 1789921093
+  },
+  "EVAA_USDT_15m_SHORT_1789902000": {
+    "symbol": "EVAA_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1789902000,
+    "last_sent": 1789921093
   }
 }
