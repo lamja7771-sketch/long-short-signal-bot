@@ -1544,14 +1544,14 @@
     "timeframe": "4h",
     "direction": "LONG",
     "bos_timestamp": 1789646400,
-    "last_sent": 1789921093
+    "last_sent": 1789938706
   },
   "CNPY_USDT_1h_SHORT_1789808400": {
     "symbol": "CNPY_USDT",
     "timeframe": "1h",
     "direction": "SHORT",
     "bos_timestamp": 1789808400,
-    "last_sent": 1789930502
+    "last_sent": 1789938706
   },
   "EVAA_USDT_15m_SHORT_1789902000": {
     "symbol": "EVAA_USDT",
@@ -1573,5 +1573,19 @@
     "direction": "LONG",
     "bos_timestamp": 1789913700,
     "last_sent": 1789930502
+  },
+  "FLYBRAIN_USDT_15m_LONG_1789918200": {
+    "symbol": "FLYBRAIN_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789918200,
+    "last_sent": 1789938706
+  },
+  "CASHCAT_USDT_15m_LONG_1789908300": {
+    "symbol": "CASHCAT_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789908300,
+    "last_sent": 1789938706
   }
 }
