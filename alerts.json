@@ -1551,7 +1551,7 @@
     "timeframe": "1h",
     "direction": "SHORT",
     "bos_timestamp": 1789808400,
-    "last_sent": 1789921093
+    "last_sent": 1789930502
   },
   "EVAA_USDT_15m_SHORT_1789902000": {
     "symbol": "EVAA_USDT",
@@ -1559,5 +1559,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1789902000,
     "last_sent": 1789921093
+  },
+  "MOO_USDT_15m_LONG_1789916400": {
+    "symbol": "MOO_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789916400,
+    "last_sent": 1789930502
+  },
+  "EMBER_USDT_15m_LONG_1789913700": {
+    "symbol": "EMBER_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789913700,
+    "last_sent": 1789930502
   }
 }
