@@ -9277,5 +9277,33 @@
     "last_candle_close": 0.092,
     "alert_type": "NEW BOS",
     "sent_at": 1789996630
+  },
+  {
+    "symbol": "AKE_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "entry": 0.0523743,
+    "stop_loss": 0.0524131,
+    "tp1": 0.049755585,
+    "tp2": 0.04713687,
+    "tp3": 0.038369147313322804,
+    "sma50": 0.057586288000000006,
+    "ema20": 0.051732262208290844,
+    "ema200": 0.038369147313322804,
+    "gap_percent": 50.084878169821856,
+    "price_gap_ratio": 0.27121558222308056,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.0452,
+    "bos_timestamp": 1789963200,
+    "bos_candle_timestamp": 1789963200,
+    "bos_open": 0.0524131,
+    "bos_high": 0.0524131,
+    "bos_low": 0.0357432,
+    "bos_close": 0.0367261,
+    "swing_timestamp": 1789902000,
+    "last_candle_timestamp": 1790010000,
+    "last_candle_close": 0.0514842,
+    "alert_type": "NEW BOS",
+    "sent_at": 1790016599
   }
 ]

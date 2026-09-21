@@ -1636,5 +1636,12 @@
     "direction": "LONG",
     "bos_timestamp": 1789989300,
     "last_sent": 1789996630
+  },
+  "AKE_USDT_1h_SHORT_1789963200": {
+    "symbol": "AKE_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789963200,
+    "last_sent": 1790016599
   }
 }
