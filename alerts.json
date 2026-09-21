@@ -1608,5 +1608,33 @@
     "direction": "LONG",
     "bos_timestamp": 1789923600,
     "last_sent": 1789953343
+  },
+  "SUE_USDT_15m_LONG_1789983900": {
+    "symbol": "SUE_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789983900,
+    "last_sent": 1789996630
+  },
+  "PAID_USDT_15m_LONG_1789978500": {
+    "symbol": "PAID_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789978500,
+    "last_sent": 1789996630
+  },
+  "SHROOM_USDT_15m_LONG_1789984800": {
+    "symbol": "SHROOM_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789984800,
+    "last_sent": 1789996630
+  },
+  "LAPTOP_USDT_15m_LONG_1789989300": {
+    "symbol": "LAPTOP_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1789989300,
+    "last_sent": 1789996630
   }
 }
