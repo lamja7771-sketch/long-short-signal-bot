@@ -9361,5 +9361,33 @@
     "last_candle_close": 0.04999,
     "alert_type": "NEW BOS",
     "sent_at": 1790029383
+  },
+  {
+    "symbol": "ZETA_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "entry": 0.05854,
+    "stop_loss": 0.06017,
+    "tp1": 0.055612999999999996,
+    "tp2": 0.052686000000000004,
+    "tp3": 0.051827488489790824,
+    "sma50": 0.0607766,
+    "ema20": 0.0592709194215351,
+    "ema200": 0.051827488489790824,
+    "gap_percent": 17.26711397943199,
+    "price_gap_ratio": 0.2499242519716597,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.05929,
+    "bos_timestamp": 1790032500,
+    "bos_candle_timestamp": 1790032500,
+    "bos_open": 0.06004,
+    "bos_high": 0.06017,
+    "bos_low": 0.05836,
+    "bos_close": 0.05916,
+    "swing_timestamp": 1790026200,
+    "last_candle_timestamp": 1790037000,
+    "last_candle_close": 0.05809,
+    "alert_type": "NEW BOS",
+    "sent_at": 1790038762
   }
 ]
