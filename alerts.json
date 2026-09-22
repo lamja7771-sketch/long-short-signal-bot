@@ -1685,5 +1685,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1790038800,
     "last_sent": 1790056949
+  },
+  "AR_USDT_1h_SHORT_1790049600": {
+    "symbol": "AR_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1790049600,
+    "last_sent": 1790076652
+  },
+  "ALCH_USDT_15m_SHORT_1790041500": {
+    "symbol": "ALCH_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790041500,
+    "last_sent": 1790076652
   }
 }
