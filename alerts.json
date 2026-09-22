@@ -1664,5 +1664,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1790032500,
     "last_sent": 1790038762
+  },
+  "PAIR_USDT_1h_LONG_1790002800": {
+    "symbol": "PAIR_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1790002800,
+    "last_sent": 1790056949
+  },
+  "POLYMARKET_USDT_15m_SHORT_1790037900": {
+    "symbol": "POLYMARKET_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790037900,
+    "last_sent": 1790056949
+  },
+  "KALSHI_USDT_15m_SHORT_1790038800": {
+    "symbol": "KALSHI_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790038800,
+    "last_sent": 1790056949
   }
 }
