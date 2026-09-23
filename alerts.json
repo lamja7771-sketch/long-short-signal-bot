@@ -1797,5 +1797,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1790172900,
     "last_sent": 1790190124
+  },
+  "LSK_USDT_4h_SHORT_1789891200": {
+    "symbol": "LSK_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "bos_timestamp": 1789891200,
+    "last_sent": 1790201668
+  },
+  "KERNEL_USDT_1h_SHORT_1790172000": {
+    "symbol": "KERNEL_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1790172000,
+    "last_sent": 1790201668
   }
 }
