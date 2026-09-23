@@ -1713,5 +1713,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1790101800,
     "last_sent": 1790115349
+  },
+  "4STOCK_USDT_1h_LONG_1790060400": {
+    "symbol": "4STOCK_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1790060400,
+    "last_sent": 1790124169
   }
 }
