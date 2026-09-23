@@ -1776,5 +1776,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1790172000,
     "last_sent": 1790175652
+  },
+  "SUE_USDT_1h_LONG_1790154000": {
+    "symbol": "SUE_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1790154000,
+    "last_sent": 1790190124
+  },
+  "MUSEBOOK_USDT_15m_SHORT_1790163000": {
+    "symbol": "MUSEBOOK_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790163000,
+    "last_sent": 1790190124
+  },
+  "BREW_USDT_15m_SHORT_1790172900": {
+    "symbol": "BREW_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790172900,
+    "last_sent": 1790190124
   }
 }
