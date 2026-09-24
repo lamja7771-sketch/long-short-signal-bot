@@ -1825,5 +1825,12 @@
     "direction": "LONG",
     "bos_timestamp": 1790207100,
     "last_sent": 1790227389
+  },
+  "PAID_USDT_15m_LONG_1790226900": {
+    "symbol": "PAID_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790226900,
+    "last_sent": 1790245123
   }
 }
