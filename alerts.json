@@ -1832,5 +1832,19 @@
     "direction": "LONG",
     "bos_timestamp": 1790226900,
     "last_sent": 1790245123
+  },
+  "ALLINU_USDT_15m_LONG_1790268300": {
+    "symbol": "ALLINU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790268300,
+    "last_sent": 1790277666
+  },
+  "NIL_USDT_15m_SHORT_1790251200": {
+    "symbol": "NIL_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790251200,
+    "last_sent": 1790277666
   }
 }
