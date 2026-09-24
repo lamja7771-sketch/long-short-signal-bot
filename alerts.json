@@ -1803,7 +1803,7 @@
     "timeframe": "4h",
     "direction": "SHORT",
     "bos_timestamp": 1789891200,
-    "last_sent": 1790201668
+    "last_sent": 1790210097
   },
   "KERNEL_USDT_1h_SHORT_1790172000": {
     "symbol": "KERNEL_USDT",
