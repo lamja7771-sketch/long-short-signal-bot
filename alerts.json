@@ -1853,5 +1853,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1790285400,
     "last_sent": 1790314344
+  },
+  "ONE_USDT_4h_SHORT_1790179200": {
+    "symbol": "ONE_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "bos_timestamp": 1790179200,
+    "last_sent": 1790376512
   }
 }
