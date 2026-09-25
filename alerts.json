@@ -1846,5 +1846,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1790251200,
     "last_sent": 1790277666
+  },
+  "XAI_USDT_15m_SHORT_1790285400": {
+    "symbol": "XAI_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790285400,
+    "last_sent": 1790314344
   }
 }
