@@ -1873,7 +1873,7 @@
     "timeframe": "1h",
     "direction": "LONG",
     "bos_timestamp": 1790344800,
-    "last_sent": 1790402682
+    "last_sent": 1790421645
   },
   "BP_USDT_15m_SHORT_1790396100": {
     "symbol": "BP_USDT",
@@ -1895,5 +1895,19 @@
     "direction": "LONG",
     "bos_timestamp": 1790393400,
     "last_sent": 1790402682
+  },
+  "G_USDT_4h_SHORT_1790179200": {
+    "symbol": "G_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "bos_timestamp": 1790179200,
+    "last_sent": 1790421645
+  },
+  "STONKS_USDT_1h_LONG_1790337600": {
+    "symbol": "STONKS_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1790337600,
+    "last_sent": 1790421645
   }
 }
