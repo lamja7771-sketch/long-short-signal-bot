@@ -10565,5 +10565,33 @@
     "last_candle_close": 0.000812,
     "alert_type": "HOURLY BOS REPEAT",
     "sent_at": 1790435007
+  },
+  {
+    "symbol": "STONKS_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 0.000801,
+    "stop_loss": 0.000657,
+    "tp1": 0.00084105,
+    "tp2": 0.0008811,
+    "tp3": 0.0009614730351289743,
+    "sma50": 0.00074938,
+    "ema20": 0.0007927807465034076,
+    "ema200": 0.0009614730351289743,
+    "gap_percent": 28.302468057457403,
+    "price_gap_ratio": 0.24338375830498016,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.000687,
+    "bos_timestamp": 1790337600,
+    "bos_candle_timestamp": 1790337600,
+    "bos_open": 0.000657,
+    "bos_high": 0.000939,
+    "bos_low": 0.000657,
+    "bos_close": 0.000796,
+    "swing_timestamp": 1790298000,
+    "last_candle_timestamp": 1790442000,
+    "last_candle_close": 0.000802,
+    "alert_type": "HOURLY BOS REPEAT",
+    "sent_at": 1790447683
   }
 ]
