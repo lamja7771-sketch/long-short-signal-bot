@@ -1867,5 +1867,33 @@
     "direction": "SHORT",
     "bos_timestamp": 1790364600,
     "last_sent": 1790384367
+  },
+  "BEN_USDT_1h_LONG_1790344800": {
+    "symbol": "BEN_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1790344800,
+    "last_sent": 1790402682
+  },
+  "BP_USDT_15m_SHORT_1790396100": {
+    "symbol": "BP_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790396100,
+    "last_sent": 1790402682
+  },
+  "LYN_USDT_15m_SHORT_1790389800": {
+    "symbol": "LYN_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790389800,
+    "last_sent": 1790402682
+  },
+  "SAGA_USDT_15m_LONG_1790393400": {
+    "symbol": "SAGA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790393400,
+    "last_sent": 1790402682
   }
 }
