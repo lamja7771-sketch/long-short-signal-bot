@@ -1859,6 +1859,13 @@
     "timeframe": "4h",
     "direction": "SHORT",
     "bos_timestamp": 1790179200,
-    "last_sent": 1790376512
+    "last_sent": 1790384367
+  },
+  "SHROOM_USDT_15m_SHORT_1790364600": {
+    "symbol": "SHROOM_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790364600,
+    "last_sent": 1790384367
   }
 }
