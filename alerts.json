@@ -1909,5 +1909,12 @@
     "direction": "LONG",
     "bos_timestamp": 1790337600,
     "last_sent": 1790447683
+  },
+  "RARE_USDT_15m_SHORT_1790464500": {
+    "symbol": "RARE_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790464500,
+    "last_sent": 1790466790
   }
 }
