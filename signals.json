@@ -10649,5 +10649,33 @@
     "last_candle_close": 0.000353,
     "alert_type": "NEW BOS",
     "sent_at": 1790475302
+  },
+  {
+    "symbol": "SHROOM_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "entry": 0.02014,
+    "stop_loss": 0.02124,
+    "tp1": 0.019133,
+    "tp2": 0.018126000000000003,
+    "tp3": 0.018572666329208287,
+    "sma50": 0.0228226,
+    "ema20": 0.02043731564265303,
+    "ema200": 0.018572666329208287,
+    "gap_percent": 22.88273312759653,
+    "price_gap_ratio": 0.6312098512116922,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.02095,
+    "bos_timestamp": 1790445600,
+    "bos_candle_timestamp": 1790445600,
+    "bos_open": 0.02124,
+    "bos_high": 0.02124,
+    "bos_low": 0.02049,
+    "bos_close": 0.02071,
+    "swing_timestamp": 1790391600,
+    "last_candle_timestamp": 1790492400,
+    "last_candle_close": 0.01979,
+    "alert_type": "NEW BOS",
+    "sent_at": 1790497213
   }
 ]
