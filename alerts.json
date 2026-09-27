@@ -1937,5 +1937,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1790506800,
     "last_sent": 1790518115
+  },
+  "BP_USDT_15m_SHORT_1790519400": {
+    "symbol": "BP_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790519400,
+    "last_sent": 1790533394
   }
 }
