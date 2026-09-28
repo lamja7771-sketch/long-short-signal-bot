@@ -1972,5 +1972,26 @@
     "direction": "LONG",
     "bos_timestamp": 1790548200,
     "last_sent": 1790569934
+  },
+  "GP_USDT_15m_LONG_1790582400": {
+    "symbol": "GP_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790582400,
+    "last_sent": 1790594078
+  },
+  "ARK_USDT_1h_SHORT_1790553600": {
+    "symbol": "ARK_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1790553600,
+    "last_sent": 1790594078
+  },
+  "SAGA_USDT_15m_LONG_1790577000": {
+    "symbol": "SAGA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790577000,
+    "last_sent": 1790594078
   }
 }
