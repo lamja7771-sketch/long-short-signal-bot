@@ -10929,5 +10929,33 @@
     "last_candle_close": 0.02652,
     "alert_type": "NEW BOS",
     "sent_at": 1790594078
+  },
+  {
+    "symbol": "AGRIPPA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "entry": 4.316e-05,
+    "stop_loss": 3.663e-05,
+    "tp1": 4.5318e-05,
+    "tp2": 4.7476000000000004e-05,
+    "tp3": 4.7415653923585134e-05,
+    "sma50": 3.82466e-05,
+    "ema20": 4.304169715503844e-05,
+    "ema200": 4.7415653923585134e-05,
+    "gap_percent": 23.973513785761696,
+    "price_gap_ratio": 0.5358677177545534,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 4.151e-05,
+    "bos_timestamp": 1790611200,
+    "bos_candle_timestamp": 1790611200,
+    "bos_open": 3.707e-05,
+    "bos_high": 4.207e-05,
+    "bos_low": 3.663e-05,
+    "bos_close": 4.207e-05,
+    "swing_timestamp": 1790600400,
+    "last_candle_timestamp": 1790619300,
+    "last_candle_close": 4.474e-05,
+    "alert_type": "NEW BOS",
+    "sent_at": 1790620828
   }
 ]

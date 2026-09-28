@@ -1993,5 +1993,12 @@
     "direction": "LONG",
     "bos_timestamp": 1790577000,
     "last_sent": 1790594078
+  },
+  "AGRIPPA_USDT_15m_LONG_1790611200": {
+    "symbol": "AGRIPPA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790611200,
+    "last_sent": 1790620828
   }
 }
