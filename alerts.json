@@ -2000,5 +2000,12 @@
     "direction": "LONG",
     "bos_timestamp": 1790611200,
     "last_sent": 1790620828
+  },
+  "BP_USDT_1h_SHORT_1790550000": {
+    "symbol": "BP_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1790550000,
+    "last_sent": 1790638429
   }
 }
