@@ -1951,5 +1951,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1790519400,
     "last_sent": 1790544793
+  },
+  "ORBIO_USDT_15m_SHORT_1790562600": {
+    "symbol": "ORBIO_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790562600,
+    "last_sent": 1790569934
+  },
+  "SPACEHOOD_USDT_15m_LONG_1790555400": {
+    "symbol": "SPACEHOOD_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790555400,
+    "last_sent": 1790569934
+  },
+  "MONITOR_USDT_15m_LONG_1790548200": {
+    "symbol": "MONITOR_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790548200,
+    "last_sent": 1790569934
   }
 }
