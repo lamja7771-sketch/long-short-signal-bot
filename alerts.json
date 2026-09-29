@@ -2007,5 +2007,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1790550000,
     "last_sent": 1790638429
+  },
+  "HBAR_USDT_15m_SHORT_1790648100": {
+    "symbol": "HBAR_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790648100,
+    "last_sent": 1790649927
+  },
+  "QNT_USDT_15m_SHORT_1790634600": {
+    "symbol": "QNT_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790634600,
+    "last_sent": 1790649927
   }
 }
