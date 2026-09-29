@@ -2028,5 +2028,12 @@
     "direction": "LONG",
     "bos_timestamp": 1790646300,
     "last_sent": 1790672935
+  },
+  "STAMP_USDT_1h_LONG_1790683200": {
+    "symbol": "STAMP_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1790683200,
+    "last_sent": 1790725775
   }
 }
