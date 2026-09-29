@@ -2021,5 +2021,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1790634600,
     "last_sent": 1790649927
+  },
+  "UP_USDT_15m_LONG_1790646300": {
+    "symbol": "UP_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790646300,
+    "last_sent": 1790672935
   }
 }
