@@ -2063,5 +2063,12 @@
     "direction": "LONG",
     "bos_timestamp": 1790793000,
     "last_sent": 1790813035
+  },
+  "COOL_USDT_15m_LONG_1790846100": {
+    "symbol": "COOL_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790846100,
+    "last_sent": 1790855644
   }
 }
