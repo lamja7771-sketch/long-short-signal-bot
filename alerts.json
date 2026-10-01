@@ -2056,5 +2056,12 @@
     "direction": "LONG",
     "bos_timestamp": 1790754300,
     "last_sent": 1790758770
+  },
+  "GSTOCKBSC_USDT_15m_LONG_1790793000": {
+    "symbol": "GSTOCKBSC_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790793000,
+    "last_sent": 1790813035
   }
 }
