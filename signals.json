@@ -11461,5 +11461,33 @@
     "last_candle_close": 0.015514,
     "alert_type": "NEW BOS",
     "sent_at": 1790950120
+  },
+  {
+    "symbol": "NIL_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "entry": 0.08288,
+    "stop_loss": 0.10774,
+    "tp1": 0.07873599999999999,
+    "tp2": 0.07459199999999999,
+    "tp3": 0.06946909945766061,
+    "sma50": 0.09552160000000001,
+    "ema20": 0.08448561976006072,
+    "ema200": 0.06946909945766061,
+    "gap_percent": 37.50228626213536,
+    "price_gap_ratio": 0.4852355718966566,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.10262,
+    "bos_timestamp": 1790438400,
+    "bos_candle_timestamp": 1790438400,
+    "bos_open": 0.10763,
+    "bos_high": 0.10774,
+    "bos_low": 0.10075,
+    "bos_close": 0.10158,
+    "swing_timestamp": 1790308800,
+    "last_candle_timestamp": 1790956800,
+    "last_candle_close": 0.07999,
+    "alert_type": "HOURLY BOS REPEAT",
+    "sent_at": 1790982462
   }
 ]
