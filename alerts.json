@@ -2084,5 +2084,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1790889300,
     "last_sent": 1790905167
+  },
+  "QNT_USDT_1h_SHORT_1790920800": {
+    "symbol": "QNT_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1790920800,
+    "last_sent": 1790950120
+  },
+  "GP_USDT_15m_LONG_1790917200": {
+    "symbol": "GP_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1790917200,
+    "last_sent": 1790950120
+  },
+  "EACC_USDT_15m_SHORT_1790942400": {
+    "symbol": "EACC_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1790942400,
+    "last_sent": 1790950120
   }
 }
