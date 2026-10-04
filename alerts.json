@@ -2140,5 +2140,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1791103500,
     "last_sent": 1791120664
+  },
+  "BEAMX_USDT_15m_SHORT_1791140400": {
+    "symbol": "BEAMX_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791140400,
+    "last_sent": 1791145967
+  },
+  "STAMP_USDT_15m_LONG_1791125100": {
+    "symbol": "STAMP_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1791125100,
+    "last_sent": 1791145967
   }
 }
