@@ -11685,5 +11685,33 @@
     "last_candle_close": 1.886,
     "alert_type": "HOURLY BOS REPEAT",
     "sent_at": 1791078882
+  },
+  {
+    "symbol": "ARK_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "entry": 0.2231,
+    "stop_loss": 0.2298,
+    "tp1": 0.211945,
+    "tp2": 0.20079,
+    "tp3": 0.17878898467867888,
+    "sma50": 0.245152,
+    "ema20": 0.2270932258123548,
+    "ema200": 0.17878898467867888,
+    "gap_percent": 37.11806711167879,
+    "price_gap_ratio": 0.3322935206187827,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.226,
+    "bos_timestamp": 1790913600,
+    "bos_candle_timestamp": 1790913600,
+    "bos_open": 0.2274,
+    "bos_high": 0.2298,
+    "bos_low": 0.2133,
+    "bos_close": 0.2162,
+    "swing_timestamp": 1790553600,
+    "last_candle_timestamp": 1791072000,
+    "last_candle_close": 0.2213,
+    "alert_type": "HOURLY BOS REPEAT",
+    "sent_at": 1791099617
   }
 ]
