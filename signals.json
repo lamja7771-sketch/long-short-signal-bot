@@ -11797,5 +11797,33 @@
     "last_candle_close": 0.00034,
     "alert_type": "NEW BOS",
     "sent_at": 1791145967
+  },
+  {
+    "symbol": "BEAMX_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "entry": 0.002556,
+    "stop_loss": 0.002589,
+    "tp1": 0.0024282,
+    "tp2": 0.0023004,
+    "tp3": 0.0023814464399476314,
+    "sma50": 0.00263562,
+    "ema20": 0.002571966616093235,
+    "ema200": 0.0023814464399476314,
+    "gap_percent": 10.673074808180774,
+    "price_gap_ratio": 0.31325052056396185,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.002536,
+    "bos_timestamp": 1791150300,
+    "bos_candle_timestamp": 1791150300,
+    "bos_open": 0.002589,
+    "bos_high": 0.002589,
+    "bos_low": 0.002511,
+    "bos_close": 0.002527,
+    "swing_timestamp": 1791141300,
+    "last_candle_timestamp": 1791155700,
+    "last_candle_close": 0.002547,
+    "alert_type": "NEW BOS",
+    "sent_at": 1791156963
   }
 ]
