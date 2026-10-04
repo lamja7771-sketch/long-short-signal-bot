@@ -2133,5 +2133,12 @@
     "direction": "LONG",
     "bos_timestamp": 1791063000,
     "last_sent": 1791066535
+  },
+  "POD_USDT_15m_SHORT_1791103500": {
+    "symbol": "POD_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791103500,
+    "last_sent": 1791120664
   }
 }
