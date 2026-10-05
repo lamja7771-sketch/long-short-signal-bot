@@ -2175,5 +2175,19 @@
     "direction": "LONG",
     "bos_timestamp": 1791159300,
     "last_sent": 1791167086
+  },
+  "ZCAT_USDT_1h_LONG_1791097200": {
+    "symbol": "ZCAT_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1791097200,
+    "last_sent": 1791192388
+  },
+  "NIGHT_USDT_1h_SHORT_1791129600": {
+    "symbol": "NIGHT_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1791129600,
+    "last_sent": 1791192388
   }
 }
