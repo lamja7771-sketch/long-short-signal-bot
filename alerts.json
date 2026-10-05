@@ -2161,5 +2161,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1791150300,
     "last_sent": 1791156963
+  },
+  "GIGGLEMAX_USDT_15m_SHORT_1791158400": {
+    "symbol": "GIGGLEMAX_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791158400,
+    "last_sent": 1791167086
+  },
+  "SPACEHOOD_USDT_15m_LONG_1791159300": {
+    "symbol": "SPACEHOOD_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1791159300,
+    "last_sent": 1791167086
   }
 }
