@@ -2189,5 +2189,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1791129600,
     "last_sent": 1791192388
+  },
+  "COLLECT_USDT_4h_LONG_1791043200": {
+    "symbol": "COLLECT_USDT",
+    "timeframe": "4h",
+    "direction": "LONG",
+    "bos_timestamp": 1791043200,
+    "last_sent": 1791226028
   }
 }
