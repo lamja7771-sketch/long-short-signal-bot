@@ -2195,7 +2195,7 @@
     "timeframe": "4h",
     "direction": "LONG",
     "bos_timestamp": 1791043200,
-    "last_sent": 1791268978
+    "last_sent": 1791294080
   },
   "PAIR_USDT_1h_LONG_1791216000": {
     "symbol": "PAIR_USDT",
@@ -2203,5 +2203,12 @@
     "direction": "LONG",
     "bos_timestamp": 1791216000,
     "last_sent": 1791268978
+  },
+  "SI_USDT_15m_LONG_1791264600": {
+    "symbol": "SI_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1791264600,
+    "last_sent": 1791294080
   }
 }
