@@ -2238,5 +2238,19 @@
     "direction": "LONG",
     "bos_timestamp": 1791332100,
     "last_sent": 1791339643
+  },
+  "龙虾_USDT_1h_LONG_1791313200": {
+    "symbol": "龙虾_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1791313200,
+    "last_sent": 1791363478
+  },
+  "ORCA_USDT_15m_SHORT_1791348300": {
+    "symbol": "ORCA_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791348300,
+    "last_sent": 1791363478
   }
 }
