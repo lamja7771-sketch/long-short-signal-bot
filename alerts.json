@@ -2224,5 +2224,19 @@
     "direction": "LONG",
     "bos_timestamp": 1791299700,
     "last_sent": 1791313704
+  },
+  "BR_USDT_1h_LONG_1791270000": {
+    "symbol": "BR_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1791270000,
+    "last_sent": 1791339643
+  },
+  "TOLLY_USDT_15m_LONG_1791332100": {
+    "symbol": "TOLLY_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1791332100,
+    "last_sent": 1791339643
   }
 }
