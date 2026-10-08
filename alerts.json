@@ -2259,5 +2259,12 @@
     "direction": "LONG",
     "bos_timestamp": 1791390600,
     "last_sent": 1791421742
+  },
+  "SOON_USDT_4h_SHORT_1791302400": {
+    "symbol": "SOON_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "bos_timestamp": 1791302400,
+    "last_sent": 1791470821
   }
 }
