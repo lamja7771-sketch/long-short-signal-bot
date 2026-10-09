@@ -2308,5 +2308,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1791532800,
     "last_sent": 1791553662
+  },
+  "RLC_USDT_15m_SHORT_1791558900": {
+    "symbol": "RLC_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791558900,
+    "last_sent": 1791572738
   }
 }
