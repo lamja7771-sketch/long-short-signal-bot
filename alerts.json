@@ -2315,5 +2315,19 @@
     "direction": "SHORT",
     "bos_timestamp": 1791558900,
     "last_sent": 1791572738
+  },
+  "FLYBRAIN_USDT_1h_LONG_1791453600": {
+    "symbol": "FLYBRAIN_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1791453600,
+    "last_sent": 1791587749
+  },
+  "AGRIPPA_USDT_15m_LONG_1791583200": {
+    "symbol": "AGRIPPA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1791583200,
+    "last_sent": 1791587749
   }
 }
