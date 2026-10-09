@@ -2294,5 +2294,19 @@
     "direction": "LONG",
     "bos_timestamp": 1791497700,
     "last_sent": 1791527909
+  },
+  "MONITOR_USDT_1h_LONG_1791464400": {
+    "symbol": "MONITOR_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1791464400,
+    "last_sent": 1791553662
+  },
+  "OGN_USDT_15m_SHORT_1791532800": {
+    "symbol": "OGN_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791532800,
+    "last_sent": 1791553662
   }
 }
