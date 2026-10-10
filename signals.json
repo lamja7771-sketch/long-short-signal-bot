@@ -12693,5 +12693,33 @@
     "last_candle_close": 0.10882,
     "alert_type": "NEW BOS",
     "sent_at": 1791643980
+  },
+  {
+    "symbol": "ORBIO_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 0.05948,
+    "stop_loss": 0.05938,
+    "tp1": 0.062454,
+    "tp2": 0.065428,
+    "tp3": 0.06258123662775512,
+    "sma50": 0.051456,
+    "ema20": 0.05951082389220832,
+    "ema200": 0.06258123662775512,
+    "gap_percent": 21.620873421476837,
+    "price_gap_ratio": 0.7212430861903473,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.06367,
+    "bos_timestamp": 1791630000,
+    "bos_candle_timestamp": 1791630000,
+    "bos_open": 0.06059,
+    "bos_high": 0.06861,
+    "bos_low": 0.05938,
+    "bos_close": 0.0659,
+    "swing_timestamp": 1791601200,
+    "last_candle_timestamp": 1791655200,
+    "last_candle_close": 0.05948,
+    "alert_type": "NEW BOS",
+    "sent_at": 1791659004
   }
 ]
