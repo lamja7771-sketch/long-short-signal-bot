@@ -12581,5 +12581,33 @@
     "last_candle_close": 6.76e-06,
     "alert_type": "NEW BOS",
     "sent_at": 1791587749
+  },
+  {
+    "symbol": "FLORK_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 0.004555,
+    "stop_loss": 0.004151,
+    "tp1": 0.0047827500000000005,
+    "tp2": 0.0050105,
+    "tp3": 0.005124727320974235,
+    "sma50": 0.0041976999999999995,
+    "ema20": 0.0045566092286380075,
+    "ema200": 0.005124727320974235,
+    "gap_percent": 22.084172784482824,
+    "price_gap_ratio": 0.38542553376367084,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.004197,
+    "bos_timestamp": 1791543600,
+    "bos_candle_timestamp": 1791543600,
+    "bos_open": 0.004182,
+    "bos_high": 0.005193,
+    "bos_low": 0.004151,
+    "bos_close": 0.004829,
+    "swing_timestamp": 1791514800,
+    "last_candle_timestamp": 1791594000,
+    "last_candle_close": 0.004629,
+    "alert_type": "NEW BOS",
+    "sent_at": 1791599228
   }
 ]

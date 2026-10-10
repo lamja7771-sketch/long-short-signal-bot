@@ -2329,5 +2329,12 @@
     "direction": "LONG",
     "bos_timestamp": 1791583200,
     "last_sent": 1791587749
+  },
+  "FLORK_USDT_1h_LONG_1791543600": {
+    "symbol": "FLORK_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1791543600,
+    "last_sent": 1791599228
   }
 }
