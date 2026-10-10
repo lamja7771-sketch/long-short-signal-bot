@@ -2350,5 +2350,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1791603900,
     "last_sent": 1791622217
+  },
+  "MAGIC_USDT_15m_SHORT_1791616500": {
+    "symbol": "MAGIC_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791616500,
+    "last_sent": 1791643980
   }
 }
