@@ -12805,5 +12805,33 @@
     "last_candle_close": 0.06034,
     "alert_type": "NEW BOS",
     "sent_at": 1791671321
+  },
+  {
+    "symbol": "OGN_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "entry": 0.03504,
+    "stop_loss": 0.04645,
+    "tp1": 0.033288,
+    "tp2": 0.031536,
+    "tp3": 0.02951889174299982,
+    "sma50": 0.036522,
+    "ema20": 0.03465060958298159,
+    "ema200": 0.02951889174299982,
+    "gap_percent": 23.72415711935023,
+    "price_gap_ratio": 0.21162031852336669,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.03588,
+    "bos_timestamp": 1791619200,
+    "bos_candle_timestamp": 1791619200,
+    "bos_open": 0.03668,
+    "bos_high": 0.04645,
+    "bos_low": 0.03314,
+    "bos_close": 0.03571,
+    "swing_timestamp": 1791597600,
+    "last_candle_timestamp": 1791698400,
+    "last_candle_close": 0.0347,
+    "alert_type": "NEW BOS",
+    "sent_at": 1791703082
   }
 ]

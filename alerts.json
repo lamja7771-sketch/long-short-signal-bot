@@ -2385,5 +2385,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1791647100,
     "last_sent": 1791671321
+  },
+  "OGN_USDT_1h_SHORT_1791619200": {
+    "symbol": "OGN_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1791619200,
+    "last_sent": 1791703082
   }
 }
