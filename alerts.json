@@ -2420,5 +2420,12 @@
     "direction": "LONG",
     "bos_timestamp": 1791758700,
     "last_sent": 1791769909
+  },
+  "GIGGLEMAX_USDT_15m_SHORT_1791835200": {
+    "symbol": "GIGGLEMAX_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791835200,
+    "last_sent": 1791850644
   }
 }
