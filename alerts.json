@@ -2448,5 +2448,19 @@
     "direction": "LONG",
     "bos_timestamp": 1791876600,
     "last_sent": 1791903046
+  },
+  "BAT_USDT_15m_SHORT_1791945000": {
+    "symbol": "BAT_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1791945000,
+    "last_sent": 1791964134
+  },
+  "BONER_USDT_15m_LONG_1791935100": {
+    "symbol": "BONER_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1791935100,
+    "last_sent": 1791964134
   }
 }
