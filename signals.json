@@ -13141,5 +13141,33 @@
     "last_candle_close": 0.02794,
     "alert_type": "NEW BOS",
     "sent_at": 1791964134
+  },
+  {
+    "symbol": "JUGGERNAUT_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "entry": 0.004519,
+    "stop_loss": 0.004624,
+    "tp1": 0.00429305,
+    "tp2": 0.0040671,
+    "tp3": 0.004203463376037902,
+    "sma50": 0.00465134,
+    "ema20": 0.00460052472582643,
+    "ema200": 0.004203463376037902,
+    "gap_percent": 10.654942933849401,
+    "price_gap_ratio": 0.29548315969087097,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.004584,
+    "bos_timestamp": 1791972900,
+    "bos_candle_timestamp": 1791972900,
+    "bos_open": 0.004622,
+    "bos_high": 0.004624,
+    "bos_low": 0.00453,
+    "bos_close": 0.00453,
+    "swing_timestamp": 1791963000,
+    "last_candle_timestamp": 1791981900,
+    "last_candle_close": 0.004519,
+    "alert_type": "NEW BOS",
+    "sent_at": 1791983382
   }
 ]
