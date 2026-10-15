@@ -2497,5 +2497,54 @@
     "direction": "LONG",
     "bos_timestamp": 1792016100,
     "last_sent": 1792038864
+  },
+  "ARC_USDT_1h_LONG_1792047600": {
+    "symbol": "ARC_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792047600,
+    "last_sent": 1792088817
+  },
+  "CSOPSKHYNIX2L_USDT_15m_LONG_1792067400": {
+    "symbol": "CSOPSKHYNIX2L_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792067400,
+    "last_sent": 1792088817
+  },
+  "CSOPSAMSUNG2L_USDT_15m_LONG_1792071000": {
+    "symbol": "CSOPSAMSUNG2L_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792071000,
+    "last_sent": 1792088817
+  },
+  "4STOCK_USDT_15m_LONG_1792075500": {
+    "symbol": "4STOCK_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792075500,
+    "last_sent": 1792088817
+  },
+  "SKUU_USDT_15m_LONG_1792071000": {
+    "symbol": "SKUU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792071000,
+    "last_sent": 1792088817
+  },
+  "RAM_USDT_15m_LONG_1792074600": {
+    "symbol": "RAM_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792074600,
+    "last_sent": 1792088817
+  },
+  "BREW_USDT_15m_LONG_1792079100": {
+    "symbol": "BREW_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792079100,
+    "last_sent": 1792088817
   }
 }
