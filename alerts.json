@@ -2503,7 +2503,7 @@
     "timeframe": "1h",
     "direction": "LONG",
     "bos_timestamp": 1792047600,
-    "last_sent": 1792100451
+    "last_sent": 1792108550
   },
   "CSOPSKHYNIX2L_USDT_15m_LONG_1792067400": {
     "symbol": "CSOPSKHYNIX2L_USDT",
@@ -2552,7 +2552,7 @@
     "timeframe": "15m",
     "direction": "LONG",
     "bos_timestamp": 1792074600,
-    "last_sent": 1792100451
+    "last_sent": 1792108550
   },
   "GSTOCKBSC_USDT_15m_LONG_1792080000": {
     "symbol": "GSTOCKBSC_USDT",
@@ -2574,5 +2574,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792090800,
     "last_sent": 1792100451
+  },
+  "BONER_USDT_15m_LONG_1792077300": {
+    "symbol": "BONER_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792077300,
+    "last_sent": 1792108550
   }
 }
