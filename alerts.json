@@ -2503,14 +2503,14 @@
     "timeframe": "1h",
     "direction": "LONG",
     "bos_timestamp": 1792047600,
-    "last_sent": 1792088817
+    "last_sent": 1792100451
   },
   "CSOPSKHYNIX2L_USDT_15m_LONG_1792067400": {
     "symbol": "CSOPSKHYNIX2L_USDT",
     "timeframe": "15m",
     "direction": "LONG",
     "bos_timestamp": 1792067400,
-    "last_sent": 1792088817
+    "last_sent": 1792100451
   },
   "CSOPSAMSUNG2L_USDT_15m_LONG_1792071000": {
     "symbol": "CSOPSAMSUNG2L_USDT",
@@ -2546,5 +2546,33 @@
     "direction": "LONG",
     "bos_timestamp": 1792079100,
     "last_sent": 1792088817
+  },
+  "ORBIO_USDT_15m_LONG_1792074600": {
+    "symbol": "ORBIO_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792074600,
+    "last_sent": 1792100451
+  },
+  "GSTOCKBSC_USDT_15m_LONG_1792080000": {
+    "symbol": "GSTOCKBSC_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792080000,
+    "last_sent": 1792100451
+  },
+  "CHIP_USDT_15m_LONG_1792074600": {
+    "symbol": "CHIP_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792074600,
+    "last_sent": 1792100451
+  },
+  "KORU_USDT_15m_LONG_1792090800": {
+    "symbol": "KORU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792090800,
+    "last_sent": 1792100451
   }
 }
