@@ -2581,5 +2581,33 @@
     "direction": "LONG",
     "bos_timestamp": 1792077300,
     "last_sent": 1792108550
+  },
+  "SI_USDT_1h_LONG_1792083600": {
+    "symbol": "SI_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792083600,
+    "last_sent": 1792137848
+  },
+  "ZZZ_USDT_15m_SHORT_1792115100": {
+    "symbol": "ZZZ_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1792115100,
+    "last_sent": 1792137848
+  },
+  "ALLINU_USDT_15m_SHORT_1792107900": {
+    "symbol": "ALLINU_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1792107900,
+    "last_sent": 1792137848
+  },
+  "SI_USDT_15m_SHORT_1792116900": {
+    "symbol": "SI_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1792116900,
+    "last_sent": 1792137848
   }
 }
