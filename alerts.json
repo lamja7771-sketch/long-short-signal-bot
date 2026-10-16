@@ -2609,5 +2609,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1792116900,
     "last_sent": 1792137848
+  },
+  "GP_USDT_1h_LONG_1792087200": {
+    "symbol": "GP_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792087200,
+    "last_sent": 1792156502
   }
 }
