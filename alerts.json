@@ -2630,5 +2630,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792148400,
     "last_sent": 1792198387
+  },
+  "BONER_USDT_15m_LONG_1792207800": {
+    "symbol": "BONER_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792207800,
+    "last_sent": 1792229042
   }
 }
