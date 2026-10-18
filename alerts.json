@@ -2651,5 +2651,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792209600,
     "last_sent": 1792285106
+  },
+  "AEON_USDT_1h_LONG_1792252800": {
+    "symbol": "AEON_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792252800,
+    "last_sent": 1792317362
   }
 }

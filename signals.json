@@ -14149,5 +14149,33 @@
     "last_candle_close": 0.0004133,
     "alert_type": "HOURLY BOS REPEAT",
     "sent_at": 1792285106
+  },
+  {
+    "symbol": "AEON_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 0.03961,
+    "stop_loss": 0.03795,
+    "tp1": 0.0415905,
+    "tp2": 0.043571000000000006,
+    "tp3": 0.04564920486914626,
+    "sma50": 0.0380152,
+    "ema20": 0.03904505092528534,
+    "ema200": 0.04564920486914626,
+    "gap_percent": 20.081453916186845,
+    "price_gap_ratio": 0.20890738574788892,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.03885,
+    "bos_timestamp": 1792252800,
+    "bos_candle_timestamp": 1792252800,
+    "bos_open": 0.03795,
+    "bos_high": 0.03993,
+    "bos_low": 0.03795,
+    "bos_close": 0.0396,
+    "swing_timestamp": 1792198800,
+    "last_candle_timestamp": 1792310400,
+    "last_candle_close": 0.0396,
+    "alert_type": "NEW BOS",
+    "sent_at": 1792317362
   }
 ]
