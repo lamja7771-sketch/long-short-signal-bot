@@ -2707,5 +2707,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792365300,
     "last_sent": 1792393244
+  },
+  "CSOPSKHYNIX2L_USDT_1h_LONG_1792360800": {
+    "symbol": "CSOPSKHYNIX2L_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792360800,
+    "last_sent": 1792440821
   }
 }
