@@ -14401,5 +14401,33 @@
     "last_candle_close": 2.465,
     "alert_type": "NEW BOS",
     "sent_at": 1792440821
+  },
+  {
+    "symbol": "CSOPSKHYNIX2L_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 2.475,
+    "stop_loss": 2.205,
+    "tp1": 2.5987500000000003,
+    "tp2": 2.7225,
+    "tp3": 2.8612280498686973,
+    "sma50": 2.30462,
+    "ema20": 2.4463651059280553,
+    "ema200": 2.8612280498686973,
+    "gap_percent": 24.151836305711893,
+    "price_gap_ratio": 0.3061040889368964,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 2.242,
+    "bos_timestamp": 1792360800,
+    "bos_candle_timestamp": 1792360800,
+    "bos_open": 2.205,
+    "bos_high": 2.293,
+    "bos_low": 2.205,
+    "bos_close": 2.267,
+    "swing_timestamp": 1792314000,
+    "last_candle_timestamp": 1792447200,
+    "last_candle_close": 2.501,
+    "alert_type": "HOURLY BOS REPEAT",
+    "sent_at": 1792453675
   }
 ]
