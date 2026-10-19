@@ -2686,5 +2686,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1792356300,
     "last_sent": 1792374535
+  },
+  "ARIA_USDT_15m_SHORT_1792377900": {
+    "symbol": "ARIA_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1792377900,
+    "last_sent": 1792393244
+  },
+  "EACC_USDT_15m_LONG_1792378800": {
+    "symbol": "EACC_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792378800,
+    "last_sent": 1792393244
+  },
+  "HOOKR_USDT_15m_LONG_1792365300": {
+    "symbol": "HOOKR_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792365300,
+    "last_sent": 1792393244
   }
 }
