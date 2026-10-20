@@ -2714,5 +2714,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792360800,
     "last_sent": 1792453675
+  },
+  "ARGUS_USDT_1h_LONG_1792411200": {
+    "symbol": "ARGUS_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792411200,
+    "last_sent": 1792462390
   }
 }

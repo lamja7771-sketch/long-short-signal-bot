@@ -14429,5 +14429,33 @@
     "last_candle_close": 2.501,
     "alert_type": "HOURLY BOS REPEAT",
     "sent_at": 1792453675
+  },
+  {
+    "symbol": "ARGUS_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 0.00684,
+    "stop_loss": 0.00607,
+    "tp1": 0.007182,
+    "tp2": 0.007524,
+    "tp3": 0.008109534835747372,
+    "sma50": 0.006514600000000001,
+    "ema20": 0.006738056564159506,
+    "ema200": 0.008109534835747372,
+    "gap_percent": 24.48246762268399,
+    "price_gap_ratio": 0.20402087452527157,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.00714,
+    "bos_timestamp": 1792411200,
+    "bos_candle_timestamp": 1792411200,
+    "bos_open": 0.00607,
+    "bos_high": 0.00779,
+    "bos_low": 0.00607,
+    "bos_close": 0.00768,
+    "swing_timestamp": 1792324800,
+    "last_candle_timestamp": 1792458000,
+    "last_candle_close": 0.00692,
+    "alert_type": "NEW BOS",
+    "sent_at": 1792462390
   }
 ]
