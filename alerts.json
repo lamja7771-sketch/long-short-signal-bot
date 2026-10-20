@@ -2721,5 +2721,26 @@
     "direction": "LONG",
     "bos_timestamp": 1792411200,
     "last_sent": 1792462390
+  },
+  "PAID_USDT_1h_LONG_1792418400": {
+    "symbol": "PAID_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792418400,
+    "last_sent": 1792481894
+  },
+  "GSTOCKBSC_USDT_1h_LONG_1792393200": {
+    "symbol": "GSTOCKBSC_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792393200,
+    "last_sent": 1792481894
+  },
+  "SIREN_USDT_15m_LONG_1792466100": {
+    "symbol": "SIREN_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792466100,
+    "last_sent": 1792481894
   }
 }
