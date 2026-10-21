@@ -2742,5 +2742,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792466100,
     "last_sent": 1792481894
+  },
+  "BR_USDT_15m_SHORT_1792535400": {
+    "symbol": "BR_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1792535400,
+    "last_sent": 1792540951
   }
 }
