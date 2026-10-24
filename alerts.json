@@ -2847,5 +2847,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1792807200,
     "last_sent": 1792821248
+  },
+  "SPACEHOOD_USDT_15m_LONG_1792837800": {
+    "symbol": "SPACEHOOD_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792837800,
+    "last_sent": 1792850403
   }
 }
