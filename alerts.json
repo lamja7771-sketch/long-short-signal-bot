@@ -2861,5 +2861,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1792850400,
     "last_sent": 1792870720
+  },
+  "MAGMA_USDT_15m_LONG_1792851300": {
+    "symbol": "MAGMA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792851300,
+    "last_sent": 1792878898
   }
 }

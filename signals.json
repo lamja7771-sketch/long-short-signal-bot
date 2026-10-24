@@ -15073,5 +15073,33 @@
     "last_candle_close": 0.0444,
     "alert_type": "NEW BOS",
     "sent_at": 1792870720
+  },
+  {
+    "symbol": "MAGMA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "entry": 0.35933,
+    "stop_loss": 0.3023,
+    "tp1": 0.3772965,
+    "tp2": 0.39526300000000003,
+    "tp3": 0.371852509430486,
+    "sma50": 0.3342498,
+    "ema20": 0.3662629894906433,
+    "ema200": 0.371852509430486,
+    "gap_percent": 11.249882402468451,
+    "price_gap_ratio": 0.6669785337241283,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.32,
+    "bos_timestamp": 1792851300,
+    "bos_candle_timestamp": 1792851300,
+    "bos_open": 0.30783,
+    "bos_high": 0.35928,
+    "bos_low": 0.3023,
+    "bos_close": 0.3536,
+    "swing_timestamp": 1792842300,
+    "last_candle_timestamp": 1792877400,
+    "last_candle_close": 0.35795,
+    "alert_type": "NEW BOS",
+    "sent_at": 1792878898
   }
 ]
