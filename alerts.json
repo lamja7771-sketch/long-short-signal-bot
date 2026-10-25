@@ -2868,5 +2868,19 @@
     "direction": "LONG",
     "bos_timestamp": 1792851300,
     "last_sent": 1792878898
+  },
+  "HOOKR_USDT_15m_LONG_1792870200": {
+    "symbol": "HOOKR_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792870200,
+    "last_sent": 1792886475
+  },
+  "BATON_USDT_15m_LONG_1792870200": {
+    "symbol": "BATON_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792870200,
+    "last_sent": 1792886475
   }
 }
