@@ -2903,5 +2903,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1792916100,
     "last_sent": 1792936227
+  },
+  "AGENCY_USDT_15m_SHORT_1792941300": {
+    "symbol": "AGENCY_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1792941300,
+    "last_sent": 1792957766
   }
 }
