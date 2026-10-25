@@ -2896,5 +2896,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792896300,
     "last_sent": 1792902662
+  },
+  "MICRODUCK_USDT_15m_SHORT_1792916100": {
+    "symbol": "MICRODUCK_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1792916100,
+    "last_sent": 1792936227
   }
 }
