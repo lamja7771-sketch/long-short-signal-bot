@@ -2938,5 +2938,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792975500,
     "last_sent": 1792991045
+  },
+  "AINVDA_USDT_1h_LONG_1792926000": {
+    "symbol": "AINVDA_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792926000,
+    "last_sent": 1793012526
   }
 }
