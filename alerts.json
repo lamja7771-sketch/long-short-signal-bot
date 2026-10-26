@@ -2945,5 +2945,12 @@
     "direction": "LONG",
     "bos_timestamp": 1792926000,
     "last_sent": 1793012526
+  },
+  "Q_USDT_4h_SHORT_1792929600": {
+    "symbol": "Q_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "bos_timestamp": 1792929600,
+    "last_sent": 1793035228
   }
 }
