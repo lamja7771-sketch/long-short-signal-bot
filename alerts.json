@@ -2924,5 +2924,19 @@
     "direction": "LONG",
     "bos_timestamp": 1792944000,
     "last_sent": 1792974063
+  },
+  "ALLINU_USDT_1h_LONG_1792947600": {
+    "symbol": "ALLINU_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1792947600,
+    "last_sent": 1792991045
+  },
+  "PREDICT_USDT_15m_LONG_1792975500": {
+    "symbol": "PREDICT_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1792975500,
+    "last_sent": 1792991045
   }
 }
