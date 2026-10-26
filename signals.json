@@ -15297,5 +15297,33 @@
     "last_candle_close": 0.01016,
     "alert_type": "NEW BOS",
     "sent_at": 1792966126
+  },
+  {
+    "symbol": "SPACEHOOD_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 0.000605,
+    "stop_loss": 0.00059,
+    "tp1": 0.00063525,
+    "tp2": 0.0006655,
+    "tp3": 0.0007358530342654418,
+    "sma50": 0.00056686,
+    "ema20": 0.000606958446131082,
+    "ema200": 0.0007358530342654418,
+    "gap_percent": 29.812128967547864,
+    "price_gap_ratio": 0.22568977571047383,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.000625,
+    "bos_timestamp": 1792944000,
+    "bos_candle_timestamp": 1792944000,
+    "bos_open": 0.00059,
+    "bos_high": 0.000725,
+    "bos_low": 0.00059,
+    "bos_close": 0.000652,
+    "swing_timestamp": 1792908000,
+    "last_candle_timestamp": 1792969200,
+    "last_candle_close": 0.000644,
+    "alert_type": "NEW BOS",
+    "sent_at": 1792974063
   }
 ]
