@@ -2952,5 +2952,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1792929600,
     "last_sent": 1793035228
+  },
+  "DOOD_USDT_15m_SHORT_1793028600": {
+    "symbol": "DOOD_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1793028600,
+    "last_sent": 1793051007
+  },
+  "EWZ_USDT_15m_LONG_1793038500": {
+    "symbol": "EWZ_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793038500,
+    "last_sent": 1793051007
+  },
+  "BIRB_USDT_15m_LONG_1793044800": {
+    "symbol": "BIRB_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793044800,
+    "last_sent": 1793051007
   }
 }
