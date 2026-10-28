@@ -3001,5 +3001,19 @@
     "direction": "LONG",
     "bos_timestamp": 1793152800,
     "last_sent": 1793192763
+  },
+  "SHROOM_USDT_1h_LONG_1793149200": {
+    "symbol": "SHROOM_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1793149200,
+    "last_sent": 1793213524
+  },
+  "IRYS_USDT_15m_LONG_1793183400": {
+    "symbol": "IRYS_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793183400,
+    "last_sent": 1793213524
   }
 }
