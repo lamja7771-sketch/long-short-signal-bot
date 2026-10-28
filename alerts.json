@@ -3015,5 +3015,19 @@
     "direction": "LONG",
     "bos_timestamp": 1793183400,
     "last_sent": 1793213524
+  },
+  "FONE_USDT_1h_LONG_1793152800": {
+    "symbol": "FONE_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1793152800,
+    "last_sent": 1793228188
+  },
+  "Q_USDT_15m_LONG_1793201400": {
+    "symbol": "Q_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793201400,
+    "last_sent": 1793228188
   }
 }
