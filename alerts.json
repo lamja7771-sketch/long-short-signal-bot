@@ -3029,5 +3029,19 @@
     "direction": "LONG",
     "bos_timestamp": 1793201400,
     "last_sent": 1793228188
+  },
+  "MICRODUCK_USDT_15m_SHORT_1793255400": {
+    "symbol": "MICRODUCK_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1793255400,
+    "last_sent": 1793262632
+  },
+  "MPLX_USDT_15m_SHORT_1793253600": {
+    "symbol": "MPLX_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1793253600,
+    "last_sent": 1793262632
   }
 }
