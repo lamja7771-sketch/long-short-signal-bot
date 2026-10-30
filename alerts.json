@@ -3057,5 +3057,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1793306700,
     "last_sent": 1793319451
+  },
+  "MICRODUCK_USDT_1h_SHORT_1793304000": {
+    "symbol": "MICRODUCK_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1793304000,
+    "last_sent": 1793340181
+  },
+  "AGT_USDT_15m_LONG_1793322000": {
+    "symbol": "AGT_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793322000,
+    "last_sent": 1793340181
+  },
+  "MONITOR_USDT_15m_SHORT_1793308500": {
+    "symbol": "MONITOR_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1793308500,
+    "last_sent": 1793340181
   }
 }
