@@ -3078,5 +3078,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1793308500,
     "last_sent": 1793340181
+  },
+  "SAFE_USDT_15m_LONG_1793355300": {
+    "symbol": "SAFE_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793355300,
+    "last_sent": 1793364361
+  },
+  "ALLINU_USDT_15m_LONG_1793349000": {
+    "symbol": "ALLINU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793349000,
+    "last_sent": 1793364361
+  },
+  "PHA_USDT_15m_LONG_1793348100": {
+    "symbol": "PHA_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793348100,
+    "last_sent": 1793364361
   }
 }
