@@ -3050,5 +3050,12 @@
     "direction": "LONG",
     "bos_timestamp": 1793284200,
     "last_sent": 1793287939
+  },
+  "APR_USDT_15m_SHORT_1793306700": {
+    "symbol": "APR_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1793306700,
+    "last_sent": 1793319451
   }
 }
