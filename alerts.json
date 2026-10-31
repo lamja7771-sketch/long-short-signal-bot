@@ -3120,5 +3120,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1793385900,
     "last_sent": 1793399493
+  },
+  "BLESS_USDT_15m_LONG_1793417400": {
+    "symbol": "BLESS_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793417400,
+    "last_sent": 1793432250
   }
 }

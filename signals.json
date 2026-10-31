@@ -16109,5 +16109,33 @@
     "last_candle_close": 0.00849,
     "alert_type": "NEW BOS",
     "sent_at": 1793399493
+  },
+  {
+    "symbol": "BLESS_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "entry": 0.009953,
+    "stop_loss": 0.009649,
+    "tp1": 0.01045065,
+    "tp2": 0.010948300000000001,
+    "tp3": 0.010778323319224568,
+    "sma50": 0.0097372,
+    "ema20": 0.010076443273704813,
+    "ema200": 0.010778323319224568,
+    "gap_percent": 10.692224861608763,
+    "price_gap_ratio": 0.20727611803059875,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.010042,
+    "bos_timestamp": 1793417400,
+    "bos_candle_timestamp": 1793417400,
+    "bos_open": 0.009652,
+    "bos_high": 0.010329,
+    "bos_low": 0.009649,
+    "bos_close": 0.010103,
+    "swing_timestamp": 1793399400,
+    "last_candle_timestamp": 1793430900,
+    "last_candle_close": 0.009936,
+    "alert_type": "NEW BOS",
+    "sent_at": 1793432250
   }
 ]
