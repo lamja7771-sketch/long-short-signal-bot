@@ -3127,5 +3127,19 @@
     "direction": "LONG",
     "bos_timestamp": 1793417400,
     "last_sent": 1793432250
+  },
+  "IRYS_USDT_4h_SHORT_1792987200": {
+    "symbol": "IRYS_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "bos_timestamp": 1792987200,
+    "last_sent": 1793454920
+  },
+  "APR_USDT_1h_SHORT_1793383200": {
+    "symbol": "APR_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1793383200,
+    "last_sent": 1793454920
   }
 }
