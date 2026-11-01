@@ -3169,5 +3169,12 @@
     "direction": "LONG",
     "bos_timestamp": 1793520900,
     "last_sent": 1793541006
+  },
+  "COOL_USDT_1h_LONG_1793534400": {
+    "symbol": "COOL_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1793534400,
+    "last_sent": 1793558409
   }
 }
