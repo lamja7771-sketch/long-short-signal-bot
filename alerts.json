@@ -3176,5 +3176,19 @@
     "direction": "LONG",
     "bos_timestamp": 1793534400,
     "last_sent": 1793558409
+  },
+  "IDOL_USDT_1h_SHORT_1793617200": {
+    "symbol": "IDOL_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1793617200,
+    "last_sent": 1793668811
+  },
+  "Q_USDT_15m_LONG_1793658600": {
+    "symbol": "Q_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793658600,
+    "last_sent": 1793668811
   }
 }
