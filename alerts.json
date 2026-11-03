@@ -3190,5 +3190,33 @@
     "direction": "LONG",
     "bos_timestamp": 1793658600,
     "last_sent": 1793668811
+  },
+  "JCT_USDT_4h_SHORT_1793462400": {
+    "symbol": "JCT_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "bos_timestamp": 1793462400,
+    "last_sent": 1793692985
+  },
+  "AGT_USDT_1h_LONG_1793664000": {
+    "symbol": "AGT_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1793664000,
+    "last_sent": 1793692985
+  },
+  "MOO_USDT_15m_LONG_1793669400": {
+    "symbol": "MOO_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793669400,
+    "last_sent": 1793692985
+  },
+  "EPIC_USDT_15m_LONG_1793687400": {
+    "symbol": "EPIC_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793687400,
+    "last_sent": 1793692985
   }
 }
