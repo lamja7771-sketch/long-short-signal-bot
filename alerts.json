@@ -3232,5 +3232,19 @@
     "direction": "LONG",
     "bos_timestamp": 1793721600,
     "last_sent": 1793742506
+  },
+  "BATON_USDT_1h_LONG_1793703600": {
+    "symbol": "BATON_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1793703600,
+    "last_sent": 1793756769
+  },
+  "ICNT_USDT_15m_SHORT_1793754000": {
+    "symbol": "ICNT_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1793754000,
+    "last_sent": 1793756769
   }
 }
