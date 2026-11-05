@@ -3274,5 +3274,12 @@
     "direction": "LONG",
     "bos_timestamp": 1793792700,
     "last_sent": 1793829660
+  },
+  "UAI_USDT_15m_LONG_1793845800": {
+    "symbol": "UAI_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793845800,
+    "last_sent": 1793871685
   }
 }
