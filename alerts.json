@@ -3281,5 +3281,19 @@
     "direction": "LONG",
     "bos_timestamp": 1793845800,
     "last_sent": 1793871685
+  },
+  "MU_USDT_15m_LONG_1793930400": {
+    "symbol": "MU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793930400,
+    "last_sent": 1793934706
+  },
+  "AMD_USDT_15m_LONG_1793926800": {
+    "symbol": "AMD_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793926800,
+    "last_sent": 1793934706
   }
 }
