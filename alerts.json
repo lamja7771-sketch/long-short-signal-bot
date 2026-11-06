@@ -3295,5 +3295,68 @@
     "direction": "LONG",
     "bos_timestamp": 1793926800,
     "last_sent": 1793934706
+  },
+  "MVLL_USDT_15m_LONG_1793955600": {
+    "symbol": "MVLL_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793955600,
+    "last_sent": 1793962570
+  },
+  "CSOPSKHYNIX2L_USDT_15m_LONG_1793955600": {
+    "symbol": "CSOPSKHYNIX2L_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793955600,
+    "last_sent": 1793962570
+  },
+  "SKUU_USDT_15m_LONG_1793930400": {
+    "symbol": "SKUU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793930400,
+    "last_sent": 1793962570
+  },
+  "CSOPSAMSUNG2L_USDT_15m_LONG_1793956500": {
+    "symbol": "CSOPSAMSUNG2L_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793956500,
+    "last_sent": 1793962570
+  },
+  "AXTI_USDT_15m_LONG_1793955600": {
+    "symbol": "AXTI_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793955600,
+    "last_sent": 1793962570
+  },
+  "SAMSUNGEM_USDT_15m_LONG_1793942100": {
+    "symbol": "SAMSUNGEM_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793942100,
+    "last_sent": 1793962570
+  },
+  "INTW_USDT_15m_LONG_1793953800": {
+    "symbol": "INTW_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793953800,
+    "last_sent": 1793962570
+  },
+  "SNDK_USDT_15m_LONG_1793953800": {
+    "symbol": "SNDK_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793953800,
+    "last_sent": 1793962570
+  },
+  "AGPU_USDT_15m_LONG_1793955600": {
+    "symbol": "AGPU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1793955600,
+    "last_sent": 1793962570
   }
 }
