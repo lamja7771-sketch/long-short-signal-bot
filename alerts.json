@@ -3379,5 +3379,26 @@
     "direction": "LONG",
     "bos_timestamp": 1794024000,
     "last_sent": 1794042024
+  },
+  "GP_USDT_1h_LONG_1794006000": {
+    "symbol": "GP_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1794006000,
+    "last_sent": 1794065898
+  },
+  "LYN_USDT_15m_SHORT_1794039300": {
+    "symbol": "LYN_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1794039300,
+    "last_sent": 1794065898
+  },
+  "MONITOR_USDT_15m_LONG_1794033900": {
+    "symbol": "MONITOR_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1794033900,
+    "last_sent": 1794065898
   }
 }
