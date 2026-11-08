@@ -3435,5 +3435,19 @@
     "direction": "LONG",
     "bos_timestamp": 1793721600,
     "last_sent": 1794129550
+  },
+  "AGRIPPA_USDT_15m_SHORT_1794143700": {
+    "symbol": "AGRIPPA_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1794143700,
+    "last_sent": 1794154046
+  },
+  "MICRODUCK_USDT_15m_LONG_1794136500": {
+    "symbol": "MICRODUCK_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1794136500,
+    "last_sent": 1794154046
   }
 }
