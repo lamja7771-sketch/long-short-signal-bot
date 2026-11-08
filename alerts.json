@@ -3428,5 +3428,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1794070800,
     "last_sent": 1794104560
+  },
+  "ORBIO_USDT_4h_LONG_1793721600": {
+    "symbol": "ORBIO_USDT",
+    "timeframe": "4h",
+    "direction": "LONG",
+    "bos_timestamp": 1793721600,
+    "last_sent": 1794129550
   }
 }
