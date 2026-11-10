@@ -17677,5 +17677,33 @@
     "last_candle_close": 57.18,
     "alert_type": "NEW BOS",
     "sent_at": 1794315992
+  },
+  {
+    "symbol": "CLAUDIA_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "entry": 0.005701,
+    "stop_loss": 0.005731,
+    "tp1": 0.00541595,
+    "tp2": 0.005130900000000001,
+    "tp3": 0.004421405012499101,
+    "sma50": 0.00624838,
+    "ema20": 0.005800860071085886,
+    "ema200": 0.004421405012499101,
+    "gap_percent": 41.32114073096963,
+    "price_gap_ratio": 0.2996100131336531,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.005316,
+    "bos_timestamp": 1794326400,
+    "bos_candle_timestamp": 1794326400,
+    "bos_open": 0.0056,
+    "bos_high": 0.005731,
+    "bos_low": 0.0049,
+    "bos_close": 0.004977,
+    "swing_timestamp": 1794243600,
+    "last_candle_timestamp": 1794337200,
+    "last_candle_close": 0.004901,
+    "alert_type": "NEW BOS",
+    "sent_at": 1794342625
   }
 ]
