@@ -3512,5 +3512,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1794326400,
     "last_sent": 1794358355
+  },
+  "MUU_USDT_15m_SHORT_1794435300": {
+    "symbol": "MUU_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1794435300,
+    "last_sent": 1794452898
   }
 }

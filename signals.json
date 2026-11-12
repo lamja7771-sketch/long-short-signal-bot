@@ -17733,5 +17733,33 @@
     "last_candle_close": 0.004685,
     "alert_type": "HOURLY BOS REPEAT",
     "sent_at": 1794358355
+  },
+  {
+    "symbol": "MUU_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "entry": 18.13,
+    "stop_loss": 18.81,
+    "tp1": 17.223499999999998,
+    "tp2": 16.317,
+    "tp3": 16.78853548975726,
+    "sma50": 18.5748,
+    "ema20": 18.202837187712777,
+    "ema200": 16.78853548975726,
+    "gap_percent": 10.639787558197362,
+    "price_gap_ratio": 0.2490112732181839,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 18.61,
+    "bos_timestamp": 1794435300,
+    "bos_candle_timestamp": 1794435300,
+    "bos_open": 18.77,
+    "bos_high": 18.81,
+    "bos_low": 18.43,
+    "bos_close": 18.44,
+    "swing_timestamp": 1794429900,
+    "last_candle_timestamp": 1794451500,
+    "last_candle_close": 18.1,
+    "alert_type": "NEW BOS",
+    "sent_at": 1794452898
   }
 ]
