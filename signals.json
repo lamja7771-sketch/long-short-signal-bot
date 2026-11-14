@@ -17985,5 +17985,33 @@
     "last_candle_close": 0.1377,
     "alert_type": "HOURLY BOS REPEAT",
     "sent_at": 1794618282
+  },
+  {
+    "symbol": "EMBER_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "entry": 0.000628,
+    "stop_loss": 0.000582,
+    "tp1": 0.0006594,
+    "tp2": 0.0006908,
+    "tp3": 0.000758037460741962,
+    "sma50": 0.0005709199999999999,
+    "ema20": 0.000624514785756063,
+    "ema200": 0.000758037460741962,
+    "gap_percent": 32.7747251352137,
+    "price_gap_ratio": 0.3050490305590149,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.00062,
+    "bos_timestamp": 1794549600,
+    "bos_candle_timestamp": 1794549600,
+    "bos_open": 0.000594,
+    "bos_high": 0.000648,
+    "bos_low": 0.000582,
+    "bos_close": 0.000622,
+    "swing_timestamp": 1794502800,
+    "last_candle_timestamp": 1794636000,
+    "last_candle_close": 0.000602,
+    "alert_type": "HOURLY BOS REPEAT",
+    "sent_at": 1794641733
   }
 ]
