@@ -3561,5 +3561,12 @@
     "direction": "LONG",
     "bos_timestamp": 1794549600,
     "last_sent": 1794641733
+  },
+  "ANSEM_USDT_15m_LONG_1794699900": {
+    "symbol": "ANSEM_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1794699900,
+    "last_sent": 1794711202
   }
 }
