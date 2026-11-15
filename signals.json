@@ -18041,5 +18041,33 @@
     "last_candle_close": 0.0444,
     "alert_type": "NEW BOS",
     "sent_at": 1794711202
+  },
+  {
+    "symbol": "PENGU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "entry": 0.004993,
+    "stop_loss": 0.004907,
+    "tp1": 0.005242650000000001,
+    "tp2": 0.0054923,
+    "tp3": 0.005419779570868754,
+    "sma50": 0.0048614800000000005,
+    "ema20": 0.004911336270401398,
+    "ema200": 0.005419779570868754,
+    "gap_percent": 11.484148260792047,
+    "price_gap_ratio": 0.23557245404173466,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.004923,
+    "bos_timestamp": 1794733200,
+    "bos_candle_timestamp": 1794733200,
+    "bos_open": 0.004909,
+    "bos_high": 0.005034,
+    "bos_low": 0.004907,
+    "bos_close": 0.005012,
+    "swing_timestamp": 1794725100,
+    "last_candle_timestamp": 1794735900,
+    "last_candle_close": 0.004948,
+    "alert_type": "NEW BOS",
+    "sent_at": 1794737604
   }
 ]

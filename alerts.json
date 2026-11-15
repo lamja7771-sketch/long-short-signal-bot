@@ -3568,5 +3568,12 @@
     "direction": "LONG",
     "bos_timestamp": 1794699900,
     "last_sent": 1794711202
+  },
+  "PENGU_USDT_15m_LONG_1794733200": {
+    "symbol": "PENGU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1794733200,
+    "last_sent": 1794737604
   }
 }
