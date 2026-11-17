@@ -3595,7 +3595,7 @@
     "timeframe": "4h",
     "direction": "LONG",
     "bos_timestamp": 1794571200,
-    "last_sent": 1794881971
+    "last_sent": 1794944020
   },
   "CASHCAT_USDT_1h_LONG_1794819600": {
     "symbol": "CASHCAT_USDT",
@@ -3617,5 +3617,26 @@
     "direction": "LONG",
     "bos_timestamp": 1794897900,
     "last_sent": 1794912850
+  },
+  "AIOT_USDT_15m_LONG_1794925800": {
+    "symbol": "AIOT_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1794925800,
+    "last_sent": 1794944020
+  },
+  "4STOCK_USDT_1h_LONG_1794902400": {
+    "symbol": "4STOCK_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1794902400,
+    "last_sent": 1794944020
+  },
+  "4STOCK_USDT_15m_SHORT_1794930300": {
+    "symbol": "4STOCK_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1794930300,
+    "last_sent": 1794944020
   }
 }
