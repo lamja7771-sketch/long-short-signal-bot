@@ -3645,5 +3645,12 @@
     "direction": "LONG",
     "bos_timestamp": 1794973500,
     "last_sent": 1794994119
+  },
+  "SOPH_USDT_1h_LONG_1795032000": {
+    "symbol": "SOPH_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1795032000,
+    "last_sent": 1795108099
   }
 }
