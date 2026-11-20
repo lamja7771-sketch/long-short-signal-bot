@@ -3652,5 +3652,26 @@
     "direction": "LONG",
     "bos_timestamp": 1795032000,
     "last_sent": 1795108099
+  },
+  "MMT_USDT_15m_SHORT_1795145400": {
+    "symbol": "MMT_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1795145400,
+    "last_sent": 1795148347
+  },
+  "NES_USDT_15m_SHORT_1795140900": {
+    "symbol": "NES_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1795140900,
+    "last_sent": 1795148347
+  },
+  "NAORIS_USDT_15m_SHORT_1795134600": {
+    "symbol": "NAORIS_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1795134600,
+    "last_sent": 1795148347
   }
 }
