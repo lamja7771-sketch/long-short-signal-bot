@@ -3673,5 +3673,12 @@
     "direction": "SHORT",
     "bos_timestamp": 1795134600,
     "last_sent": 1795148347
+  },
+  "PAPER_USDT_15m_LONG_1795199400": {
+    "symbol": "PAPER_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1795199400,
+    "last_sent": 1795209212
   }
 }
