@@ -3687,5 +3687,33 @@
     "direction": "LONG",
     "bos_timestamp": 1795212000,
     "last_sent": 1795227583
+  },
+  "PAPER_USDT_4h_SHORT_1795017600": {
+    "symbol": "PAPER_USDT",
+    "timeframe": "4h",
+    "direction": "SHORT",
+    "bos_timestamp": 1795017600,
+    "last_sent": 1795281746
+  },
+  "ICNT_USDT_1h_SHORT_1795197600": {
+    "symbol": "ICNT_USDT",
+    "timeframe": "1h",
+    "direction": "SHORT",
+    "bos_timestamp": 1795197600,
+    "last_sent": 1795281746
+  },
+  "MSTU_USDT_15m_LONG_1795264200": {
+    "symbol": "MSTU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1795264200,
+    "last_sent": 1795281746
+  },
+  "KORU_USDT_15m_LONG_1795267800": {
+    "symbol": "KORU_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1795267800,
+    "last_sent": 1795281746
   }
 }
