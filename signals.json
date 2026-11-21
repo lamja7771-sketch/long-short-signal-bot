@@ -18545,5 +18545,33 @@
     "last_candle_close": 0.04444,
     "alert_type": "NEW BOS",
     "sent_at": 1795209212
+  },
+  {
+    "symbol": "ZCAT_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "entry": 0.01399,
+    "stop_loss": 0.01354,
+    "tp1": 0.014689500000000001,
+    "tp2": 0.015389000000000002,
+    "tp3": 0.015472851584057756,
+    "sma50": 0.013266199999999999,
+    "ema20": 0.01388049255541634,
+    "ema200": 0.015472851584057756,
+    "gap_percent": 16.633637243956503,
+    "price_gap_ratio": 0.3280082842389752,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 0.01423,
+    "bos_timestamp": 1795212000,
+    "bos_candle_timestamp": 1795212000,
+    "bos_open": 0.01389,
+    "bos_high": 0.01463,
+    "bos_low": 0.01354,
+    "bos_close": 0.0145,
+    "swing_timestamp": 1795185000,
+    "last_candle_timestamp": 1795226400,
+    "last_candle_close": 0.01374,
+    "alert_type": "NEW BOS",
+    "sent_at": 1795227583
   }
 ]

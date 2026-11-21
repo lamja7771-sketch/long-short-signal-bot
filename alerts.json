@@ -3680,5 +3680,12 @@
     "direction": "LONG",
     "bos_timestamp": 1795199400,
     "last_sent": 1795209212
+  },
+  "ZCAT_USDT_15m_LONG_1795212000": {
+    "symbol": "ZCAT_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1795212000,
+    "last_sent": 1795227583
   }
 }
