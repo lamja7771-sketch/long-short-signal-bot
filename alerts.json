@@ -3729,5 +3729,26 @@
     "direction": "SHORT",
     "bos_timestamp": 1795350600,
     "last_sent": 1795369722
+  },
+  "CT_USDT_4h_LONG_1795262400": {
+    "symbol": "CT_USDT",
+    "timeframe": "4h",
+    "direction": "LONG",
+    "bos_timestamp": 1795262400,
+    "last_sent": 1795388009
+  },
+  "KORU_USDT_1h_LONG_1795334400": {
+    "symbol": "KORU_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1795334400,
+    "last_sent": 1795388009
+  },
+  "CONL_USDT_1h_LONG_1795338000": {
+    "symbol": "CONL_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1795338000,
+    "last_sent": 1795388009
   }
 }
