@@ -3735,7 +3735,7 @@
     "timeframe": "4h",
     "direction": "LONG",
     "bos_timestamp": 1795262400,
-    "last_sent": 1795388009
+    "last_sent": 1795404351
   },
   "KORU_USDT_1h_LONG_1795334400": {
     "symbol": "KORU_USDT",
@@ -3750,5 +3750,19 @@
     "direction": "LONG",
     "bos_timestamp": 1795338000,
     "last_sent": 1795388009
+  },
+  "RAM_USDT_1h_LONG_1795305600": {
+    "symbol": "RAM_USDT",
+    "timeframe": "1h",
+    "direction": "LONG",
+    "bos_timestamp": 1795305600,
+    "last_sent": 1795404351
+  },
+  "CLAUDIA_USDT_15m_SHORT_1795383900": {
+    "symbol": "CLAUDIA_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "bos_timestamp": 1795383900,
+    "last_sent": 1795404351
   }
 }
