@@ -3785,5 +3785,12 @@
     "direction": "LONG",
     "bos_timestamp": 1795402800,
     "last_sent": 1795482814
+  },
+  "BTW_USDT_4h_LONG_1795233600": {
+    "symbol": "BTW_USDT",
+    "timeframe": "4h",
+    "direction": "LONG",
+    "bos_timestamp": 1795233600,
+    "last_sent": 1795517992
   }
 }
