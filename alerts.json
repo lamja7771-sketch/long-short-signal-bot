@@ -3799,5 +3799,12 @@
     "direction": "LONG",
     "bos_timestamp": 1795482000,
     "last_sent": 1795579853
+  },
+  "SNDK_USDT_15m_LONG_1795640400": {
+    "symbol": "SNDK_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "bos_timestamp": 1795640400,
+    "last_sent": 1795648402
   }
 }

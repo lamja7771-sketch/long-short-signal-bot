@@ -19077,5 +19077,33 @@
     "last_candle_close": 0.1807,
     "alert_type": "NEW BOS",
     "sent_at": 1795579853
+  },
+  {
+    "symbol": "SNDK_USDT",
+    "timeframe": "15m",
+    "direction": "LONG",
+    "entry": 73.97,
+    "stop_loss": 73.19,
+    "tp1": 77.66850000000001,
+    "tp2": 81.367,
+    "tp3": 80.03244830800459,
+    "sma50": 71.8556,
+    "ema20": 72.94005407659986,
+    "ema200": 80.03244830800459,
+    "gap_percent": 11.379556093059684,
+    "price_gap_ratio": 0.2585837379336175,
+    "bos_type": "BULLISH BOS",
+    "bos_price": 73.75,
+    "bos_timestamp": 1795640400,
+    "bos_candle_timestamp": 1795640400,
+    "bos_open": 73.69,
+    "bos_high": 74.54,
+    "bos_low": 73.19,
+    "bos_close": 73.83,
+    "swing_timestamp": 1795612500,
+    "last_candle_timestamp": 1795646700,
+    "last_candle_close": 74.01,
+    "alert_type": "NEW BOS",
+    "sent_at": 1795648402
   }
 ]
