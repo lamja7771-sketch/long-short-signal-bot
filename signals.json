@@ -19161,5 +19161,33 @@
     "last_candle_close": 0.000612,
     "alert_type": "NEW BOS",
     "sent_at": 1795757335
+  },
+  {
+    "symbol": "HAEDAL_USDT",
+    "timeframe": "15m",
+    "direction": "SHORT",
+    "entry": 0.02372,
+    "stop_loss": 0.02404,
+    "tp1": 0.022534000000000002,
+    "tp2": 0.021348000000000002,
+    "tp3": 0.02055774732772478,
+    "sma50": 0.0247162,
+    "ema20": 0.024041498144049718,
+    "ema200": 0.02055774732772478,
+    "gap_percent": 20.22815343521131,
+    "price_gap_ratio": 0.23956025919009594,
+    "bos_type": "BEARISH BOS",
+    "bos_price": 0.02373,
+    "bos_timestamp": 1795788900,
+    "bos_candle_timestamp": 1795788900,
+    "bos_open": 0.02399,
+    "bos_high": 0.02404,
+    "bos_low": 0.02347,
+    "bos_close": 0.02368,
+    "swing_timestamp": 1795780800,
+    "last_candle_timestamp": 1795792500,
+    "last_candle_close": 0.02373,
+    "alert_type": "NEW BOS",
+    "sent_at": 1795793530
   }
 ]
